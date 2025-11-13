@@ -707,6 +707,7 @@ MonoBehaviour:
   healthSlider: {fileID: 4252211060253304791}
   fillImage: {fileID: 7262321807065649240}
   enemyStats: {fileID: 11400000, guid: 68f80ebd82ce20142a7a34b59a290aa3, type: 2}
+  playerStats: {fileID: 0}
   fullHealthColor: {r: 0, g: 1, b: 0, a: 1}
   lowHealthColor: {r: 1, g: 0, b: 0, a: 1}
   lowHealthThreshold: 0.3
@@ -726,6 +727,33 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   enemyStats: {fileID: 11400000, guid: 68f80ebd82ce20142a7a34b59a290aa3, type: 2}
   healthBar: {fileID: 2245214951777035517}
+  canBeKnockback: 1
+  maxKnockbackDistance: 23
+  knockbackDuration: 0.2
+  knockbackCurve:
+    serializedVersion: 2
+    m_Curve:
+    - serializedVersion: 3
+      time: 0
+      value: 1
+      inSlope: 0
+      outSlope: 0
+      tangentMode: 0
+      weightedMode: 0
+      inWeight: 0
+      outWeight: 0
+    - serializedVersion: 3
+      time: 1
+      value: 0
+      inSlope: 0
+      outSlope: 0
+      tangentMode: 0
+      weightedMode: 0
+      inWeight: 0
+      outWeight: 0
+    m_PreInfinity: 2
+    m_PostInfinity: 2
+    m_RotationOrder: 4
   captureDifficulty: 0.5
   capturedColor: {r: 0, g: 1, b: 0, a: 1}
   stunToCaptureProgressMultiplier: 0.8
@@ -1043,6 +1071,7 @@ MonoBehaviour:
   healthSlider: {fileID: 4252211060253304791}
   fillImage: {fileID: 7262321807065649240}
   enemyStats: {fileID: 11400000, guid: 68f80ebd82ce20142a7a34b59a290aa3, type: 2}
+  playerStats: {fileID: 0}
   fullHealthColor: {r: 0, g: 1, b: 0, a: 1}
   lowHealthColor: {r: 1, g: 0, b: 0, a: 1}
   lowHealthThreshold: 0.3

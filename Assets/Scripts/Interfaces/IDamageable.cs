@@ -4,7 +4,7 @@ public interface IDamageable
 {
     /// Aplica daño a la entidad
     /// <param name="amount">Cantidad de daño a aplicar</param>
-    void TakeDamage(int amount);
+    void TakeDamage(int amount, Vector2 damageSourcePosition = default);
 
     /// Verifica si la entidad está muerta
     /// <returns>True si está muerta, false si está viva</returns>

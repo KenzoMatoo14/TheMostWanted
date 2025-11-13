@@ -9,6 +9,12 @@ public abstract class EnemyBase : MonoBehaviour, IDamageable, IStunnable, ICaptu
     [Header("UI Reference")]
     [SerializeField] protected HealthBar healthBar;
 
+    [Header("Knockback Settings")]
+    [SerializeField] protected bool canBeKnockback = true;
+    [SerializeField] protected float maxKnockbackDistance = 2.33f;
+    [SerializeField] protected float knockbackDuration = 0.2f; // Duración del knockback en segundos
+    [SerializeField] protected AnimationCurve knockbackCurve = AnimationCurve.EaseInOut(0, 1, 1, 0);
+
     [Header("Capture Settings")]
     [SerializeField] protected float captureDifficulty = 0.5f; // 0.0 = imposible, 1.0 = muy f�cil
     [SerializeField] protected Color capturedColor = Color.green;
@@ -36,6 +42,11 @@ public abstract class EnemyBase : MonoBehaviour, IDamageable, IStunnable, ICaptu
     protected bool isDead = false;
     protected bool isCaptured = false;
     protected bool isBeingCaptured = false;
+
+    private bool isKnockbackActive = false;
+    private Vector2 knockbackDirection;
+    private float knockbackTimer = 0f;
+    private float knockbackStartDistance = 0f;
 
     protected float currentStunned = 0f; // 0-100
     protected float maxStunned = 100f;
@@ -66,10 +77,65 @@ public abstract class EnemyBase : MonoBehaviour, IDamageable, IStunnable, ICaptu
     protected virtual void Update()
     {
         UpdateStunnedEffect();
+        UpdateKnockback();
+    }
+
+    //////////////////////////////////// KNOCKBACK
+    protected virtual void UpdateKnockback()
+    {
+        if (!isKnockbackActive || rb == null) return;
+
+        knockbackTimer += Time.deltaTime;
+        float progress = knockbackTimer / knockbackDuration;
+
+        if (progress >= 1f)
+        {
+            // Knockback completado
+            isKnockbackActive = false;
+            rb.linearVelocity = Vector2.zero;
+            return;
+        }
+
+        // Aplicar knockback usando la curva de animación
+        float curveValue = knockbackCurve.Evaluate(progress);
+        float currentSpeed = (knockbackStartDistance / knockbackDuration) * curveValue;
+        rb.linearVelocity = knockbackDirection * currentSpeed;
+    }
+    public virtual bool IsInKnockback()
+    {
+        return isKnockbackActive;
+    }
+    protected virtual void ApplyKnockback(int damageAmount, Vector2 damageSource)
+    {
+        if (!canBeKnockback || rb == null || isDead) return;
+
+        // Calcular el porcentaje de daño respecto a la vida máxima
+        float damagePercentage = Mathf.Clamp01((float)damageAmount / enemyStats.MaxHealth);
+
+        // Calcular la distancia de knockback basada en el porcentaje de daño
+        knockbackStartDistance = damagePercentage * maxKnockbackDistance;
+
+        // Calcular la dirección del knockback (desde la fuente del daño hacia el enemigo)
+        Vector2 enemyPosition = transform.position;
+        knockbackDirection = (enemyPosition - damageSource).normalized;
+
+        // Iniciar el knockback
+        isKnockbackActive = true;
+        knockbackTimer = 0f;
+
+        Debug.Log($"{gameObject.name} - Knockback aplicado: {knockbackStartDistance:F2} unidades. Daño: {damagePercentage * 100:F1}%");
+    }
+    public virtual void CancelKnockback()
+    {
+        if (isKnockbackActive && rb != null)
+        {
+            isKnockbackActive = false;
+            rb.linearVelocity = Vector2.zero;
+        }
     }
 
     //////////////////////////////////// CAPTURE
-    
+
     public virtual bool StartCapture() // Inicia el proceso de captura
     {
         if (!CanBeCaptured())
@@ -77,6 +143,8 @@ public abstract class EnemyBase : MonoBehaviour, IDamageable, IStunnable, ICaptu
             Debug.Log($"{gameObject.name} no puede ser capturado en este momento");
             return false;
         }
+
+        CancelKnockback();
 
         isBeingCaptured = true;
         OnCaptureStarted?.Invoke();
@@ -151,6 +219,8 @@ public abstract class EnemyBase : MonoBehaviour, IDamageable, IStunnable, ICaptu
     }
     protected virtual void FreezeEnemy()
     {
+        CancelKnockback();
+
         // Detener el Rigidbody2D pero mantenerlo din�mico
         if (rb != null)
         {
@@ -442,7 +512,7 @@ public abstract class EnemyBase : MonoBehaviour, IDamageable, IStunnable, ICaptu
             healthBar.UpdateHealthBar(currentHealth, enemyStats.MaxHealth);
         }
     }
-    public virtual void TakeDamage(int amount)
+    public virtual void TakeDamage(int amount, Vector2 damageSourcePosition = default)
     {
         if (isDead) return;
 
@@ -451,6 +521,11 @@ public abstract class EnemyBase : MonoBehaviour, IDamageable, IStunnable, ICaptu
         currentHealth = Mathf.Clamp(currentHealth, 0, enemyStats.MaxHealth);
 
         Debug.Log($"{gameObject.name} - Da�o recibido: {actualDamage}. Vida actual: {currentHealth}/{enemyStats.MaxHealth}");
+
+        if (damageSourcePosition != default)
+        {
+            ApplyKnockback(actualDamage, damageSourcePosition);
+        }
 
         // Actualizar UI
         if (healthBar != null)
@@ -497,6 +572,9 @@ public abstract class EnemyBase : MonoBehaviour, IDamageable, IStunnable, ICaptu
         if (isDead) return;
 
         isDead = true;
+
+        CancelKnockback();
+
         Debug.Log($"{gameObject.name} muerto");
 
         OnDeath?.Invoke();

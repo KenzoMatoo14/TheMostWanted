@@ -431,6 +431,11 @@ MonoBehaviour:
   OnHealthChanged:
     m_PersistentCalls:
       m_Calls: []
+  scriptsToDisable:
+  - {fileID: 1528317597345271077}
+  - {fileID: 622402198734177142}
+  - {fileID: 3644227165850059102}
+  disableAllScriptsExceptThis: 0
 --- !u!1 &6008110985469946520
 GameObject:
   m_ObjectHideFlags: 0

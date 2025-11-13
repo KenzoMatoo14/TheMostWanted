@@ -39,6 +39,11 @@ public class CapturedEnemyController : MonoBehaviour
     private float lastDamageTime;
     private HashSet<Collider2D> recentlyDamagedColliders = new HashSet<Collider2D>();
 
+    [Header("Knockback Settings")]
+    [SerializeField] private bool applyKnockbackOnCollision = true;
+    [Tooltip("Multiplicador del knockback basado en la velocidad de impacto")]
+    [SerializeField] private float knockbackVelocityMultiplier = 1f;
+
     [Header("Visual Feedback")]
     [SerializeField] private Color normalColor = Color.white;
     [SerializeField] private Color highVelocityColor = Color.red;
@@ -308,42 +313,77 @@ public class CapturedEnemyController : MonoBehaviour
         IDamageable target = collision.gameObject.GetComponent<IDamageable>();
         if (target != null)
         {
-            // Calcular da�o basado en la velocidad
             float velocityRatio = velocityMagnitude / minVelocityForDamage;
             int damage = Mathf.RoundToInt(velocityRatio * damageMultiplier);
-            damage = Mathf.Max(damage, 1); // Mínimo 1 de daño
+            damage = Mathf.Max(damage, 1);
 
+            //NUEVO: Calcular punto de impacto para el knockback
+            Vector2 impactPoint = collision.contacts.Length > 0
+                ? collision.contacts[0].point
+                : (Vector2)transform.position;
+
+            //NUEVO: Aplicar stun al objetivo si es enemigo
             EnemyBase targetEnemy = target as EnemyBase;
             if (targetEnemy != null)
             {
-                targetEnemy.AddStunned(1.5f * damage);
+                float stunAmount = damage * 1.5f;
+                targetEnemy.AddStunned(stunAmount);
+                Debug.Log($"{gameObject.name} aplicó {stunAmount:F1} de stun a {collision.gameObject.name}");
             }
 
-            target.TakeDamage(damage);
+            //NUEVO: Aplicar daño con knockback si está habilitado
+            if (applyKnockbackOnCollision)
+            {
+                // Calcular la fuente del knockback basada en la dirección de movimiento
+                // El objetivo será empujado en la dirección del impacto
+                Vector2 knockbackSource = impactPoint - currentVelocity.normalized * 0.5f;
 
+                target.TakeDamage(damage, knockbackSource);
+
+                Debug.Log($"{gameObject.name} hizo {damage} de daño con knockback a {collision.gameObject.name} (velocidad: {velocityMagnitude:F2})");
+            }
+            else
+            {
+                target.TakeDamage(damage);
+
+                Debug.Log($"{gameObject.name} hizo {damage} de daño a {collision.gameObject.name} (velocidad: {velocityMagnitude:F2})");
+            }
+
+            //NUEVO: Si el objeto capturado es un enemigo, también recibe daño y stun
             if (isEnemy && enemyBase != null)
             {
-                enemyBase.TakeDamage(damage);
+                enemyBase.TakeDamage(damage, impactPoint);
                 enemyBase.AddStunned(1.5f * damage);
+                Debug.Log($"{gameObject.name} (capturado) también recibió {damage} de daño del impacto");
             }
             // Las cajas y otros objetos NO reciben daño mientras están capturados
 
-            Debug.Log($"{gameObject.name} hizo {damage} de da�o a {collision.gameObject.name} con velocidad {velocityMagnitude:F2}");
-
-            // Registrar el daño
             lastDamageTime = Time.time;
             recentlyDamagedColliders.Add(collision.collider);
 
-            // Efecto de rebote
             ApplyBounceEffect(collision);
         }
     }
     void ApplyBounceEffect(Collision2D collision)
     {
-        // Aplicar un peque�o rebote al enemigo capturado
-        Vector2 bounceDirection = (rb.position - collision.GetContact(0).point).normalized;
-        float bounceForce = velocityMagnitude * 0.3f; // 30% de la velocidad actual
+        //NUEVO: Rebote mejorado usando la normal del contacto
+        Vector2 bounceDirection;
+
+        if (collision.contacts.Length > 0)
+        {
+            // Usar la normal del contacto para un rebote más realista
+            bounceDirection = collision.contacts[0].normal;
+        }
+        else
+        {
+            // Fallback: dirección desde el punto de impacto
+            bounceDirection = (rb.position - collision.GetContact(0).point).normalized;
+        }
+
+        float bounceForce = velocityMagnitude * 0.3f;
         rb.AddForce(bounceDirection * bounceForce, ForceMode2D.Impulse);
+
+        Debug.Log($"Rebote aplicado a {gameObject.name}: dirección {bounceDirection}, fuerza {bounceForce:F2}");
     }
     void OnDisable()
     {

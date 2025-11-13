@@ -15,6 +15,11 @@ public class ThrowableBoxCollisionDamage : MonoBehaviour
     [SerializeField] private LayerMask damageableLayers = 1 << 6;
     [SerializeField] private bool destroyOnFirstHit = true;
 
+    [Header("Knockback Settings")]
+    [SerializeField] private bool applyKnockbackOnHit = true;
+    [Tooltip("Multiplicador del knockback basado en la velocidad de impacto")]
+    [SerializeField] private float knockbackVelocityMultiplier = 1.2f;
+
     [Header("Duration Settings")]
     [SerializeField] private float activeDuration = 5f;
     [SerializeField] private float velocityThreshold = 1f;
@@ -93,6 +98,11 @@ public class ThrowableBoxCollisionDamage : MonoBehaviour
             int damage = Mathf.RoundToInt(velocityRatio * damageMultiplier);
             damage = Mathf.Max(damage, 1);
 
+            // Calcular posición del impacto para el knockback
+            Vector2 impactPoint = collision.contacts.Length > 0
+                ? collision.contacts[0].point
+                : (Vector2)transform.position;
+
             // Aplicar stun si es un enemigo
             EnemyBase enemyHit = damageable as EnemyBase;
             if (enemyHit != null)
@@ -100,17 +110,38 @@ public class ThrowableBoxCollisionDamage : MonoBehaviour
                 enemyHit.AddStunned(damage * 1.5f);
             }
 
-            // Aplicar daño al objetivo
-            damageable.TakeDamage(damage);
+            // Aplicar daño con knockback
+            if (applyKnockbackOnHit)
+            {
+                // La dirección del knockback es la dirección de la velocidad de la caja
+                // Para simular el impacto, usamos un punto "detrás" de la dirección de movimiento
+                Vector2 knockbackSource = impactPoint - rb.linearVelocity.normalized * 0.5f;
 
-            Debug.Log($"Caja {gameObject.name} hizo {damage} de daño a {collision.gameObject.name} con velocidad {velocityMagnitude:F2}");
+                damageable.TakeDamage(damage, knockbackSource);
 
+                Debug.Log($"Caja {gameObject.name} hizo {damage} de daño con knockback a {collision.gameObject.name} (velocidad: {velocityMagnitude:F2})");
+            }
+            else
+            {
+                damageable.TakeDamage(damage);
+
+                Debug.Log($"Caja {gameObject.name} hizo {damage} de daño a {collision.gameObject.name} (velocidad: {velocityMagnitude:F2})");
+            }
             // Marcar que causó daño
             hasDealtDamage = true;
 
-            box.TakeDamage(999); // Destruir la caja
+            // Destruir la caja
+            if (box != null)
+            {
+                box.TakeDamage(999);
+            }
+            else
+            {
+                // Si no hay componente ThrowableBox, destruir directamente
+                Destroy(gameObject);
+            }
 
-            // Aplicar rebote si no se destruyó
+            // Aplicar rebote si no se destruyó inmediatamente
             if (!destroyOnFirstHit)
             {
                 ApplyBounceEffect(collision, velocityMagnitude);

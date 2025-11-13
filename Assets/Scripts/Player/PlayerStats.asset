@@ -12,6 +12,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 0c611df44a3d41143946294c698839a0, type: 3}
   m_Name: PlayerStats
   m_EditorClassIdentifier: 
+  maxHealth: 100
+  HitParticleEffect: {fileID: 541851277332201417, guid: b9e8453e48eb6dd4bbd79c4bf9b5f737, type: 3}
   WalkSpeed: 7.5
   Acceleration: 45
   Deceleration: 60

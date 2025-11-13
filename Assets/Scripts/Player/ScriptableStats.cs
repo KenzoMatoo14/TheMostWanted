@@ -6,6 +6,9 @@ public class ScriptableStats : ScriptableObject
     [Header("--------HEALTH--------")]
     public int maxHealth = 100;
 
+    [Header("--------VISUAL EFFECTS--------")]
+    public GameObject HitParticleEffect;
+
     [Header("--------MOVEMENT--------")]
     public float WalkSpeed = 5f;
     public float Acceleration = 25f;       // rapidez al ganar velocidad

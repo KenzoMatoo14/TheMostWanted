@@ -1,31 +1,32 @@
 using UnityEngine;
 using UnityEngine.UI;
 
-public class EnemyBandido : EnemyBase
+public class EnemyEvilBat : EnemyBase
 {
-    [Header("Bandido Specific Settings")]
+    [Header("Evil Bat Specific Settings")]
     [SerializeField] private bool logBehaviorDetails = true;
 
-    [Header("Patrol Settings")]
+    [Header("Random Patrol Settings")]
     [SerializeField] private float patrolSpeed = 2f;
     [SerializeField] private float patrolWaitTime = 2f; // Tiempo de espera en cada punto
-    [SerializeField] private Transform[] patrolPoints; // Puntos de patrulla
-    [SerializeField] private bool loopPatrol = true; // true = loop, false = ping-pong
+    [SerializeField] private float patrolRadius = 5f; // Radio desde la posición inicial
     [SerializeField] private float waypointReachDistance = 0.2f; // Distancia para considerar que llegó al punto
+    [SerializeField] private bool useStartPositionAsCenter = true; // Usar posición inicial como centro
+    [SerializeField] private Transform customPatrolCenter; // Centro personalizado (opcional)
 
     [Header("Chase Settings")]
     [SerializeField] private float detectionRange = 5f;
     [SerializeField] private float chaseSpeed = 4f;
-    [SerializeField] private float loseTargetDistance = 8f; // Distancia para perder al objetivo
+    [SerializeField] private float loseTargetDistance = 8f;
     [SerializeField] private LayerMask playerLayer;
 
     [Header("Attack Settings")]
     [SerializeField] private float attackRange = 1.5f;
     [SerializeField] private float attackCooldown = 1.5f;
     [SerializeField] private int attackDamage = 10;
-    [SerializeField] private float attackWindupTime = 0.3f; // Tiempo antes de hacer daño
-    [SerializeField] private Transform attackPoint; // Punto desde donde se verifica el ataque
-    [SerializeField] private float attackRadius = 1f; // Radio del área de ataque
+    [SerializeField] private float attackWindupTime = 0.3f;
+    [SerializeField] private Transform attackPoint;
+    [SerializeField] private float attackRadius = 1f;
 
     [Header("Visual Feedback")]
     [SerializeField] private SpriteRenderer spriteRenderer;
@@ -41,11 +42,11 @@ public class EnemyBandido : EnemyBase
     [SerializeField] private bool hideWhenZero = true;
 
     // Estado interno
-    private enum BanditState { Patrol, Chase, Attack, Waiting }
-    private BanditState currentState = BanditState.Patrol;
+    private enum BatState { Patrol, Chase, Attack, Waiting }
+    private BatState currentState = BatState.Patrol;
 
-    private int currentPatrolIndex = 0;
-    private bool patrolForward = true; // Para el modo ping-pong
+    private Vector2 patrolCenter; // Centro de la patrulla
+    private Vector2 currentPatrolTarget; // Punto actual al que se dirige
     private float waitTimer = 0f;
     private float attackTimer = 0f;
     private bool isAttacking = false;
@@ -71,18 +72,24 @@ public class EnemyBandido : EnemyBase
 
         FindPlayer();
 
-        // Validar puntos de patrulla
-        if (patrolPoints == null || patrolPoints.Length == 0)
+        // Establecer centro de patrulla
+        if (useStartPositionAsCenter || customPatrolCenter == null)
         {
-            Debug.LogWarning($"{gameObject.name} no tiene puntos de patrulla asignados. Creando patrulla simple.");
-            CreateDefaultPatrolPoints();
+            patrolCenter = transform.position;
         }
+        else
+        {
+            patrolCenter = customPatrolCenter.position;
+        }
+
+        // Generar primer punto de patrulla
+        GenerateNewPatrolPoint();
 
         InitializeStunBar();
 
         if (logBehaviorDetails)
         {
-            Debug.Log($"Bandido {gameObject.name} inicializado");
+            Debug.Log($"Evil Bat {gameObject.name} inicializado. Centro de patrulla: {patrolCenter}");
         }
     }
 
@@ -90,8 +97,7 @@ public class EnemyBandido : EnemyBase
     {
         base.Update();
 
-        // No hacer nada si está muerto, capturado o siendo capturado
-        if (isDead || isCaptured )
+        if (isDead || isCaptured)
         {
             if (rb != null)
             {
@@ -105,7 +111,6 @@ public class EnemyBandido : EnemyBase
             FindPlayer();
         }
 
-        // No moverse si está completamente aturdido
         if (IsFullyStunned())
         {
             if (rb != null)
@@ -146,28 +151,29 @@ public class EnemyBandido : EnemyBase
     {
         switch (currentState)
         {
-            case BanditState.Patrol:
+            case BatState.Patrol:
                 PatrolBehavior();
                 CheckForPlayer();
                 break;
 
-            case BanditState.Chase:
+            case BatState.Chase:
                 ChaseBehavior();
                 CheckAttackRange();
                 CheckLoseTarget();
                 break;
 
-            case BanditState.Attack:
+            case BatState.Attack:
                 AttackBehavior();
                 break;
 
-            case BanditState.Waiting:
+            case BatState.Waiting:
                 WaitBehavior();
                 CheckForPlayer();
                 break;
         }
     }
-    private void ChangeState(BanditState newState)
+
+    private void ChangeState(BatState newState)
     {
         if (currentState == newState) return;
 
@@ -178,19 +184,18 @@ public class EnemyBandido : EnemyBase
 
         currentState = newState;
 
-        // Acciones al entrar al estado
         switch (newState)
         {
-            case BanditState.Waiting:
+            case BatState.Waiting:
                 waitTimer = patrolWaitTime;
                 if (rb != null) rb.linearVelocity = Vector2.zero;
                 break;
 
-            case BanditState.Chase:
+            case BatState.Chase:
                 UpdateVisualFeedback(chaseColor);
                 break;
 
-            case BanditState.Patrol:
+            case BatState.Patrol:
                 UpdateVisualFeedback(patrolColor);
                 break;
         }
@@ -198,17 +203,26 @@ public class EnemyBandido : EnemyBase
 
     #endregion
 
-    #region Patrol Behavior
+    #region Random Patrol Behavior
+
+    private void GenerateNewPatrolPoint()
+    {
+        // Generar un punto aleatorio dentro del radio
+        Vector2 randomDirection = Random.insideUnitCircle.normalized;
+        float randomDistance = Random.Range(patrolRadius * 0.3f, patrolRadius);
+
+        currentPatrolTarget = patrolCenter + (randomDirection * randomDistance);
+
+        if (logBehaviorDetails)
+        {
+            Debug.Log($"{gameObject.name} nuevo punto de patrulla: {currentPatrolTarget}");
+        }
+    }
 
     private void PatrolBehavior()
     {
-        if (patrolPoints == null || patrolPoints.Length == 0) return;
-
-        Transform targetPoint = patrolPoints[currentPatrolIndex];
-        if (targetPoint == null) return;
-
-        // Moverse hacia el punto de patrulla
-        Vector2 direction = (targetPoint.position - transform.position).normalized;
+        // Moverse hacia el punto aleatorio
+        Vector2 direction = (currentPatrolTarget - (Vector2)transform.position).normalized;
         float speed = patrolSpeed * GetMovementSpeedMultiplier();
 
         if (rb != null)
@@ -224,45 +238,22 @@ public class EnemyBandido : EnemyBase
         UpdateSpriteFlip(direction.x);
 
         // Verificar si llegó al punto
-        float distanceToPoint = Vector2.Distance(transform.position, targetPoint.position);
+        float distanceToPoint = Vector2.Distance(transform.position, currentPatrolTarget);
         if (distanceToPoint <= waypointReachDistance)
         {
             OnReachedPatrolPoint();
         }
     }
+
     private void OnReachedPatrolPoint()
     {
-        // Avanzar al siguiente punto
-        if (loopPatrol)
-        {
-            currentPatrolIndex = (currentPatrolIndex + 1) % patrolPoints.Length;
-        }
-        else
-        {
-            // Modo ping-pong
-            if (patrolForward)
-            {
-                currentPatrolIndex++;
-                if (currentPatrolIndex >= patrolPoints.Length)
-                {
-                    currentPatrolIndex = patrolPoints.Length - 2;
-                    patrolForward = false;
-                }
-            }
-            else
-            {
-                currentPatrolIndex--;
-                if (currentPatrolIndex < 0)
-                {
-                    currentPatrolIndex = 1;
-                    patrolForward = true;
-                }
-            }
-        }
+        // Generar nuevo punto aleatorio
+        GenerateNewPatrolPoint();
 
         // Entrar en estado de espera
-        ChangeState(BanditState.Waiting);
+        ChangeState(BatState.Waiting);
     }
+
     private void WaitBehavior()
     {
         if (rb != null)
@@ -274,23 +265,8 @@ public class EnemyBandido : EnemyBase
 
         if (waitTimer <= 0)
         {
-            ChangeState(BanditState.Patrol);
+            ChangeState(BatState.Patrol);
         }
-    }
-    private void CreateDefaultPatrolPoints()
-    {
-        // Crear dos puntos de patrulla simples
-        GameObject patrolContainer = new GameObject($"{gameObject.name}_PatrolPoints");
-
-        GameObject point1 = new GameObject("PatrolPoint1");
-        point1.transform.parent = patrolContainer.transform;
-        point1.transform.position = transform.position + Vector3.left * 3f;
-
-        GameObject point2 = new GameObject("PatrolPoint2");
-        point2.transform.parent = patrolContainer.transform;
-        point2.transform.position = transform.position + Vector3.right * 3f;
-
-        patrolPoints = new Transform[] { point1.transform, point2.transform };
     }
 
     #endregion
@@ -309,14 +285,15 @@ public class EnemyBandido : EnemyBase
             {
                 Debug.Log($"{gameObject.name} detectó al jugador a {distanceToPlayer:F2} unidades");
             }
-            ChangeState(BanditState.Chase);
+            ChangeState(BatState.Chase);
         }
     }
+
     private void ChaseBehavior()
     {
         if (player == null)
         {
-            ChangeState(BanditState.Patrol);
+            ChangeState(BatState.Patrol);
             return;
         }
 
@@ -335,6 +312,7 @@ public class EnemyBandido : EnemyBase
         lastMoveDirection = direction;
         UpdateSpriteFlip(direction.x);
     }
+
     private void CheckAttackRange()
     {
         if (player == null) return;
@@ -343,9 +321,10 @@ public class EnemyBandido : EnemyBase
 
         if (distanceToPlayer <= attackRange && attackTimer <= 0)
         {
-            ChangeState(BanditState.Attack);
+            ChangeState(BatState.Attack);
         }
     }
+
     private void CheckLoseTarget()
     {
         if (player == null) return;
@@ -358,7 +337,7 @@ public class EnemyBandido : EnemyBase
             {
                 Debug.Log($"{gameObject.name} perdió de vista al jugador");
             }
-            ChangeState(BanditState.Patrol);
+            ChangeState(BatState.Patrol);
         }
     }
 
@@ -373,13 +352,11 @@ public class EnemyBandido : EnemyBase
             StartAttack();
         }
 
-        // Detener movimiento durante el ataque
         if (rb != null)
         {
             rb.linearVelocity = Vector2.zero;
         }
 
-        // Contar el windup
         if (attackWindupTimer > 0)
         {
             attackWindupTimer -= Time.deltaTime;
@@ -389,6 +366,7 @@ public class EnemyBandido : EnemyBase
             }
         }
     }
+
     private void StartAttack()
     {
         isAttacking = true;
@@ -399,9 +377,9 @@ public class EnemyBandido : EnemyBase
             Debug.Log($"{gameObject.name} iniciando ataque");
         }
 
-        // Aquí puedes activar animación de ataque
         OnAttackStartedCustom();
     }
+
     private void ExecuteAttack()
     {
         if (logBehaviorDetails)
@@ -409,7 +387,6 @@ public class EnemyBandido : EnemyBase
             Debug.Log($"{gameObject.name} ejecutando ataque");
         }
 
-        // Detectar jugador en rango de ataque
         Collider2D[] hits = Physics2D.OverlapCircleAll(attackPoint.position, attackRadius, playerLayer);
 
         foreach (Collider2D hit in hits)
@@ -424,13 +401,12 @@ public class EnemyBandido : EnemyBase
 
         OnAttackExecutedCustom();
 
-        // Reiniciar timers
         attackTimer = attackCooldown;
         isAttacking = false;
 
-        // Volver a perseguir
-        ChangeState(BanditState.Chase);
+        ChangeState(BatState.Chase);
     }
+
     private void UpdateAttackTimer()
     {
         if (attackTimer > 0)
@@ -447,19 +423,16 @@ public class EnemyBandido : EnemyBase
     {
         if (!autoFlipSprite || spriteRenderer == null) return;
 
-        Vector3 localScale = transform.localScale;
-
         if (directionX > 0.01f)
         {
-            localScale.x = -Mathf.Abs(localScale.x); // Asegura que sea positivo (mirando a la derecha)
+            spriteRenderer.flipX = false;
         }
         else if (directionX < -0.01f)
         {
-            localScale.x = Mathf.Abs(localScale.x); // Negativo (mirando a la izquierda)
+            spriteRenderer.flipX = true;
         }
-
-        transform.localScale = localScale;
     }
+
     private void UpdateVisualFeedback(Color color)
     {
         if (spriteRenderer != null)
@@ -560,7 +533,7 @@ public class EnemyBandido : EnemyBase
         base.InitializeEnemy();
         if (logBehaviorDetails)
         {
-            Debug.Log($"Bandido {gameObject.name} inicializado con {GetMaxHealth()} HP");
+            Debug.Log($"Evil Bat {gameObject.name} inicializado con {GetMaxHealth()} HP");
         }
     }
 
@@ -573,12 +546,11 @@ public class EnemyBandido : EnemyBase
             Debug.Log($"{gameObject.name} recibió {damageAmount} de daño");
         }
 
-        // Entrar en modo persecución si está patrullando
-        if (currentState == BanditState.Patrol || currentState == BanditState.Waiting)
+        if (currentState == BatState.Patrol || currentState == BatState.Waiting)
         {
             if (player != null)
             {
-                ChangeState(BanditState.Chase);
+                ChangeState(BatState.Chase);
             }
         }
     }
@@ -592,32 +564,29 @@ public class EnemyBandido : EnemyBase
             Debug.Log($"{gameObject.name} ha muerto");
         }
 
-        // Detener completamente
         if (rb != null)
         {
             rb.linearVelocity = Vector2.zero;
             rb.simulated = false;
         }
 
-        // Desactivar colisiones
         Collider2D[] cols = GetComponents<Collider2D>();
         foreach (Collider2D col in cols)
         {
             col.enabled = false;
         }
 
-        // Destruir después de un tiempo
         Destroy(gameObject, 3f);
     }
 
     protected virtual void OnAttackStartedCustom()
     {
-        // Override en clases hijas para animaciones/efectos de inicio de ataque
+        // Override en clases hijas para animaciones/efectos
     }
 
     protected virtual void OnAttackExecutedCustom()
     {
-        // Override en clases hijas para efectos visuales/sonoros del golpe
+        // Override en clases hijas para efectos visuales/sonoros
     }
 
     #endregion
@@ -626,6 +595,23 @@ public class EnemyBandido : EnemyBase
 
     private void OnDrawGizmosSelected()
     {
+        // Centro de patrulla
+        Vector2 center = Application.isPlaying ? patrolCenter :
+            (useStartPositionAsCenter || customPatrolCenter == null) ?
+            (Vector2)transform.position : (Vector2)customPatrolCenter.position;
+
+        // Radio de patrulla
+        Gizmos.color = Color.cyan;
+        Gizmos.DrawWireSphere(center, patrolRadius);
+
+        // Punto objetivo actual (solo en runtime)
+        if (Application.isPlaying)
+        {
+            Gizmos.color = Color.green;
+            Gizmos.DrawWireSphere(currentPatrolTarget, 0.3f);
+            Gizmos.DrawLine(transform.position, currentPatrolTarget);
+        }
+
         // Rango de detección
         Gizmos.color = Color.yellow;
         Gizmos.DrawWireSphere(transform.position, detectionRange);
@@ -638,29 +624,6 @@ public class EnemyBandido : EnemyBase
         // Rango para perder objetivo
         Gizmos.color = Color.blue;
         Gizmos.DrawWireSphere(transform.position, loseTargetDistance);
-
-        // Puntos de patrulla
-        if (patrolPoints != null && patrolPoints.Length > 0)
-        {
-            Gizmos.color = Color.green;
-            for (int i = 0; i < patrolPoints.Length; i++)
-            {
-                if (patrolPoints[i] != null)
-                {
-                    Gizmos.DrawWireSphere(patrolPoints[i].position, 0.3f);
-
-                    // Líneas entre puntos
-                    if (i < patrolPoints.Length - 1 && patrolPoints[i + 1] != null)
-                    {
-                        Gizmos.DrawLine(patrolPoints[i].position, patrolPoints[i + 1].position);
-                    }
-                    else if (loopPatrol && i == patrolPoints.Length - 1 && patrolPoints[0] != null)
-                    {
-                        Gizmos.DrawLine(patrolPoints[i].position, patrolPoints[0].position);
-                    }
-                }
-            }
-        }
     }
 
     #endregion

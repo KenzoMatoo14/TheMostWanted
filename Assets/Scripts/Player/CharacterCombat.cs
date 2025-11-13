@@ -75,18 +75,27 @@ public class CharacterCombat : MonoBehaviour
         }
 
         // Actualizar la cuerda de captura si hay un enemigo capturado
-        if (hasEnemyCaptured && targetMB != null)
+        if (hasEnemyCaptured)
         {
-            // Verificar si el objeto capturado murió (solo para IDamageable)
-            IDamageable damageable = targetMB.GetComponent<IDamageable>();
-            if (damageable != null && damageable.IsDead())
+            // PRIMERO: Verificar si el objeto fue destruido (GameObject null)
+            if (targetMB == null)
             {
-                Debug.Log($"Objeto capturado {targetMB.name} ha muerto - liberando automáticamente");
-                ReleaseEnemyOnDeath();
+                Debug.Log("Objeto capturado fue destruido - liberando automáticamente");
+                CleanupCaptureState();
             }
+            // SEGUNDO: Si el objeto existe, verificar si murió (solo para IDamageable)
             else
             {
-                DrawCaptureRope(targetMB.transform.position);
+                IDamageable damageable = targetMB.GetComponent<IDamageable>();
+                if (damageable != null && damageable.IsDead())
+                {
+                    Debug.Log($"Objeto capturado {targetMB.name} ha muerto - liberando automáticamente");
+                    ReleaseEnemyOnDeath();
+                }
+                else
+                {
+                    DrawCaptureRope(targetMB.transform.position);
+                }
             }
         }
 
@@ -474,6 +483,27 @@ public class CharacterCombat : MonoBehaviour
 
         return nearestCapturable;
     }
+    private void CleanupCaptureState()
+    {
+        // Destruir el controller si existe
+        if (currentCapturedController != null)
+        {
+            Destroy(currentCapturedController);
+            currentCapturedController = null;
+        }
+
+        // Limpiar referencias
+        targetCapturable = null;
+        targetMB = null;
+        targetEnemy = null;
+        hasEnemyCaptured = false;
+        isCapturing = false;
+        currentCaptureProgress = 0f;
+
+        HideCaptureRope();
+
+        Debug.Log("Estado de captura limpiado completamente");
+    }
 
     ///////////////////////// RELEASE
     public void ReleaseEnemy()
@@ -543,21 +573,10 @@ public class CharacterCombat : MonoBehaviour
             {
                 targetEnemy.OnDeath.RemoveListener(OnCapturedEnemyDied);
             }
-
-            // Destruir el controller sin aplicar velocidad
-            if (currentCapturedController != null)
-            {
-                Destroy(currentCapturedController);
-                currentCapturedController = null;
-            }
-
-            // Limpiar referencias
-            targetCapturable = null;
-            targetMB = null;
-            targetEnemy = null;
-            hasEnemyCaptured = false;
-            HideCaptureRope();
         }
+
+        // Usar el método centralizado para limpiar
+        CleanupCaptureState();
     }
     private void OnCapturedEnemyDied()
     {
@@ -606,11 +625,13 @@ public class CharacterCombat : MonoBehaviour
         {
             Debug.Log("Whip hit: " + hit.collider.gameObject.name);
 
+            SpawnHitParticles(hit.point, hit.normal);
+
             // Primero intentar obtener IDamageable (interfaz universal)
             IDamageable damageable = hit.collider.GetComponent<IDamageable>();
             if (damageable != null)
             {
-                damageable.TakeDamage(stats.MeleeDamage);
+                damageable.TakeDamage(stats.MeleeDamage, (Vector2)attackPoint.position);
 
                 // Si también es un EnemyBase, aplicar stun y guardarlo
                 EnemyBase enemy = hit.collider.GetComponent<EnemyBase>();
@@ -682,6 +703,33 @@ public class CharacterCombat : MonoBehaviour
     }
 
     ///////////////////////// GIZMOS
+
+    void SpawnHitParticles(Vector2 hitPosition, Vector2 hitNormal)
+    {
+        if (stats.HitParticleEffect != null)
+        {
+            // Instanciar el efecto de partículas
+            GameObject particleInstance = Instantiate(stats.HitParticleEffect, hitPosition, Quaternion.identity);
+
+            // Opcional: Rotar las partículas para que apunten en dirección opuesta al impacto
+            if (hitNormal != Vector2.zero)
+            {
+                float angle = Mathf.Atan2(hitNormal.y, hitNormal.x) * Mathf.Rad2Deg;
+                particleInstance.transform.rotation = Quaternion.Euler(0, 0, angle);
+            }
+
+            // Destruir el objeto después de que terminen las partículas
+            ParticleSystem ps = particleInstance.GetComponent<ParticleSystem>();
+            if (ps != null)
+            {
+                Destroy(particleInstance, ps.main.duration + ps.main.startLifetime.constantMax);
+            }
+            else
+            {
+                Destroy(particleInstance, 2f); // Destruir después de 2 segundos si no hay ParticleSystem
+            }
+        }
+    }
     private void OnDrawGizmosSelected()
     {
         if (attackPoint == null || whipTip == null) return;

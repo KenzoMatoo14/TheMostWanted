@@ -53,7 +53,7 @@ public class ThrowableBox : MonoBehaviour, IDamageable, ICaptureable
 
     #region IDamageable Implementation
 
-    public void TakeDamage(int amount)
+    public void TakeDamage(int amount, Vector2 damageSourcePosition = default)
     {
         if (isBeingDestroyed) return;
 
