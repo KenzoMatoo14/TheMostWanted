@@ -509,6 +509,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   enemyStats: {fileID: 11400000, guid: 5421d467f62ffe346b83c7234ed81f7b, type: 2}
   healthBar: {fileID: 7014423357732544977}
+  damageFlashDuration: 0.5
   canBeKnockback: 1
   maxKnockbackDistance: 14
   knockbackDuration: 0.2
@@ -596,16 +597,16 @@ MonoBehaviour:
   patrolPoints: []
   loopPatrol: 1
   waypointReachDistance: 0.2
-  detectionRange: 9
+  detectionRange: 14
   chaseSpeed: 6
-  loseTargetDistance: 14
+  loseTargetDistance: 20
   playerLayer:
     serializedVersion: 2
     m_Bits: 128
   attackRange: 5
   attackCooldown: 0.8
-  attackDamage: 23
-  attackWindupTime: 0.2
+  attackDamage: 34
+  attackWindupTime: 0.16
   attackPoint: {fileID: 4867028340377659706}
   attackRadius: 1.67
   spriteRenderer: {fileID: 6207951870099090512}

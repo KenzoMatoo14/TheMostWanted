@@ -1,7 +1,7 @@
-using UnityEngine;
+ï»¿using UnityEngine;
 
 /// <summary>
-/// Script que se añade a una caja capturada para causar daño por colisión.
+/// Script que se aÃ±ade a una caja capturada para causar daÃ±o por colisiÃ³n.
 /// Similar a ReleasedEnemyCollisionDamage pero adaptado para cajas.
 /// </summary>
 public class ThrowableBoxCollisionDamage : MonoBehaviour
@@ -24,8 +24,15 @@ public class ThrowableBoxCollisionDamage : MonoBehaviour
     [SerializeField] private float activeDuration = 5f;
     [SerializeField] private float velocityThreshold = 1f;
 
+    [Header("Impact Frame Settings")]
+    [SerializeField] private bool enableImpactFrame = true;
+    [SerializeField] private float minVelocityForImpactFrame = 5f;
+    [Tooltip("Solo activar Impact Frame si el enemigo muere de un golpe")]
+    [SerializeField] private bool onlyOnKill = true;
+
     private float startTime;
     private bool hasDealtDamage = false;
+    private ImpactFrameManager impactManager;
 
     public void Initialize(float minVel, float damageMult, LayerMask layers, bool destroyOnHit = true, float duration = 5f)
     {
@@ -47,20 +54,41 @@ public class ThrowableBoxCollisionDamage : MonoBehaviour
 
         startTime = Time.time;
 
+        // Buscar Impact Frame Manager
+        if (enableImpactFrame)
+        {
+            impactManager = FindObjectOfType<ImpactFrameManager>();
+            if (impactManager == null)
+            {
+                Debug.LogWarning("ThrowableBoxCollisionDamage: No se encontrÃ³ ImpactFrameManager en la escena");
+            }
+        }
+
         Debug.Log($"ThrowableBoxCollisionDamage inicializado en {gameObject.name} por {activeDuration}s");
+    }
+    void Awake()
+    {
+        rb = GetComponent<Rigidbody2D>();
+        box = GetComponent<ThrowableBox>();
+
+        // Buscar Impact Frame Manager
+        if (enableImpactFrame)
+        {
+            impactManager = FindObjectOfType<ImpactFrameManager>();
+        }
     }
 
     void Update()
     {
-        // Verificar expiración por tiempo
+        // Verificar expiraciÃ³n por tiempo
         if (Time.time - startTime >= activeDuration)
         {
-            Debug.Log($"{gameObject.name} - Tiempo de colisión expirado");
+            Debug.Log($"{gameObject.name} - Tiempo de colisiÃ³n expirado");
             Destroy(this);
             return;
         }
 
-        // Verificar expiración por velocidad baja
+        // Verificar expiraciÃ³n por velocidad baja
         if (rb != null && rb.linearVelocity.magnitude < velocityThreshold)
         {
             Debug.Log($"{gameObject.name} - Velocidad muy baja, desactivando colisiones");
@@ -71,7 +99,7 @@ public class ThrowableBoxCollisionDamage : MonoBehaviour
 
     void OnCollisionEnter2D(Collision2D collision)
     {
-        // Verificar si ya causó daño y debe destruirse
+        // Verificar si ya causÃ³ daÃ±o y debe destruirse
         if (hasDealtDamage && destroyOnFirstHit)
             return;
 
@@ -84,7 +112,7 @@ public class ThrowableBoxCollisionDamage : MonoBehaviour
         if (currentVelocity < minVelocityForDamage)
             return;
 
-        // Aplicar daño
+        // Aplicar daÃ±o
         ApplyCollisionDamage(collision, currentVelocity);
     }
 
@@ -93,15 +121,18 @@ public class ThrowableBoxCollisionDamage : MonoBehaviour
         IDamageable damageable = collision.gameObject.GetComponent<IDamageable>();
         if (damageable != null)
         {
-            // Calcular daño basado en velocidad
+            // Calcular daÃ±o basado en velocidad
             float velocityRatio = velocityMagnitude / minVelocityForDamage;
             int damage = Mathf.RoundToInt(velocityRatio * damageMultiplier);
             damage = Mathf.Max(damage, 1);
 
-            // Calcular posición del impacto para el knockback
+            // Calcular posiciÃ³n del impacto para el knockback
             Vector2 impactPoint = collision.contacts.Length > 0
                 ? collision.contacts[0].point
                 : (Vector2)transform.position;
+
+            int healthBeforeDamage = damageable.GetCurrentHealth();
+            bool wasAlive = !damageable.IsDead();
 
             // Aplicar stun si es un enemigo
             EnemyBase enemyHit = damageable as EnemyBase;
@@ -110,43 +141,64 @@ public class ThrowableBoxCollisionDamage : MonoBehaviour
                 enemyHit.AddStunned(damage * 1.5f);
             }
 
-            // Aplicar daño con knockback
+            // Aplicar daÃ±o con knockback
             if (applyKnockbackOnHit)
             {
-                // La dirección del knockback es la dirección de la velocidad de la caja
-                // Para simular el impacto, usamos un punto "detrás" de la dirección de movimiento
+                // La direcciÃ³n del knockback es la direcciÃ³n de la velocidad de la caja
+                // Para simular el impacto, usamos un punto "detrÃ¡s" de la direcciÃ³n de movimiento
                 Vector2 knockbackSource = impactPoint - rb.linearVelocity.normalized * 0.5f;
 
                 damageable.TakeDamage(damage, knockbackSource);
 
-                Debug.Log($"Caja {gameObject.name} hizo {damage} de daño con knockback a {collision.gameObject.name} (velocidad: {velocityMagnitude:F2})");
+                Debug.Log($"Caja {gameObject.name} hizo {damage} de daÃ±o con knockback a {collision.gameObject.name} (velocidad: {velocityMagnitude:F2})");
             }
             else
             {
                 damageable.TakeDamage(damage);
 
-                Debug.Log($"Caja {gameObject.name} hizo {damage} de daño a {collision.gameObject.name} (velocidad: {velocityMagnitude:F2})");
+                Debug.Log($"Caja {gameObject.name} hizo {damage} de daÃ±o a {collision.gameObject.name} (velocidad: {velocityMagnitude:F2})");
             }
-            // Marcar que causó daño
+
+            bool enemyDied = wasAlive && damageable.IsDead();
+
+            if (enemyDied)
+            {
+                Debug.Log($"âš¡ Â¡ENEMIGO {collision.gameObject.name} ELIMINADO! Activando Impact Frame");
+                TriggerImpactFrameOnKill(collision.gameObject, velocityMagnitude);
+            }
+
+            // Marcar que causÃ³ daÃ±o
             hasDealtDamage = true;
 
-            // Destruir la caja
-            if (box != null)
-            {
-                box.TakeDamage(999);
-            }
-            else
-            {
-                // Si no hay componente ThrowableBox, destruir directamente
-                Destroy(gameObject);
-            }
+            box.TakeDamage(999);
 
-            // Aplicar rebote si no se destruyó inmediatamente
+            // Aplicar rebote si no se destruyÃ³ inmediatamente
             if (!destroyOnFirstHit)
             {
                 ApplyBounceEffect(collision, velocityMagnitude);
             }
         }
+    }
+
+    /// <summary>
+    /// Dispara el efecto de Impact Frame cuando la caja mata a un enemigo
+    /// </summary>
+    void TriggerImpactFrameOnKill(GameObject enemy, float velocityMagnitude)
+    {
+        // Verificar condiciones
+        if (!enableImpactFrame) return;
+        if (impactManager == null) return;
+        if (velocityMagnitude < minVelocityForImpactFrame)
+        {
+            Debug.Log($"Velocidad insuficiente para Impact Frame ({velocityMagnitude:F2} < {minVelocityForImpactFrame})");
+            return;
+        }
+
+        // ðŸŽ¬ DISPARAR IMPACT FRAME
+        // Usamos la caja y el enemigo como los dos objetos
+        impactManager.TriggerImpact(gameObject, enemy);
+
+        Debug.Log($"âœ¨ Impact Frame disparado: Caja vs {enemy.name} (velocidad: {velocityMagnitude:F2})");
     }
 
     void ApplyBounceEffect(Collision2D collision, float velocityMagnitude)

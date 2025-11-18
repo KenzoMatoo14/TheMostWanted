@@ -14,6 +14,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   maxHealth: 100
   HitParticleEffect: {fileID: 541851277332201417, guid: b9e8453e48eb6dd4bbd79c4bf9b5f737, type: 3}
+  HitStopDuration: 0.15
   WalkSpeed: 7.5
   Acceleration: 45
   Deceleration: 60

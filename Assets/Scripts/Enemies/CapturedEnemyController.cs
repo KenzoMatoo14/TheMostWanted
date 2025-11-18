@@ -12,7 +12,9 @@ public class CapturedEnemyController : MonoBehaviour
 
     private IDamageable damageable; // Para cualquier objeto con vida
     private EnemyBase enemyBase;    // Solo para enemigos (opcional)
+    private ThrowableBox throwableBox; // Para cajas
     private bool isEnemy;           // Flag para saber si es un enemigo
+    private bool isBox;             // Flag para saber si es una caja
 
     [Header("Drag Settings")]
     [SerializeField] private float dragSpeed = 75;
@@ -44,8 +46,14 @@ public class CapturedEnemyController : MonoBehaviour
     [Tooltip("Multiplicador del knockback basado en la velocidad de impacto")]
     [SerializeField] private float knockbackVelocityMultiplier = 1f;
 
+    [Header("Impact Frame Settings")]
+    [SerializeField] private bool enableImpactFrame = true;
+    [SerializeField] private float minVelocityForImpactFrame = 5f;
+    [Tooltip("Solo activar Impact Frame si el enemigo muere de un golpe")]
+    [SerializeField] private bool onlyOnKill = true;
+    private ImpactFrameManager impactManager;
+
     [Header("Visual Feedback")]
-    [SerializeField] private Color normalColor = Color.white;
     [SerializeField] private Color highVelocityColor = Color.red;
     [SerializeField] private float highVelocityThreshold = 6f;
     private SpriteRenderer spriteRenderer;
@@ -76,7 +84,18 @@ public class CapturedEnemyController : MonoBehaviour
 
         enemyBase = GetComponent<EnemyBase>();
         damageable = GetComponent<IDamageable>();
+        throwableBox = GetComponent<ThrowableBox>();
         isEnemy = enemyBase != null;
+        isBox = throwableBox != null;
+
+        if (enableImpactFrame)
+        {
+            impactManager = FindObjectOfType<ImpactFrameManager>();
+            if (impactManager == null)
+            {
+                Debug.LogWarning("CapturedEnemyController: No se encontró ImpactFrameManager en la escena");
+            }
+        }
 
         mouse = Mouse.current;
         if (mouse == null)
@@ -317,12 +336,20 @@ public class CapturedEnemyController : MonoBehaviour
             int damage = Mathf.RoundToInt(velocityRatio * damageMultiplier);
             damage = Mathf.Max(damage, 1);
 
-            //NUEVO: Calcular punto de impacto para el knockback
+            if (isBox)
+            {
+                damage = Mathf.RoundToInt(damage * 1.5f); // 50% más de daño
+            }
+
+            //Calcular punto de impacto para el knockback
             Vector2 impactPoint = collision.contacts.Length > 0
                 ? collision.contacts[0].point
                 : (Vector2)transform.position;
 
-            //NUEVO: Aplicar stun al objetivo si es enemigo
+            int healthBeforeDamage = target.GetCurrentHealth();
+            bool wasAlive = !target.IsDead();
+
+            //Aplicar stun al objetivo si es enemigo
             EnemyBase targetEnemy = target as EnemyBase;
             if (targetEnemy != null)
             {
@@ -331,7 +358,7 @@ public class CapturedEnemyController : MonoBehaviour
                 Debug.Log($"{gameObject.name} aplicó {stunAmount:F1} de stun a {collision.gameObject.name}");
             }
 
-            //NUEVO: Aplicar daño con knockback si está habilitado
+            //Aplicar daño con knockback si está habilitado
             if (applyKnockbackOnCollision)
             {
                 // Calcular la fuente del knockback basada en la dirección de movimiento
@@ -349,7 +376,33 @@ public class CapturedEnemyController : MonoBehaviour
                 Debug.Log($"{gameObject.name} hizo {damage} de daño a {collision.gameObject.name} (velocidad: {velocityMagnitude:F2})");
             }
 
-            //NUEVO: Si el objeto capturado es un enemigo, también recibe daño y stun
+            bool enemyDied = wasAlive && target.IsDead();
+
+            if (enemyDied)
+            {
+                Debug.Log($"⚡ ¡ENEMIGO {collision.gameObject.name} ELIMINADO! Activando Impact Frame");
+                TriggerImpactFrameOnKill(collision.gameObject, velocityMagnitude);
+            }
+
+            // Si es una caja, destruirla después del impacto
+            if (isBox && throwableBox != null)
+            {
+                Debug.Log($"💥 Caja {gameObject.name} se destruirá por impacto mientras está capturada");
+
+                // Liberar la caja primero (esto limpia el estado de captura)
+                if (characterCombat != null)
+                {
+                    characterCombat.ReleaseEnemy();
+                }
+
+                // Destruir la caja (esto activará el evento OnDestroyed de ThrowableBox)
+                throwableBox.TakeDamage(999);
+
+                // Salir temprano para evitar procesar más lógica
+                return;
+            }
+
+            //Si el objeto capturado es un enemigo, también recibe daño y stun
             if (isEnemy && enemyBase != null)
             {
                 enemyBase.TakeDamage(damage, impactPoint);
@@ -364,6 +417,23 @@ public class CapturedEnemyController : MonoBehaviour
             ApplyBounceEffect(collision);
         }
     }
+
+    void TriggerImpactFrameOnKill(GameObject enemy, float velocityMagnitude)
+    {
+        if (!enableImpactFrame) return;
+        if (impactManager == null) return;
+        if (velocityMagnitude < minVelocityForImpactFrame)
+        {
+            Debug.Log($"Velocidad insuficiente para Impact Frame ({velocityMagnitude:F2} < {minVelocityForImpactFrame})");
+            return;
+        }
+
+        // 🎬 DISPARAR IMPACT FRAME
+        impactManager.TriggerImpact(gameObject, enemy);
+
+        Debug.Log($"✨ Impact Frame disparado: {gameObject.name} (capturado) vs {enemy.name} (velocidad: {velocityMagnitude:F2})");
+    }
+
     void ApplyBounceEffect(Collision2D collision)
     {
         //NUEVO: Rebote mejorado usando la normal del contacto

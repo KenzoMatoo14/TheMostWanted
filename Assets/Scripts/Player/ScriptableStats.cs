@@ -8,6 +8,7 @@ public class ScriptableStats : ScriptableObject
 
     [Header("--------VISUAL EFFECTS--------")]
     public GameObject HitParticleEffect;
+    public float HitStopDuration = 0.1f;
 
     [Header("--------MOVEMENT--------")]
     public float WalkSpeed = 5f;

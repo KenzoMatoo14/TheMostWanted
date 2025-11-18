@@ -64,7 +64,7 @@ public class ThrowableBox : MonoBehaviour, IDamageable, ICaptureable
         OnDamageTaken?.Invoke();
 
         // Si debe destruirse con cualquier daño o si la vida llega a 0
-        if (destroyOnAnyDamage || currentHealth <= 0)
+        if (destroyOnAnyDamage)
         {
             DestroyBox();
         }

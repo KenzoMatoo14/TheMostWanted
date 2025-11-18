@@ -15,6 +15,11 @@ public class CharacterCombat : MonoBehaviour
     public Transform whipTip;
     private bool canAttack = true;
 
+    [Header("Audio")]
+    [SerializeField] private AudioSource audioSource;
+    [SerializeField] private AudioClip whipSound;
+    [SerializeField][Range(0f, 1f)] private float whipSoundVolume = 1f;
+
     [Header("Capture References")]
     private bool isCapturing = false;
     private float currentCaptureProgress = 0f;
@@ -43,6 +48,15 @@ public class CharacterCombat : MonoBehaviour
         rb = GetComponent<Rigidbody2D>();
         controls = new PlayerControls();
         mainCamera = Camera.main;
+
+        if (audioSource == null)
+        {
+            audioSource = GetComponent<AudioSource>();
+            if (audioSource == null)
+            {
+                audioSource = gameObject.AddComponent<AudioSource>();
+            }
+        }
 
         controls.Combat.HitWhip.performed += ctx => HandleHitWhipInput();
 
@@ -104,6 +118,16 @@ public class CharacterCombat : MonoBehaviour
             hookScript.canUseHook = !hasEnemyCaptured;
         }
     }
+
+    ///////////////////////// AUDIO
+    void PlayWhipSound()
+    {
+        if (audioSource != null && whipSound != null)
+        {
+            audioSource.PlayOneShot(whipSound, whipSoundVolume);
+        }
+    }
+
     ///////////////////////// HOVER DETECTION
     void UpdateHoverDetection()
     {
@@ -617,8 +641,12 @@ public class CharacterCombat : MonoBehaviour
     {
         //Play an animation
 
+        PlayWhipSound();
+
         //Detect enemies in range of attack
         RaycastHit2D[] hitEnemies = Physics2D.LinecastAll(attackPoint.position, whipTip.position, stats.EnemyLayers);
+
+        bool hitSomething = false; // Flag para saber si golpeamos algo
 
         //Damage those enemies
         foreach (RaycastHit2D hit in hitEnemies)
@@ -632,6 +660,7 @@ public class CharacterCombat : MonoBehaviour
             if (damageable != null)
             {
                 damageable.TakeDamage(stats.MeleeDamage, (Vector2)attackPoint.position);
+                hitSomething = true; // Marcamos que golpeamos algo
 
                 // Si también es un EnemyBase, aplicar stun y guardarlo
                 EnemyBase enemy = hit.collider.GetComponent<EnemyBase>();
@@ -651,6 +680,11 @@ public class CharacterCombat : MonoBehaviour
                     Debug.Log($"{hit.collider.gameObject.name} recibió daño (no es enemigo)");
                 }
             }
+        }
+        // Aplicar hitstop si golpeamos algo
+        if (hitSomething && stats.HitStopDuration > 0f)
+        {
+            HitStopManager.Instance.DoHitStop(stats.HitStopDuration);
         }
     }
 

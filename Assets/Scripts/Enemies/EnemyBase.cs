@@ -9,6 +9,9 @@ public abstract class EnemyBase : MonoBehaviour, IDamageable, IStunnable, ICaptu
     [Header("UI Reference")]
     [SerializeField] protected HealthBar healthBar;
 
+    [Header("Visual Effects")]
+    [SerializeField] protected float damageFlashDuration = 0.5f;
+
     [Header("Knockback Settings")]
     [SerializeField] protected bool canBeKnockback = true;
     [SerializeField] protected float maxKnockbackDistance = 2.33f;
@@ -54,6 +57,8 @@ public abstract class EnemyBase : MonoBehaviour, IDamageable, IStunnable, ICaptu
     protected Rigidbody2D rb;
     protected Collider2D[] colliders;
     protected MonoBehaviour[] aiComponents;
+
+    protected DamageFlashEffect damageFlashEffect;
     protected virtual void Start()
     {
         // Configurar referencias autom�ticamente si no est�n asignadas
@@ -70,6 +75,12 @@ public abstract class EnemyBase : MonoBehaviour, IDamageable, IStunnable, ICaptu
 
         rb = GetComponent<Rigidbody2D>();
         colliders = GetComponents<Collider2D>();
+
+        damageFlashEffect = GetComponent<DamageFlashEffect>();
+        if (damageFlashEffect == null)
+        {
+            damageFlashEffect = gameObject.AddComponent<DamageFlashEffect>();
+        }
 
         InitializeHealth();
         InitializeEnemy(); // M�todo virtual para inicializaci�n espec�fica de cada enemigo
@@ -521,6 +532,11 @@ public abstract class EnemyBase : MonoBehaviour, IDamageable, IStunnable, ICaptu
         currentHealth = Mathf.Clamp(currentHealth, 0, enemyStats.MaxHealth);
 
         Debug.Log($"{gameObject.name} - Da�o recibido: {actualDamage}. Vida actual: {currentHealth}/{enemyStats.MaxHealth}");
+
+        if (damageFlashEffect != null && damageFlashDuration > 0f)
+        {
+            damageFlashEffect.Flash(damageFlashDuration);
+        }
 
         if (damageSourcePosition != default)
         {
