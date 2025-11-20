@@ -29,7 +29,7 @@ Transform:
   m_GameObject: {fileID: 24182163444947434}
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 19.06553, y: 1.07396, z: 0}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children:
@@ -82,7 +82,7 @@ SpriteRenderer:
   m_LightmapParameters: {fileID: 0}
   m_SortingLayerID: 0
   m_SortingLayer: 0
-  m_SortingOrder: 0
+  m_SortingOrder: 2
   m_Sprite: {fileID: 7482667652216324306, guid: 311925a002f4447b3a28927169b83ea6, type: 3}
   m_Color: {r: 1, g: 1, b: 1, a: 1}
   m_FlipX: 0
@@ -181,6 +181,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   enemyStats: {fileID: 11400000, guid: d322ef7c26a3886429b8b470dd040c02, type: 2}
   healthBar: {fileID: 2381421764921332725}
+  damageFlashDuration: 0.15
   canBeKnockback: 1
   maxKnockbackDistance: 8
   knockbackDuration: 0.2
@@ -264,20 +265,44 @@ MonoBehaviour:
       m_Calls: []
   logBehaviorDetails: 1
   patrolSpeed: 2
-  patrolWaitTime: 2
-  patrolRadius: 5
-  waypointReachDistance: 0.2
+  patrolWaitTime: 1
+  patrolRadius: 4.5
+  waypointReachDistance: 0.5
   useStartPositionAsCenter: 1
   customPatrolCenter: {fileID: 0}
-  detectionRange: 5
+  validatePatrolPath: 1
+  maxPathAttempts: 5
+  pathValidationRayCount: 8
+  pathObstacleLayer:
+    serializedVersion: 2
+    m_Bits: 8
+  flapAmplitude: 5
+  flapFrequency: 3
+  horizontalWaveAmplitude: 10
+  horizontalWaveFrequency: 10
+  usePerlinNoise: 1
+  perlinNoiseSpeed: 1
+  idleHoverAmplitude: 2.5
+  idleHoverFrequency: 1.5
+  idleHorizontalDrift: 5
+  idleDriftFrequency: 5
+  detectionRange: 7
   chaseSpeed: 4
   loseTargetDistance: 8
   playerLayer:
     serializedVersion: 2
     m_Bits: 128
+  obstacleLayer:
+    serializedVersion: 2
+    m_Bits: 8
+  requireLineOfSight: 1
+  visionCheckInterval: 0.2
+  visionOrigin: {fileID: 0}
+  debugLineOfSight: 0
+  loseLineOfSightDelay: 0.5
   attackRange: 1.5
   attackCooldown: 1
-  attackDamage: 12
+  attackDamage: 21
   attackWindupTime: 0.2
   attackPoint: {fileID: 1737434713822099933}
   attackRadius: 1.2
@@ -430,7 +455,7 @@ SpriteRenderer:
   m_LightmapParameters: {fileID: 0}
   m_SortingLayerID: 0
   m_SortingLayer: 0
-  m_SortingOrder: 0
+  m_SortingOrder: 2
   m_Sprite: {fileID: 21300000, guid: 61245ade17826574e955e712ff099316, type: 3}
   m_Color: {r: 0, g: 0, b: 0, a: 1}
   m_FlipX: 0
@@ -903,7 +928,7 @@ SpriteRenderer:
   m_LightmapParameters: {fileID: 0}
   m_SortingLayerID: 0
   m_SortingLayer: 0
-  m_SortingOrder: 0
+  m_SortingOrder: 2
   m_Sprite: {fileID: 21300000, guid: 9e74fcf9e82e43345ad2dc8d2ed0d2c6, type: 3}
   m_Color: {r: 0, g: 0, b: 0, a: 1}
   m_FlipX: 0
@@ -1157,7 +1182,7 @@ Canvas:
   m_AdditionalShaderChannelsFlag: 0
   m_UpdateRectTransformForStandalone: 0
   m_SortingLayerID: 0
-  m_SortingOrder: 0
+  m_SortingOrder: 2
   m_TargetDisplay: 0
 --- !u!114 &5316515744077217729
 MonoBehaviour:

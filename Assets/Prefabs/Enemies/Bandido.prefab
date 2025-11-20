@@ -1,5 +1,36 @@
 %YAML 1.1
 %TAG !u! tag:unity3d.com,2011:
+--- !u!1 &136878968954698753
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 5502696137650589990}
+  m_Layer: 6
+  m_Name: ObstacleCheck
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &5502696137650589990
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 136878968954698753}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: -0.5, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 7175489581682502656}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &831058761606297363
 GameObject:
   m_ObjectHideFlags: 0
@@ -357,7 +388,7 @@ Transform:
   m_GameObject: {fileID: 3081933642787246480}
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 31.52, y: -0.53, z: 0}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
   m_LocalScale: {x: 1, y: 2, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children:
@@ -365,6 +396,8 @@ Transform:
   - {fileID: 2846391981803202560}
   - {fileID: 3855382393176128195}
   - {fileID: 4867028340377659706}
+  - {fileID: 2887571336662961411}
+  - {fileID: 5502696137650589990}
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!212 &6207951870099090512
@@ -410,7 +443,7 @@ SpriteRenderer:
   m_LightmapParameters: {fileID: 0}
   m_SortingLayerID: 0
   m_SortingLayer: 0
-  m_SortingOrder: 0
+  m_SortingOrder: 4
   m_Sprite: {fileID: 7482667652216324306, guid: 311925a002f4447b3a28927169b83ea6, type: 3}
   m_Color: {r: 1, g: 1, b: 1, a: 1}
   m_FlipX: 0
@@ -459,7 +492,7 @@ BoxCollider2D:
   m_Enabled: 1
   serializedVersion: 3
   m_Density: 1
-  m_Material: {fileID: 0}
+  m_Material: {fileID: 6200000, guid: 8c4e66ab10b8a5a41a557948b8c43639, type: 2}
   m_IncludeLayers:
     serializedVersion: 2
     m_Bits: 0
@@ -594,21 +627,46 @@ MonoBehaviour:
   logBehaviorDetails: 1
   patrolSpeed: 2
   patrolWaitTime: 2
-  patrolPoints: []
+  patrolPoints:
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
   loopPatrol: 1
-  waypointReachDistance: 0.2
-  detectionRange: 14
-  chaseSpeed: 6
-  loseTargetDistance: 20
+  waypointReachDistance: 0.5
+  constrainToGroundMovement: 1
+  detectionRange: 8
+  chaseSpeed: 4
+  loseTargetDistance: 10
   playerLayer:
     serializedVersion: 2
     m_Bits: 128
+  obstacleLayer:
+    serializedVersion: 2
+    m_Bits: 8
+  requireLineOfSight: 1
+  visionCheckInterval: 0.2
+  visionOrigin: {fileID: 0}
+  debugLineOfSight: 0
+  loseLineOfSightDelay: 0.5
   attackRange: 5
   attackCooldown: 0.8
   attackDamage: 34
   attackWindupTime: 0.16
   attackPoint: {fileID: 4867028340377659706}
   attackRadius: 1.67
+  canJump: 1
+  jumpForce: 5
+  jumpCooldown: 1
+  groundLayer:
+    serializedVersion: 2
+    m_Bits: 8
+  groundCheck: {fileID: 2887571336662961411}
+  groundCheckRadius: 0.2
+  obstacleCheck: {fileID: 5502696137650589990}
+  obstacleCheckRadius: 0.2
+  obstacleCheckDistance: 0.5
+  playerAboveDetectionHeight: 1
+  debugJump: 1
   spriteRenderer: {fileID: 6207951870099090512}
   autoFlipSprite: 1
   chaseColor: {r: 1, g: 0, b: 0, a: 1}
@@ -708,7 +766,7 @@ Canvas:
   m_AdditionalShaderChannelsFlag: 0
   m_UpdateRectTransformForStandalone: 0
   m_SortingLayerID: 0
-  m_SortingOrder: 0
+  m_SortingOrder: 3
   m_TargetDisplay: 0
 --- !u!114 &8853188205119365822
 MonoBehaviour:
@@ -825,7 +883,7 @@ SpriteRenderer:
   m_LightmapParameters: {fileID: 0}
   m_SortingLayerID: 0
   m_SortingLayer: 0
-  m_SortingOrder: 0
+  m_SortingOrder: 4
   m_Sprite: {fileID: 21300000, guid: b0a29e72b0055d446a5a8b706c43468b, type: 3}
   m_Color: {r: 1, g: 1, b: 1, a: 1}
   m_FlipX: 0
@@ -926,6 +984,37 @@ MonoBehaviour:
   m_OnValueChanged:
     m_PersistentCalls:
       m_Calls: []
+--- !u!1 &5252342774148594859
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 2887571336662961411}
+  m_Layer: 6
+  m_Name: GroundCheck
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &2887571336662961411
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 5252342774148594859}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: -0.5, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 7175489581682502656}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &5889646037876567675
 GameObject:
   m_ObjectHideFlags: 0
@@ -1001,7 +1090,7 @@ SpriteRenderer:
   m_LightmapParameters: {fileID: 0}
   m_SortingLayerID: 0
   m_SortingLayer: 0
-  m_SortingOrder: 0
+  m_SortingOrder: 4
   m_Sprite: {fileID: 21300000, guid: 9e74fcf9e82e43345ad2dc8d2ed0d2c6, type: 3}
   m_Color: {r: 1, g: 1, b: 1, a: 1}
   m_FlipX: 0

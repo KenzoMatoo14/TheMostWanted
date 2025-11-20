@@ -556,7 +556,7 @@ Transform:
   m_GameObject: {fileID: 5856781466179441207}
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0.7071068, w: 0.7071068}
-  m_LocalPosition: {x: 23.3, y: -0.55, z: 0}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
   m_LocalScale: {x: 1.3562719, y: 0.40475127, z: 0.71009}
   m_ConstrainProportionsScale: 0
   m_Children:
@@ -727,6 +727,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   enemyStats: {fileID: 11400000, guid: 68f80ebd82ce20142a7a34b59a290aa3, type: 2}
   healthBar: {fileID: 2245214951777035517}
+  damageFlashDuration: 0.15
   canBeKnockback: 1
   maxKnockbackDistance: 23
   knockbackDuration: 0.2

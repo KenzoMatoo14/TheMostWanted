@@ -1,0 +1,936 @@
+fileFormatVersion: 2
+guid: 767bd994808e1614daf2f8b2ac560cc5
+TextureImporter:
+  internalIDToNameTable:
+  - first:
+      213: 213266368418581054
+    second: fondo juego conflict (4)_0
+  - first:
+      213: 4543221561257450520
+    second: fondo juego conflict (4)_1
+  - first:
+      213: 6940794401545282613
+    second: fondo juego conflict (4)_2
+  - first:
+      213: 8468207066209453507
+    second: fondo juego conflict (4)_3
+  - first:
+      213: -2068830773759444254
+    second: fondo juego conflict (4)_4
+  - first:
+      213: -1494042013781307018
+    second: fondo juego conflict (4)_5
+  - first:
+      213: -1668013514286885915
+    second: fondo juego conflict (4)_6
+  - first:
+      213: 1789981630539186218
+    second: fondo juego conflict (4)_7
+  - first:
+      213: -8123860150942117040
+    second: fondo juego conflict (4)_8
+  - first:
+      213: -5913014162476168506
+    second: fondo juego conflict (4)_9
+  - first:
+      213: -727205782850913669
+    second: fondo juego conflict (4)_10
+  - first:
+      213: -6113968335185356687
+    second: fondo juego conflict (4)_11
+  - first:
+      213: -548400367737334630
+    second: fondo juego conflict (4)_12
+  - first:
+      213: -6887627715443315270
+    second: fondo juego conflict (4)_13
+  - first:
+      213: 576811999688429721
+    second: fondo juego conflict (4)_14
+  - first:
+      213: 7080124951712755388
+    second: fondo juego conflict (4)_15
+  - first:
+      213: 5098745302573205712
+    second: fondo juego conflict (4)_16
+  - first:
+      213: 2250765550802675995
+    second: fondo juego conflict (4)_17
+  - first:
+      213: -6618008379399776807
+    second: fondo juego conflict (4)_18
+  - first:
+      213: 5087551118622171704
+    second: fondo juego conflict (4)_19
+  - first:
+      213: -2617894046231703841
+    second: fondo juego conflict (4)_20
+  - first:
+      213: -171730332451728561
+    second: fondo juego conflict (4)_21
+  - first:
+      213: 2127784646600070846
+    second: fondo juego conflict (4)_22
+  - first:
+      213: -3358110125373030831
+    second: fondo juego conflict (4)_23
+  - first:
+      213: -5895376747813292699
+    second: fondo juego conflict (4)_24
+  - first:
+      213: -649020568647594582
+    second: fondo juego conflict (4)_25
+  - first:
+      213: 2307444553286456788
+    second: fondo juego conflict (4)_26
+  - first:
+      213: 8138115784150336624
+    second: fondo juego conflict (4)_27
+  - first:
+      213: 6594042975095827562
+    second: fondo juego conflict (4)_28
+  - first:
+      213: 6519515033160490926
+    second: fondo juego conflict (4)_29
+  - first:
+      213: -3096142813956190061
+    second: fondo juego conflict (4)_30
+  externalObjects: {}
+  serializedVersion: 13
+  mipmaps:
+    mipMapMode: 0
+    enableMipMap: 0
+    sRGBTexture: 1
+    linearTexture: 0
+    fadeOut: 0
+    borderMipMap: 0
+    mipMapsPreserveCoverage: 0
+    alphaTestReferenceValue: 0.5
+    mipMapFadeDistanceStart: 1
+    mipMapFadeDistanceEnd: 3
+  bumpmap:
+    convertToNormalMap: 0
+    externalNormalMap: 0
+    heightScale: 0.25
+    normalMapFilter: 0
+    flipGreenChannel: 0
+  isReadable: 0
+  streamingMipmaps: 0
+  streamingMipmapsPriority: 0
+  vTOnly: 0
+  ignoreMipmapLimit: 0
+  grayScaleToAlpha: 0
+  generateCubemap: 6
+  cubemapConvolution: 0
+  seamlessCubemap: 0
+  textureFormat: 1
+  maxTextureSize: 2048
+  textureSettings:
+    serializedVersion: 2
+    filterMode: 1
+    aniso: 1
+    mipBias: 0
+    wrapU: 1
+    wrapV: 1
+    wrapW: 1
+  nPOTScale: 0
+  lightmap: 0
+  compressionQuality: 50
+  spriteMode: 1
+  spriteExtrude: 1
+  spriteMeshType: 1
+  alignment: 0
+  spritePivot: {x: 0.5, y: 0.5}
+  spritePixelsToUnits: 10
+  spriteBorder: {x: 0, y: 0, z: 0, w: 0}
+  spriteGenerateFallbackPhysicsShape: 1
+  alphaUsage: 1
+  alphaIsTransparency: 1
+  spriteTessellationDetail: -1
+  textureType: 8
+  textureShape: 1
+  singleChannelComponent: 0
+  flipbookRows: 1
+  flipbookColumns: 1
+  maxTextureSizeSet: 0
+  compressionQualitySet: 0
+  textureFormatSet: 0
+  ignorePngGamma: 0
+  applyGammaDecoding: 0
+  swizzle: 50462976
+  cookieLightType: 0
+  platformSettings:
+  - serializedVersion: 4
+    buildTarget: DefaultTexturePlatform
+    maxTextureSize: 2048
+    resizeAlgorithm: 0
+    textureFormat: -1
+    textureCompression: 1
+    compressionQuality: 50
+    crunchedCompression: 0
+    allowsAlphaSplitting: 0
+    overridden: 0
+    ignorePlatformSupport: 0
+    androidETC2FallbackOverride: 0
+    forceMaximumCompressionQuality_BC6H_BC7: 0
+  - serializedVersion: 4
+    buildTarget: Standalone
+    maxTextureSize: 2048
+    resizeAlgorithm: 0
+    textureFormat: -1
+    textureCompression: 1
+    compressionQuality: 50
+    crunchedCompression: 0
+    allowsAlphaSplitting: 0
+    overridden: 0
+    ignorePlatformSupport: 0
+    androidETC2FallbackOverride: 0
+    forceMaximumCompressionQuality_BC6H_BC7: 0
+  - serializedVersion: 4
+    buildTarget: WebGL
+    maxTextureSize: 2048
+    resizeAlgorithm: 0
+    textureFormat: -1
+    textureCompression: 1
+    compressionQuality: 50
+    crunchedCompression: 0
+    allowsAlphaSplitting: 0
+    overridden: 0
+    ignorePlatformSupport: 0
+    androidETC2FallbackOverride: 0
+    forceMaximumCompressionQuality_BC6H_BC7: 0
+  spriteSheet:
+    serializedVersion: 2
+    sprites:
+    - serializedVersion: 2
+      name: fondo juego conflict (4)_0
+      rect:
+        serializedVersion: 2
+        x: 147
+        y: 562
+        width: 13
+        height: 13
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: e3a8024d1aca5f200800000000000000
+      internalID: 213266368418581054
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: fondo juego conflict (4)_1
+      rect:
+        serializedVersion: 2
+        x: 148
+        y: 564
+        width: 61
+        height: 46
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 81c55ae50f3cc0f30800000000000000
+      internalID: 4543221561257450520
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: fondo juego conflict (4)_2
+      rect:
+        serializedVersion: 2
+        x: 345
+        y: 523
+        width: 125
+        height: 104
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 534602bfbb7a25060800000000000000
+      internalID: 6940794401545282613
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: fondo juego conflict (4)_3
+      rect:
+        serializedVersion: 2
+        x: 480
+        y: 58
+        width: 403
+        height: 552
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 3c50ed1d57d158570800000000000000
+      internalID: 8468207066209453507
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: fondo juego conflict (4)_4
+      rect:
+        serializedVersion: 2
+        x: 143
+        y: 510
+        width: 112
+        height: 51
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 2eafba55f590a43e0800000000000000
+      internalID: -2068830773759444254
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: fondo juego conflict (4)_5
+      rect:
+        serializedVersion: 2
+        x: 209
+        y: 386
+        width: 135
+        height: 132
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 6715e0944b8144be0800000000000000
+      internalID: -1494042013781307018
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: fondo juego conflict (4)_6
+      rect:
+        serializedVersion: 2
+        x: 341
+        y: 472
+        width: 37
+        height: 45
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 5e31168db860ad8e0800000000000000
+      internalID: -1668013514286885915
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: fondo juego conflict (4)_7
+      rect:
+        serializedVersion: 2
+        x: 348
+        y: 517
+        width: 24
+        height: 37
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: a2043ca2fca47d810800000000000000
+      internalID: 1789981630539186218
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: fondo juego conflict (4)_8
+      rect:
+        serializedVersion: 2
+        x: 388
+        y: 450
+        width: 97
+        height: 87
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 053d42a1c30424f80800000000000000
+      internalID: -8123860150942117040
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: fondo juego conflict (4)_9
+      rect:
+        serializedVersion: 2
+        x: 109
+        y: 387
+        width: 47
+        height: 93
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 6ca01cd92f0c0fda0800000000000000
+      internalID: -5913014162476168506
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: fondo juego conflict (4)_10
+      rect:
+        serializedVersion: 2
+        x: 339
+        y: 353
+        width: 135
+        height: 88
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: b7abf82813278e5f0800000000000000
+      internalID: -727205782850913669
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: fondo juego conflict (4)_11
+      rect:
+        serializedVersion: 2
+        x: 734
+        y: 143
+        width: 279
+        height: 326
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 1785a4d3132d62ba0800000000000000
+      internalID: -6113968335185356687
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: fondo juego conflict (4)_12
+      rect:
+        serializedVersion: 2
+        x: 846
+        y: 0
+        width: 265
+        height: 467
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: a94925665c0b368f0800000000000000
+      internalID: -548400367737334630
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: fondo juego conflict (4)_13
+      rect:
+        serializedVersion: 2
+        x: 1078
+        y: 426
+        width: 38
+        height: 86
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: abdadd3c51b3a60a0800000000000000
+      internalID: -6887627715443315270
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: fondo juego conflict (4)_14
+      rect:
+        serializedVersion: 2
+        x: 1181
+        y: 402
+        width: 35
+        height: 80
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 9909c97257f310800800000000000000
+      internalID: 576811999688429721
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: fondo juego conflict (4)_15
+      rect:
+        serializedVersion: 2
+        x: 110
+        y: 275
+        width: 72
+        height: 102
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: cbee738a128a14260800000000000000
+      internalID: 7080124951712755388
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: fondo juego conflict (4)_16
+      rect:
+        serializedVersion: 2
+        x: 184
+        y: 349
+        width: 24
+        height: 12
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 0d84110a6d162c640800000000000000
+      internalID: 5098745302573205712
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: fondo juego conflict (4)_17
+      rect:
+        serializedVersion: 2
+        x: 304
+        y: 235
+        width: 177
+        height: 116
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: b19a748e7535c3f10800000000000000
+      internalID: 2250765550802675995
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: fondo juego conflict (4)_18
+      rect:
+        serializedVersion: 2
+        x: 188
+        y: 291
+        width: 81
+        height: 51
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 9d55151517c1824a0800000000000000
+      internalID: -6618008379399776807
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: fondo juego conflict (4)_19
+      rect:
+        serializedVersion: 2
+        x: 1128
+        y: 44
+        width: 142
+        height: 268
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 832ad1299cc9a9640800000000000000
+      internalID: 5087551118622171704
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: fondo juego conflict (4)_20
+      rect:
+        serializedVersion: 2
+        x: 195
+        y: 225
+        width: 45
+        height: 64
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: fdecfb23c3f5babd0800000000000000
+      internalID: -2617894046231703841
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: fondo juego conflict (4)_21
+      rect:
+        serializedVersion: 2
+        x: 276
+        y: 146
+        width: 65
+        height: 119
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: f431e092c24ed9df0800000000000000
+      internalID: -171730332451728561
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: fondo juego conflict (4)_22
+      rect:
+        serializedVersion: 2
+        x: 471
+        y: 205
+        width: 11
+        height: 11
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: eb69023dcd8678d10800000000000000
+      internalID: 2127784646600070846
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: fondo juego conflict (4)_23
+      rect:
+        serializedVersion: 2
+        x: 64
+        y: 0
+        width: 46
+        height: 174
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 15e7f7c02a89561d0800000000000000
+      internalID: -3358110125373030831
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: fondo juego conflict (4)_24
+      rect:
+        serializedVersion: 2
+        x: 95
+        y: 129
+        width: 46
+        height: 61
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 565bd79351a6f2ea0800000000000000
+      internalID: -5895376747813292699
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: fondo juego conflict (4)_25
+      rect:
+        serializedVersion: 2
+        x: 121
+        y: 38
+        width: 126
+        height: 108
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: aad86d14b373ef6f0800000000000000
+      internalID: -649020568647594582
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: fondo juego conflict (4)_26
+      rect:
+        serializedVersion: 2
+        x: 129
+        y: 129
+        width: 20
+        height: 50
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 4d59c898890b50020800000000000000
+      internalID: 2307444553286456788
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: fondo juego conflict (4)_27
+      rect:
+        serializedVersion: 2
+        x: 382
+        y: 62
+        width: 26
+        height: 82
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 074c747203560f070800000000000000
+      internalID: 8138115784150336624
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: fondo juego conflict (4)_28
+      rect:
+        serializedVersion: 2
+        x: 421
+        y: 125
+        width: 34
+        height: 29
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: a6c2f3c262fb28b50800000000000000
+      internalID: 6594042975095827562
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: fondo juego conflict (4)_29
+      rect:
+        serializedVersion: 2
+        x: 520
+        y: 20
+        width: 47
+        height: 56
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: eaf995b7168f97a50800000000000000
+      internalID: 6519515033160490926
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: fondo juego conflict (4)_30
+      rect:
+        serializedVersion: 2
+        x: 729
+        y: 22
+        width: 133
+        height: 89
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 3905348c38a4805d0800000000000000
+      internalID: -3096142813956190061
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    outline: []
+    customData: 
+    physicsShape: []
+    bones: []
+    spriteID: 5e97eb03825dee720800000000000000
+    internalID: 0
+    vertices: []
+    indices: 
+    edges: []
+    weights: []
+    secondaryTextures: []
+    spriteCustomMetadata:
+      entries: []
+    nameFileIdTable:
+      fondo juego conflict (4)_0: 213266368418581054
+      fondo juego conflict (4)_1: 4543221561257450520
+      fondo juego conflict (4)_10: -727205782850913669
+      fondo juego conflict (4)_11: -6113968335185356687
+      fondo juego conflict (4)_12: -548400367737334630
+      fondo juego conflict (4)_13: -6887627715443315270
+      fondo juego conflict (4)_14: 576811999688429721
+      fondo juego conflict (4)_15: 7080124951712755388
+      fondo juego conflict (4)_16: 5098745302573205712
+      fondo juego conflict (4)_17: 2250765550802675995
+      fondo juego conflict (4)_18: -6618008379399776807
+      fondo juego conflict (4)_19: 5087551118622171704
+      fondo juego conflict (4)_2: 6940794401545282613
+      fondo juego conflict (4)_20: -2617894046231703841
+      fondo juego conflict (4)_21: -171730332451728561
+      fondo juego conflict (4)_22: 2127784646600070846
+      fondo juego conflict (4)_23: -3358110125373030831
+      fondo juego conflict (4)_24: -5895376747813292699
+      fondo juego conflict (4)_25: -649020568647594582
+      fondo juego conflict (4)_26: 2307444553286456788
+      fondo juego conflict (4)_27: 8138115784150336624
+      fondo juego conflict (4)_28: 6594042975095827562
+      fondo juego conflict (4)_29: 6519515033160490926
+      fondo juego conflict (4)_3: 8468207066209453507
+      fondo juego conflict (4)_30: -3096142813956190061
+      fondo juego conflict (4)_4: -2068830773759444254
+      fondo juego conflict (4)_5: -1494042013781307018
+      fondo juego conflict (4)_6: -1668013514286885915
+      fondo juego conflict (4)_7: 1789981630539186218
+      fondo juego conflict (4)_8: -8123860150942117040
+      fondo juego conflict (4)_9: -5913014162476168506
+  mipmapLimitGroupName: 
+  pSDRemoveMatte: 0
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 

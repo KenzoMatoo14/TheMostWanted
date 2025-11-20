@@ -12,12 +12,21 @@ public class EnemyBandido : EnemyBase
     [SerializeField] private Transform[] patrolPoints; // Puntos de patrulla
     [SerializeField] private bool loopPatrol = true; // true = loop, false = ping-pong
     [SerializeField] private float waypointReachDistance = 0.2f; // Distancia para considerar que llegó al punto
+    [SerializeField] private bool constrainToGroundMovement = true;
 
     [Header("Chase Settings")]
     [SerializeField] private float detectionRange = 5f;
     [SerializeField] private float chaseSpeed = 4f;
     [SerializeField] private float loseTargetDistance = 8f; // Distancia para perder al objetivo
     [SerializeField] private LayerMask playerLayer;
+
+    [Header("Line of Sight Settings")]
+    [SerializeField] private LayerMask obstacleLayer; // Capa de paredes/obstáculos
+    [SerializeField] private bool requireLineOfSight = true; // Activar/desactivar LOS
+    [SerializeField] private float visionCheckInterval = 0.2f; // Frecuencia de chequeo (optimización)
+    [SerializeField] private Transform visionOrigin; // Punto desde donde mira (ojos del enemigo)
+    [SerializeField] private bool debugLineOfSight = true; // Mostrar rayos de visión
+    [SerializeField] private float loseLineOfSightDelay = 0.5f; // Tiempo antes de perder al jugador sin visión
 
     [Header("Attack Settings")]
     [SerializeField] private float attackRange = 1.5f;
@@ -26,6 +35,19 @@ public class EnemyBandido : EnemyBase
     [SerializeField] private float attackWindupTime = 0.3f; // Tiempo antes de hacer daño
     [SerializeField] private Transform attackPoint; // Punto desde donde se verifica el ataque
     [SerializeField] private float attackRadius = 1f; // Radio del área de ataque
+
+    [Header("Jump Settings")]
+    [SerializeField] private bool canJump = true;
+    [SerializeField] private float jumpForce = 10f;
+    [SerializeField] private float jumpCooldown = 1f;
+    [SerializeField] private LayerMask groundLayer;
+    [SerializeField] private Transform groundCheck;
+    [SerializeField] private float groundCheckRadius = 0.2f;
+    [SerializeField] private Transform obstacleCheck;
+    [SerializeField] private float obstacleCheckRadius = 0.2f;
+    [SerializeField] private float obstacleCheckDistance = 0.5f;
+    [SerializeField] private float playerAboveDetectionHeight = 1f;
+    [SerializeField] private bool debugJump = true;
 
     [Header("Visual Feedback")]
     [SerializeField] private SpriteRenderer spriteRenderer;
@@ -50,6 +72,13 @@ public class EnemyBandido : EnemyBase
     private float attackTimer = 0f;
     private bool isAttacking = false;
     private float attackWindupTimer = 0f;
+    private float visionCheckTimer = 0f;
+    private bool hasLineOfSight = false;
+    private float timeWithoutLineOfSight = 0f;
+
+    private float jumpTimer = 0f;
+    private bool isGrounded = false;
+    private bool wasBlocked = false;
 
     private Transform player;
     private Vector2 lastMoveDirection = Vector2.right;
@@ -67,6 +96,27 @@ public class EnemyBandido : EnemyBase
         if (attackPoint == null)
         {
             attackPoint = transform;
+        }
+
+        // Si no se asigna un punto de visión, usar la posición del enemigo
+        if (visionOrigin == null)
+        {
+            visionOrigin = transform;
+        }
+
+        if (groundCheck == null)
+        {
+            GameObject groundCheckObj = new GameObject("GroundCheck");
+            groundCheckObj.transform.parent = transform;
+            groundCheckObj.transform.localPosition = new Vector3(0, -0.5f, 0);
+            groundCheck = groundCheckObj.transform;
+        }
+        if (obstacleCheck == null)
+        {
+            GameObject obstacleCheckObj = new GameObject("ObstacleCheck");
+            obstacleCheckObj.transform.parent = transform;
+            obstacleCheckObj.transform.localPosition = new Vector3(0, 0.3f, 0); // Un poco arriba del centro
+            obstacleCheck = obstacleCheckObj.transform;
         }
 
         FindPlayer();
@@ -95,7 +145,7 @@ public class EnemyBandido : EnemyBase
         {
             if (rb != null)
             {
-                rb.linearVelocity = Vector2.zero;
+                rb.linearVelocity = new Vector2(0, rb.linearVelocity.y); // Mantener gravedad
             }
             return;
         }
@@ -110,7 +160,7 @@ public class EnemyBandido : EnemyBase
         {
             if (rb != null)
             {
-                rb.linearVelocity = Vector2.zero;
+                rb.linearVelocity = new Vector2(0, rb.linearVelocity.y);
             }
             return;
         }
@@ -122,6 +172,20 @@ public class EnemyBandido : EnemyBase
 
         UpdateBehavior();
         UpdateAttackTimer();
+        UpdateJumpTimer();
+        CheckGrounded();
+
+        // Verificar si debe saltar
+        if (canJump && isGrounded && jumpTimer <= 0 && !IsFullyStunned())
+        {
+            if (currentState == BanditState.Chase || currentState == BanditState.Patrol)
+            {
+                if (ShouldJump())
+                {
+                    PerformJump();
+                }
+            }
+        }
     }
 
     private void FindPlayer()
@@ -140,10 +204,111 @@ public class EnemyBandido : EnemyBase
         }
     }
 
+    #region Line of Sight
+
+    /// <summary>
+    /// Verifica si el enemigo tiene línea de visión directa al jugador
+    /// </summary>
+    private bool CheckLineOfSight()
+    {
+        if (!requireLineOfSight || player == null)
+        {
+            return true; // Si no se requiere LOS, siempre retorna true
+        }
+
+        Vector2 origin = visionOrigin.position;
+        Vector2 targetPosition = player.position;
+        Vector2 direction = targetPosition - origin;
+        float distance = direction.magnitude;
+
+        // Hacer un raycast hacia el jugador
+        RaycastHit2D hit = Physics2D.Raycast(origin, direction.normalized, distance, obstacleLayer | playerLayer);
+
+        // Debug visual
+        if (debugLineOfSight)
+        {
+            if (hit.collider != null && hit.collider.CompareTag("Player"))
+            {
+                Debug.DrawRay(origin, direction, Color.green); // Verde = puede ver
+            }
+            else
+            {
+                Debug.DrawRay(origin, direction, Color.red); // Rojo = bloqueado
+            }
+        }
+
+        // Si el raycast golpea algo
+        if (hit.collider != null)
+        {
+            // Verificar si lo que golpeó es el jugador
+            if (hit.collider.CompareTag("Player"))
+            {
+                return true; // Visión clara al jugador
+            }
+            else
+            {
+                // Golpeó un obstáculo antes de llegar al jugador
+                return false;
+            }
+        }
+
+        // No golpeó nada (no debería pasar si el jugador tiene collider)
+        return false;
+    }
+
+    /// <summary>
+    /// Actualiza el estado de línea de visión con intervalo de tiempo (optimización)
+    /// </summary>
+    private void UpdateLineOfSight()
+    {
+        visionCheckTimer -= Time.deltaTime;
+
+        if (visionCheckTimer <= 0f)
+        {
+            bool previousLineOfSight = hasLineOfSight;
+            hasLineOfSight = CheckLineOfSight();
+            visionCheckTimer = visionCheckInterval;
+
+            // Si perdió línea de visión, empezar a contar
+            if (previousLineOfSight && !hasLineOfSight)
+            {
+                timeWithoutLineOfSight = 0f;
+                if (logBehaviorDetails && currentState == BanditState.Chase)
+                {
+                    Debug.Log($"{gameObject.name} perdió línea de visión temporalmente");
+                }
+            }
+            // Si recuperó línea de visión, resetear contador
+            else if (!previousLineOfSight && hasLineOfSight)
+            {
+                timeWithoutLineOfSight = 0f;
+                if (logBehaviorDetails && currentState == BanditState.Chase)
+                {
+                    Debug.Log($"{gameObject.name} recuperó línea de visión");
+                }
+            }
+        }
+
+        // Si no tiene línea de visión, incrementar el contador
+        if (!hasLineOfSight && currentState == BanditState.Chase)
+        {
+            timeWithoutLineOfSight += Time.deltaTime;
+        }
+        else if (hasLineOfSight)
+        {
+            timeWithoutLineOfSight = 0f;
+        }
+    }
+
+    #endregion
+
     #region State Machine
 
     private void UpdateBehavior()
     {
+        // Actualizar línea de visión
+        UpdateLineOfSight();
+
         switch (currentState)
         {
             case BanditState.Patrol:
@@ -208,12 +373,15 @@ public class EnemyBandido : EnemyBase
         if (targetPoint == null) return;
 
         // Moverse hacia el punto de patrulla
-        Vector2 direction = (targetPoint.position - transform.position).normalized;
+        Vector2 direction = (targetPoint.position - transform.position);
+        direction.y = 0; // Ignorar diferencia vertical
+        direction = direction.normalized;
+
         float speed = patrolSpeed * GetMovementSpeedMultiplier();
 
         if (rb != null)
         {
-            rb.linearVelocity = direction * speed;
+            rb.linearVelocity = new Vector2(direction.x * speed, rb.linearVelocity.y);
         }
         else
         {
@@ -224,7 +392,7 @@ public class EnemyBandido : EnemyBase
         UpdateSpriteFlip(direction.x);
 
         // Verificar si llegó al punto
-        float distanceToPoint = Vector2.Distance(transform.position, targetPoint.position);
+        float distanceToPoint = Mathf.Abs(transform.position.x - targetPoint.position.x);
         if (distanceToPoint <= waypointReachDistance)
         {
             OnReachedPatrolPoint();
@@ -232,6 +400,8 @@ public class EnemyBandido : EnemyBase
     }
     private void OnReachedPatrolPoint()
     {
+        ChangeState(BanditState.Waiting);
+
         // Avanzar al siguiente punto
         if (loopPatrol)
         {
@@ -267,7 +437,7 @@ public class EnemyBandido : EnemyBase
     {
         if (rb != null)
         {
-            rb.linearVelocity = Vector2.zero;
+            rb.linearVelocity = new Vector2(0, rb.linearVelocity.y);
         }
 
         waitTimer -= Time.deltaTime;
@@ -303,7 +473,7 @@ public class EnemyBandido : EnemyBase
 
         float distanceToPlayer = Vector2.Distance(transform.position, player.position);
 
-        if (distanceToPlayer <= detectionRange)
+        if (distanceToPlayer <= detectionRange && hasLineOfSight)
         {
             if (logBehaviorDetails)
             {
@@ -320,16 +490,20 @@ public class EnemyBandido : EnemyBase
             return;
         }
 
-        Vector2 direction = (player.position - transform.position).normalized;
+        Vector2 direction = (player.position - transform.position);
+        direction.y = 0; // Ignorar diferencia vertical
+        direction = direction.normalized;
+
         float speed = chaseSpeed * GetMovementSpeedMultiplier();
 
         if (rb != null)
         {
-            rb.linearVelocity = direction * speed;
+            // Solo modificar velocidad horizontal, mantener la velocidad vertical (gravedad)
+            rb.linearVelocity = new Vector2(direction.x * speed, rb.linearVelocity.y);
         }
         else
         {
-            transform.position += (Vector3)direction * speed * Time.deltaTime;
+            transform.position += new Vector3(direction.x * speed * Time.deltaTime, 0, 0);
         }
 
         lastMoveDirection = direction;
@@ -352,12 +526,16 @@ public class EnemyBandido : EnemyBase
 
         float distanceToPlayer = Vector2.Distance(transform.position, player.position);
 
-        if (distanceToPlayer > loseTargetDistance)
+        bool tooFar = distanceToPlayer > loseTargetDistance;
+        bool lostVisionTooLong = timeWithoutLineOfSight >= loseLineOfSightDelay;
+
+        if (tooFar || lostVisionTooLong)
         {
             if (logBehaviorDetails)
             {
                 Debug.Log($"{gameObject.name} perdió de vista al jugador");
             }
+            timeWithoutLineOfSight = 0f;
             ChangeState(BanditState.Patrol);
         }
     }
@@ -376,7 +554,7 @@ public class EnemyBandido : EnemyBase
         // Detener movimiento durante el ataque
         if (rb != null)
         {
-            rb.linearVelocity = Vector2.zero;
+            rb.linearVelocity = new Vector2(0, rb.linearVelocity.y);
         }
 
         // Contar el windup
@@ -437,6 +615,101 @@ public class EnemyBandido : EnemyBase
         {
             attackTimer -= Time.deltaTime;
         }
+    }
+
+    #endregion
+
+    #region Jump Behavior
+    private void CheckGrounded()
+    {
+        if (groundCheck == null) return;
+
+        isGrounded = Physics2D.OverlapCircle(groundCheck.position, groundCheckRadius, groundLayer);
+    }
+    private void UpdateJumpTimer()
+    {
+        if (jumpTimer > 0)
+        {
+            jumpTimer -= Time.deltaTime;
+        }
+    }
+    private bool ShouldJump()
+    {
+        // Verificar si hay un obstáculo delante usando OverlapCircle (igual que groundCheck)
+        bool hasObstacle = CheckObstacleAhead();
+
+        // Verificar si el jugador está encima
+        bool playerAbove = IsPlayerAbove();
+
+        if (hasObstacle || playerAbove)
+        {
+            if (debugJump)
+            {
+                string reason = hasObstacle ? "obstáculo detectado" : "jugador encima";
+                Debug.Log($"{gameObject.name} va a saltar: {reason}");
+            }
+            return true;
+        }
+
+        return false;
+    }
+    private bool CheckObstacleAhead()
+    {
+        if (obstacleCheck == null) return false;
+
+        // Determinar dirección de movimiento
+        float direction = lastMoveDirection.x != 0 ? Mathf.Sign(lastMoveDirection.x) :
+                         (transform.localScale.x > 0 ? -1f : 1f);
+
+        // Calcular posición del check adelante del enemigo
+        Vector2 checkPosition = (Vector2)obstacleCheck.position + new Vector2(direction * obstacleCheckDistance, 0);
+
+        // Usar OverlapCircle para detectar obstáculos (igual que groundCheck)
+        bool hasObstacle = Physics2D.OverlapCircle(checkPosition, obstacleCheckRadius, groundLayer);
+
+        if (debugJump && hasObstacle)
+        {
+            Debug.Log($"{gameObject.name} detectó obstáculo adelante");
+        }
+
+        return hasObstacle;
+    }
+    private bool IsPlayerAbove()
+    {
+        if (player == null) return false;
+
+        Vector2 boxCenter = (Vector2)transform.position + Vector2.up * (playerAboveDetectionHeight * 0.5f);
+        Vector2 boxSize = new Vector2(1f, playerAboveDetectionHeight);
+
+        Collider2D hit = Physics2D.OverlapBox(boxCenter, boxSize, 0f, playerLayer);
+
+        if (debugJump && hit != null)
+        {
+            Debug.DrawLine(transform.position, boxCenter + Vector2.up * (playerAboveDetectionHeight * 0.5f), Color.magenta);
+        }
+
+        return hit != null;
+    }
+    private void PerformJump()
+    {
+        if (rb == null) return;
+
+        // Aplicar fuerza vertical
+        rb.linearVelocity = new Vector2(rb.linearVelocity.x, jumpForce);
+
+        // Reiniciar cooldown
+        jumpTimer = jumpCooldown;
+
+        if (debugJump)
+        {
+            Debug.Log($"{gameObject.name} realizó un salto con fuerza {jumpForce}");
+        }
+
+        OnJumpPerformed();
+    }
+    protected virtual void OnJumpPerformed()
+    {
+        // Override para efectos de sonido/visuales
     }
 
     #endregion
@@ -623,7 +896,6 @@ public class EnemyBandido : EnemyBase
     #endregion
 
     #region Gizmos
-
     private void OnDrawGizmosSelected()
     {
         // Rango de detección
@@ -660,6 +932,28 @@ public class EnemyBandido : EnemyBase
                     }
                 }
             }
+        }
+        // Línea de visión (en Play Mode)
+        if (Application.isPlaying && player != null && debugLineOfSight)
+        {
+            Vector3 visionPos = visionOrigin != null ? visionOrigin.position : transform.position;
+            Gizmos.color = hasLineOfSight ? Color.green : Color.red;
+            Gizmos.DrawLine(visionPos, player.position);
+        }
+
+        // Ground check
+        if (groundCheck != null)
+        {
+            Gizmos.color = Application.isPlaying && isGrounded ? Color.green : Color.red;
+            Gizmos.DrawWireSphere(groundCheck.position, groundCheckRadius);
+        }
+
+        // Detección de obstáculos para salto
+        if (canJump)
+        {
+            Vector3 boxCenter = transform.position + Vector3.up * (playerAboveDetectionHeight * 0.5f);
+            Gizmos.color = Color.magenta;
+            Gizmos.DrawWireCube(boxCenter, new Vector3(1f, playerAboveDetectionHeight, 0.1f));
         }
     }
 
