@@ -175,13 +175,9 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 5000f61a8881b424987ce68abc65e6ac, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  maxHealth: 1
-  destroyOnAnyDamage: 1
+  maxHealth: 100
+  destroyOnAnyDamage: 0
   captureDifficulty: 1
-  capturedColor: {r: 0.54901963, g: 0.54901963, b: 0.54901963, a: 0}
-  destroyEffectPrefab: {fileID: 0}
-  breakSound: {fileID: 0}
-  breakParticles: {fileID: 0}
   OnDamageTaken:
     m_PersistentCalls:
       m_Calls: []

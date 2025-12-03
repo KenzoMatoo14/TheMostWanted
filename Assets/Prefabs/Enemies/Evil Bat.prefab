@@ -302,7 +302,7 @@ MonoBehaviour:
   loseLineOfSightDelay: 0.5
   attackRange: 1.5
   attackCooldown: 1
-  attackDamage: 21
+  attackDamage: 12
   attackWindupTime: 0.2
   attackPoint: {fileID: 1737434713822099933}
   attackRadius: 1.2

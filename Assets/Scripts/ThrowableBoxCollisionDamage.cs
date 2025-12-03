@@ -12,7 +12,7 @@ public class ThrowableBoxCollisionDamage : MonoBehaviour
     [Header("Damage Settings")]
     [SerializeField] private float minVelocityForDamage = 2f;
     [SerializeField] private float damageMultiplier = 3f;
-    [SerializeField] private LayerMask damageableLayers = 1 << 6;
+    [SerializeField] private LayerMask damageableLayers = (1 << 6) | (1 << 9);
     [SerializeField] private bool destroyOnFirstHit = true;
 
     [Header("Knockback Settings")]
@@ -159,9 +159,11 @@ public class ThrowableBoxCollisionDamage : MonoBehaviour
                 Debug.Log($"Caja {gameObject.name} hizo {damage} de daño a {collision.gameObject.name} (velocidad: {velocityMagnitude:F2})");
             }
 
+            // Verificar si el enemigo murió (solo si NO es otra caja)
             bool enemyDied = wasAlive && damageable.IsDead();
+            bool isEnemyNotBox = collision.gameObject.GetComponent<ThrowableBox>() == null;
 
-            if (enemyDied)
+            if (enemyDied && isEnemyNotBox)
             {
                 Debug.Log($"⚡ ¡ENEMIGO {collision.gameObject.name} ELIMINADO! Activando Impact Frame");
                 TriggerImpactFrameOnKill(collision.gameObject, velocityMagnitude);
@@ -170,7 +172,21 @@ public class ThrowableBoxCollisionDamage : MonoBehaviour
             // Marcar que causó daño
             hasDealtDamage = true;
 
-            box.TakeDamage(999);
+            // Esto asegura que la caja vuelva a estar en estado "no capturada"
+            if (box != null && box.IsCaptured())
+            {
+                box.Release(rb.linearVelocity);
+                Debug.Log($"Caja liberada después de causar daño");
+            }
+            if (destroyOnFirstHit)
+            {
+                box.TakeDamage(999);
+            }
+            else
+            {
+                box.TakeDamage(1);
+                ApplyBounceEffect(collision, velocityMagnitude);
+            }
 
             // Aplicar rebote si no se destruyó inmediatamente
             if (!destroyOnFirstHit)

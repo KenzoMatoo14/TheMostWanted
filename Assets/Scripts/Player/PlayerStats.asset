@@ -32,11 +32,11 @@ MonoBehaviour:
   GroundCheckRadius: 0.2
   GroundLayer:
     serializedVersion: 2
-    m_Bits: 8
+    m_Bits: 584
   MaxGrappleDistance: 20
   GrappleLayer:
     serializedVersion: 2
-    m_Bits: 8
+    m_Bits: 520
   PullStrength: 12
   PullTime: 0.28
   RopeShorten: 0.75

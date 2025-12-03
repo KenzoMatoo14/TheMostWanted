@@ -14,8 +14,8 @@ TagManager:
   - Enemy
   - Player
   - Impact
-  - 
-  - 
+  - DestructibleWall
+  - Projectiles
   - 
   - 
   - 

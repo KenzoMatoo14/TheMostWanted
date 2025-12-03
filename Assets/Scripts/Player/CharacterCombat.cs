@@ -1,4 +1,4 @@
-using UnityEditor.ShaderGraph;
+Ôªøusing UnityEditor.ShaderGraph;
 using UnityEngine;
 using UnityEngine.UI;
 
@@ -14,6 +14,10 @@ public class CharacterCombat : MonoBehaviour
     public Transform attackPoint;
     public Transform whipTip;
     private bool canAttack = true;
+
+    [Header("Whip Attack Area")]
+    [SerializeField] private float whipCapsuleRadius = 0.5f; // Radio de la c√°psula
+    [SerializeField] private bool showAttackArea = true; // Para debug visual
 
     [Header("Audio")]
     [SerializeField] private AudioSource audioSource;
@@ -36,6 +40,7 @@ public class CharacterCombat : MonoBehaviour
     private ICaptureable lastHoveredCapturable;
     private ICaptureable currentHoveredCapturable;
     private EnemyBase lastAttackedEnemy;
+    private Animator animator;
 
     [Header("Capture UI")]
     public GameObject captureUI; // Panel que contiene la barra
@@ -48,6 +53,7 @@ public class CharacterCombat : MonoBehaviour
         rb = GetComponent<Rigidbody2D>();
         controls = new PlayerControls();
         mainCamera = Camera.main;
+        animator = GetComponentInChildren<Animator>();
 
         if (audioSource == null)
         {
@@ -94,16 +100,16 @@ public class CharacterCombat : MonoBehaviour
             // PRIMERO: Verificar si el objeto fue destruido (GameObject null)
             if (targetMB == null)
             {
-                Debug.Log("Objeto capturado fue destruido - liberando autom·ticamente");
+                Debug.Log("Objeto capturado fue destruido - liberando autom√°ticamente");
                 CleanupCaptureState();
             }
-            // SEGUNDO: Si el objeto existe, verificar si muriÛ (solo para IDamageable)
+            // SEGUNDO: Si el objeto existe, verificar si muri√≥ (solo para IDamageable)
             else
             {
                 IDamageable damageable = targetMB.GetComponent<IDamageable>();
                 if (damageable != null && damageable.IsDead())
                 {
-                    Debug.Log($"Objeto capturado {targetMB.name} ha muerto - liberando autom·ticamente");
+                    Debug.Log($"Objeto capturado {targetMB.name} ha muerto - liberando autom√°ticamente");
                     ReleaseEnemyOnDeath();
                 }
                 else
@@ -131,7 +137,7 @@ public class CharacterCombat : MonoBehaviour
     ///////////////////////// HOVER DETECTION
     void UpdateHoverDetection()
     {
-        // Actualizar el ˙ltimo hovered si hay uno actual
+        // Actualizar el √∫ltimo hovered si hay uno actual
         if (currentHoveredCapturable != null)
         {
             lastHoveredCapturable = currentHoveredCapturable;
@@ -146,7 +152,7 @@ public class CharacterCombat : MonoBehaviour
             return;
         }
 
-        // Obtener la posiciÛn del mouse en el mundo usando el nuevo Input System
+        // Obtener la posici√≥n del mouse en el mundo usando el nuevo Input System
         Vector2 mouseScreenPos = UnityEngine.InputSystem.Mouse.current.position.ReadValue();
         Vector3 mouseWorldPos = mainCamera.ScreenToWorldPoint(new Vector3(mouseScreenPos.x, mouseScreenPos.y, 0f));
         mouseWorldPos.z = 0f;
@@ -154,7 +160,7 @@ public class CharacterCombat : MonoBehaviour
         // Hacer un CircleCast desde el mouse hacia los lados para detectar enemigos
         Collider2D[] hits = Physics2D.OverlapCircleAll(mouseWorldPos, stats.HoverDetectionRadius, stats.EnemyLayers);
 
-        // Buscar el ICaptureable m·s cercano al cursor
+        // Buscar el ICaptureable m√°s cercano al cursor
         float closestDistance = Mathf.Infinity;
         foreach (Collider2D hit in hits)
         {
@@ -174,7 +180,7 @@ public class CharacterCombat : MonoBehaviour
             }
         }
 
-        // Debug visual para saber quÈ est· detectando
+        // Debug visual para saber qu√© est√° detectando
         if (currentHoveredCapturable != null)
         {
             MonoBehaviour hoveredMB = currentHoveredCapturable as MonoBehaviour;
@@ -186,38 +192,38 @@ public class CharacterCombat : MonoBehaviour
     }
     Vector2 GetAimDirection()
     {
-        // Si tienes un sistema de apuntado con mouse/joystick, ˙salo aquÌ
-        // Por ahora, usar la direcciÛn hacia donde mira el sprite (escala X)
+        // Si tienes un sistema de apuntado con mouse/joystick, √∫salo aqu√≠
+        // Por ahora, usar la direcci√≥n hacia donde mira el sprite (escala X)
         float facingDirection = transform.localScale.x > 0 ? 1f : -1f;
         return new Vector2(facingDirection, 0f);
     }
     ICaptureable GetTargetCapturable()
     {
-        // Prioridad 1: El que est· siendo hovereado actualmente
+        // Prioridad 1: El que est√° siendo hovereado actualmente
         if (currentHoveredCapturable != null)
         {
             //Debug.Log($"Objetivo seleccionado: hovereado actualmente - {((MonoBehaviour)currentHoveredCapturable).name}");
             return currentHoveredCapturable;
         }
 
-        // Prioridad 2: El ˙ltimo que fue hovereado
+        // Prioridad 2: El √∫ltimo que fue hovereado
         if (lastHoveredCapturable != null)
         {
-            // Verificar que sigue siendo v·lido y en rango
+            // Verificar que sigue siendo v√°lido y en rango
             MonoBehaviour lastHoveredMB = lastHoveredCapturable as MonoBehaviour;
             if (lastHoveredMB != null)
             {
                 float distance = Vector2.Distance(transform.position, lastHoveredMB.transform.position);
                 if (distance <= stats.CaptureRange)
                 {
-                    //Debug.Log($"Objetivo seleccionado: ˙ltimo hovereado - {lastHoveredMB.name}");
+                    //Debug.Log($"Objetivo seleccionado: √∫ltimo hovereado - {lastHoveredMB.name}");
                     return lastHoveredCapturable;
                 }
             }
         }
 
-        // Prioridad 3: Buscar el m·s cercano
-        //Debug.Log("Objetivo seleccionado: enemigo m·s cercano (fallback)");
+        // Prioridad 3: Buscar el m√°s cercano
+        //Debug.Log("Objetivo seleccionado: enemigo m√°s cercano (fallback)");
         return null; // Retornar null para que se use FindNearestEnemy
     }
 
@@ -238,7 +244,7 @@ public class CharacterCombat : MonoBehaviour
     }
     void OnCaptureButtonReleased()
     {
-        // Solo detener la captura si estamos en proceso de capturar (no si ya est· capturado)
+        // Solo detener la captura si estamos en proceso de capturar (no si ya est√° capturado)
         if (isCapturing && !hasEnemyCaptured)
         {
             StopCapture();
@@ -263,7 +269,7 @@ public class CharacterCombat : MonoBehaviour
             }
         }
 
-        // PRIORIDAD 2: ⁄ltimo enemigo atacado (si est· en rango)
+        // PRIORIDAD 2: √öltimo enemigo atacado (si est√° en rango)
         if (targetCapturable == null && lastAttackedEnemy != null)
         {
             float distance = Vector2.Distance(transform.position, lastAttackedEnemy.transform.position);
@@ -272,22 +278,22 @@ public class CharacterCombat : MonoBehaviour
                 targetCapturable = lastAttackedEnemy;
                 targetMB = lastAttackedEnemy;
                 targetEnemy = lastAttackedEnemy;
-                Debug.Log($"[CAPTURA] Objetivo: ⁄ltimo Atacado en rango - {targetEnemy.name} (distancia: {distance:F2}m)");
+                Debug.Log($"[CAPTURA] Objetivo: √öltimo Atacado en rango - {targetEnemy.name} (distancia: {distance:F2}m)");
             }
             else
             {
                 if (lastAttackedEnemy.IsDead())
                 {
-                    Debug.Log($"[CAPTURA] ⁄ltimo Atacado est· muerto: {lastAttackedEnemy.name}");
+                    Debug.Log($"[CAPTURA] √öltimo Atacado est√° muerto: {lastAttackedEnemy.name}");
                 }
                 else
                 {
-                    Debug.Log($"[CAPTURA] ⁄ltimo Atacado fuera de rango: {lastAttackedEnemy.name} (distancia: {distance:F2}m / max: {stats.CaptureRange}m)");
+                    Debug.Log($"[CAPTURA] √öltimo Atacado fuera de rango: {lastAttackedEnemy.name} (distancia: {distance:F2}m / max: {stats.CaptureRange}m)");
                 }
             }
         }
 
-        // PRIORIDAD 3: LastHoveredCapturable (si est· en rango)
+        // PRIORIDAD 3: LastHoveredCapturable (si est√° en rango)
         if (targetCapturable == null && lastHoveredCapturable != null)
         {
             MonoBehaviour lastHoveredMB = lastHoveredCapturable as MonoBehaviour;
@@ -401,9 +407,9 @@ public class CharacterCombat : MonoBehaviour
     {
         if (targetCapturable != null && targetMB != null)
         {
-            Debug.Log($"°Captura exitosa de: {targetMB.name}!");
+            Debug.Log($"¬°Captura exitosa de: {targetMB.name}!");
 
-            // Llamar al mÈtodo TryCapture del enemigo
+            // Llamar al m√©todo TryCapture del enemigo
             bool captureSuccess = targetCapturable.CompleteCapture();
 
             if (captureSuccess)
@@ -425,7 +431,7 @@ public class CharacterCombat : MonoBehaviour
             }
             else
             {
-                Debug.Log("El enemigo resistiÛ la captura");
+                Debug.Log("El enemigo resisti√≥ la captura");
                 StopCapture();
             }
         }
@@ -438,7 +444,7 @@ public class CharacterCombat : MonoBehaviour
     {
         if (ropeRenderer == null) return;
 
-        // Activar el renderer si no est· activo
+        // Activar el renderer si no est√° activo
         if (!ropeRenderer.enabled)
         {
             ropeRenderer.enabled = true;
@@ -446,8 +452,8 @@ public class CharacterCombat : MonoBehaviour
 
         // Dibujar la cuerda desde el jugador hasta el enemigo
         ropeRenderer.positionCount = 2;
-        ropeRenderer.SetPosition(0, transform.position); // PosiciÛn del jugador
-        ropeRenderer.SetPosition(1, enemyPosition);      // PosiciÛn del enemigo capturado
+        ropeRenderer.SetPosition(0, transform.position); // Posici√≥n del jugador
+        ropeRenderer.SetPosition(1, enemyPosition);      // Posici√≥n del enemigo capturado
     }
     void HideCaptureRope()
     {
@@ -536,40 +542,40 @@ public class CharacterCombat : MonoBehaviour
         {
             Debug.Log($"Liberando a: {targetMB.name}");
 
-            // Obtener la velocidad de liberaciÛn ANTES de destruir el controller
+            // Obtener la velocidad de liberaci√≥n ANTES de destruir el controller
             Vector2 releaseVelocity = Vector2.zero;
             if (currentCapturedController != null)
             {
                 releaseVelocity = currentCapturedController.GetReleaseVelocity();
-                Debug.Log($"Velocidad de liberaciÛn obtenida: {releaseVelocity.magnitude:F2} m/s en direcciÛn {releaseVelocity.normalized}");
+                Debug.Log($"Velocidad de liberaci√≥n obtenida: {releaseVelocity.magnitude:F2} m/s en direcci√≥n {releaseVelocity.normalized}");
 
                 bool isBox = currentCapturedController.IsBox();
 
                 if (isBox)
                 {
-                    // Para cajas: aÒadir ThrowableBoxCollisionDamage
+                    // Para cajas: a√±adir ThrowableBoxCollisionDamage
                     ThrowableBoxCollisionDamage boxDamage = targetMB.gameObject.AddComponent<ThrowableBoxCollisionDamage>();
                     boxDamage.Initialize(
                         currentCapturedController.minVelocityForDamage,
-                        currentCapturedController.damageMultiplier * 1.5f, // 50% m·s de daÒo que enemigos
+                        currentCapturedController.damageMultiplier * 1.5f, // 50% m√°s de da√±o que enemigos
                         currentCapturedController.damageableLayers,
                         true, // Destruir al primer impacto
-                        5f    // DuraciÛn de 5 segundos
+                        5f    // Duraci√≥n de 5 segundos
                     );
-                    Debug.Log("ThrowableBoxCollisionDamage aÒadido a la caja");
+                    Debug.Log("ThrowableBoxCollisionDamage a√±adido a la caja");
                 }
                 else
                 {
-                    // Para enemigos: aÒadir ReleasedEnemyCollisionDamage
+                    // Para enemigos: a√±adir ReleasedEnemyCollisionDamage
                     ReleasedEnemyCollisionDamage collisionDamage = targetMB.gameObject.AddComponent<ReleasedEnemyCollisionDamage>();
                     collisionDamage.Initialize(
                         currentCapturedController.minVelocityForDamage,
                         currentCapturedController.damageMultiplier,
                         currentCapturedController.damageableLayers,
                         currentCapturedController.damageCooldown,
-                        3f // DuraciÛn de 3 segundos
+                        3f // Duraci√≥n de 3 segundos
                     );
-                    Debug.Log("ReleasedEnemyCollisionDamage aÒadido al enemigo");
+                    Debug.Log("ReleasedEnemyCollisionDamage a√±adido al enemigo");
                 }
 
                 // Destruir el controller
@@ -590,16 +596,16 @@ public class CharacterCombat : MonoBehaviour
     {
         if (targetCapturable != null && targetMB != null && hasEnemyCaptured)
         {
-            Debug.Log($"Objeto {targetMB.name} muriÛ mientras estaba capturado - limpiando estado");
+            Debug.Log($"Objeto {targetMB.name} muri√≥ mientras estaba capturado - limpiando estado");
 
-            // Desuscribirse del evento de muerte (si a˙n no se ha hecho)
+            // Desuscribirse del evento de muerte (si a√∫n no se ha hecho)
             if (targetEnemy != null)
             {
                 targetEnemy.OnDeath.RemoveListener(OnCapturedEnemyDied);
             }
         }
 
-        // Usar el mÈtodo centralizado para limpiar
+        // Usar el m√©todo centralizado para limpiar
         CleanupCaptureState();
     }
     private void OnCapturedEnemyDied()
@@ -609,7 +615,6 @@ public class CharacterCombat : MonoBehaviour
     }
 
     ///////////////////////// MELEE
-
     void HandleHitWhipInput()
     {
         if (hasEnemyCaptured)
@@ -639,66 +644,94 @@ public class CharacterCombat : MonoBehaviour
     }
     void MeleeAttack()
     {
-        //Play an animation
-
         PlayWhipSound();
 
-        //Detect enemies in range of attack
-        RaycastHit2D[] hitEnemies = Physics2D.LinecastAll(attackPoint.position, whipTip.position, stats.EnemyLayers);
+        // Activar animaci√≥n de ataque
+        if (animator != null)
+        {
+            animator.SetTrigger("isHiting");
+        }
+    }
+    public void ExecuteWhipDamage()
+    {
+        Debug.Log("=== EJECUTANDO DA√ëO DEL L√ÅTIGO (C√ÅPSULA) ===");
 
-        bool hitSomething = false; // Flag para saber si golpeamos algo
+        // Calcular el punto medio entre attackPoint y whipTip
+        Vector2 capsuleStart = attackPoint.position;
+        Vector2 capsuleEnd = whipTip.position;
 
-        //Damage those enemies
+        // Calcular direcci√≥n y distancia
+        Vector2 direction = (capsuleEnd - capsuleStart).normalized;
+        float distance = Vector2.Distance(capsuleStart, capsuleEnd);
+
+        // Usar CapsuleCast para detectar enemigos en el √°rea de c√°psula
+        RaycastHit2D[] hitEnemies = Physics2D.CapsuleCastAll(
+            capsuleStart,                    // Origen (punto de inicio)
+            new Vector2(whipCapsuleRadius * 2f, distance), // Tama√±o de la c√°psula (ancho, alto)
+            CapsuleDirection2D.Vertical,     // Direcci√≥n de la c√°psula
+            Mathf.Atan2(direction.y, direction.x) * Mathf.Rad2Deg - 90f, // √Ångulo de rotaci√≥n
+            direction,                       // Direcci√≥n del cast (Vector2, no float)
+            distance,                        // Distancia del cast
+            stats.EnemyLayers                // Layers a detectar
+        );
+
+        bool hitSomething = false;
+
         foreach (RaycastHit2D hit in hitEnemies)
         {
             Debug.Log("Whip hit: " + hit.collider.gameObject.name);
 
             SpawnHitParticles(hit.point, hit.normal);
 
-            // Primero intentar obtener IDamageable (interfaz universal)
             IDamageable damageable = hit.collider.GetComponent<IDamageable>();
             if (damageable != null)
             {
                 damageable.TakeDamage(stats.MeleeDamage, (Vector2)attackPoint.position);
-                hitSomething = true; // Marcamos que golpeamos algo
+                hitSomething = true;
 
-                // Si tambiÈn es un EnemyBase, aplicar stun y guardarlo
                 EnemyBase enemy = hit.collider.GetComponent<EnemyBase>();
                 if (enemy != null)
                 {
                     lastAttackedEnemy = enemy;
 
-                    // Aplicar stun si est· activado
                     if (stats.ApplyStunOnHit)
                     {
                         ApplyStunToEnemy(enemy, stats.MeleeDamage);
                     }
                 }
-                else
-                {
-                    // Es un objeto daÒable pero no enemigo (como ThrowableBox)
-                    Debug.Log($"{hit.collider.gameObject.name} recibiÛ daÒo (no es enemigo)");
-                }
             }
         }
-        // Aplicar hitstop si golpeamos algo
+
         if (hitSomething && stats.HitStopDuration > 0f)
         {
             HitStopManager.Instance.DoHitStop(stats.HitStopDuration);
+        }
+    }
+    public void ExecuteWhipDamageFromChild()
+    {
+        // Buscar el CharacterCombat en el padre
+        CharacterCombat combat = GetComponent<CharacterCombat>();
+        if (combat != null)
+        {
+            combat.ExecuteWhipDamage();
+        }
+        else
+        {
+            Debug.LogError("No se encontr√≥ CharacterCombat en el padre!");
         }
     }
 
     ///////////////////////// STUNNED
     void ApplyStunToEnemy(EnemyBase enemy, int damageDealt)
     {
-        // Calcular el porcentaje de daÒo que representa del HP m·ximo
+        // Calcular el porcentaje de da√±o que representa del HP m√°ximo
         float maxHealth = enemy.GetMaxHealth();
         float damagePercentage = (damageDealt / maxHealth) * 100f;
 
         // Aplicar el multiplicador de stun
         float finalStunAmount = damagePercentage * stats.StunMultiplier;
 
-        // Aplicar bonus por vida baja si est· activado
+        // Aplicar bonus por vida baja si est√° activado
         if (stats.ApplyLowHealthBonus)
         {
             float healthPercentage = enemy.GetHealthPercentage();
@@ -711,9 +744,9 @@ public class CharacterCombat : MonoBehaviour
 
         enemy.AddStunned(finalStunAmount);
 
-        Debug.Log($"Stun aplicado a {enemy.name}: {finalStunAmount:F1}% (DaÒo: {damageDealt}/{maxHealth} = {damagePercentage:F1}% x {stats.StunMultiplier})");
+        Debug.Log($"Stun aplicado a {enemy.name}: {finalStunAmount:F1}% (Da√±o: {damageDealt}/{maxHealth} = {damagePercentage:F1}% x {stats.StunMultiplier})");
     }
-    public void ApplyStunToTarget(EnemyBase enemy, float customStunAmount) // MÈtodo opcional para aplicar stun directamente a un enemigo especÌfico
+    public void ApplyStunToTarget(EnemyBase enemy, float customStunAmount) // M√©todo opcional para aplicar stun directamente a un enemigo espec√≠fico
     {
         if (enemy != null && !enemy.IsDead())
         {
@@ -721,7 +754,7 @@ public class CharacterCombat : MonoBehaviour
             Debug.Log($"Stun personalizado aplicado a {enemy.name}: {customStunAmount} puntos");
         }
     }
-    public void ApplyStunOnly() // MÈtodo para aplicar stun sin daÒo (para habilidades especiales)
+    public void ApplyStunOnly() // M√©todo para aplicar stun sin da√±o (para habilidades especiales)
     {
         RaycastHit2D[] hitEnemies = Physics2D.LinecastAll(attackPoint.position, whipTip.position, stats.EnemyLayers);
 
@@ -742,17 +775,17 @@ public class CharacterCombat : MonoBehaviour
     {
         if (stats.HitParticleEffect != null)
         {
-            // Instanciar el efecto de partÌculas
+            // Instanciar el efecto de part√≠culas
             GameObject particleInstance = Instantiate(stats.HitParticleEffect, hitPosition, Quaternion.identity);
 
-            // Opcional: Rotar las partÌculas para que apunten en direcciÛn opuesta al impacto
+            // Opcional: Rotar las part√≠culas para que apunten en direcci√≥n opuesta al impacto
             if (hitNormal != Vector2.zero)
             {
                 float angle = Mathf.Atan2(hitNormal.y, hitNormal.x) * Mathf.Rad2Deg;
                 particleInstance.transform.rotation = Quaternion.Euler(0, 0, angle);
             }
 
-            // Destruir el objeto despuÈs de que terminen las partÌculas
+            // Destruir el objeto despu√©s de que terminen las part√≠culas
             ParticleSystem ps = particleInstance.GetComponent<ParticleSystem>();
             if (ps != null)
             {
@@ -760,7 +793,7 @@ public class CharacterCombat : MonoBehaviour
             }
             else
             {
-                Destroy(particleInstance, 2f); // Destruir despuÈs de 2 segundos si no hay ParticleSystem
+                Destroy(particleInstance, 2f); // Destruir despu√©s de 2 segundos si no hay ParticleSystem
             }
         }
     }
@@ -768,24 +801,43 @@ public class CharacterCombat : MonoBehaviour
     {
         if (attackPoint == null || whipTip == null) return;
 
-        // LÌnea roja para el ataque
+        // L√≠nea central del l√°tigo
         Gizmos.color = Color.red;
         Gizmos.DrawLine(attackPoint.position, whipTip.position);
 
-        // Punto verde para el punto de ataque
+        // Dibujar la c√°psula de ataque si est√° activado showAttackArea
+        if (showAttackArea)
+        {
+            Vector2 start = attackPoint.position;
+            Vector2 end = whipTip.position;
+            Vector2 direction = (end - start).normalized;
+            Vector2 perpendicular = new Vector2(-direction.y, direction.x) * whipCapsuleRadius;
+
+            // Dibujar los bordes de la c√°psula
+            Gizmos.color = new Color(1f, 0f, 0f, 0.3f); // Rojo semi-transparente
+
+            // L√≠neas laterales
+            Gizmos.DrawLine(start + perpendicular, end + perpendicular);
+            Gizmos.DrawLine(start - perpendicular, end - perpendicular);
+
+            // C√≠rculos en los extremos
+            DrawGizmoCircle(start, whipCapsuleRadius, Color.red);
+            DrawGizmoCircle(end, whipCapsuleRadius, Color.red);
+        }
+
+        // Puntos de referencia
         Gizmos.color = Color.green;
         Gizmos.DrawWireSphere(attackPoint.position, 0.1f);
 
-        // Punto azul para la punta del l·tigo
         Gizmos.color = Color.blue;
         Gizmos.DrawWireSphere(whipTip.position, 0.1f);
 
-        // CÌrculo purpura para el rango de captura
+        // Rango de captura
         Gizmos.color = Color.purple;
         Gizmos.DrawWireSphere(transform.position, stats.CaptureRange);
 
-        // Visualizar el ·rea de detecciÛn del mouse
-        if (mainCamera != null && Application.isPlaying)
+        // √Årea de detecci√≥n del mouse
+        if (mainCamera != null && Application.isPlaying && UnityEngine.InputSystem.Mouse.current != null)
         {
             Vector2 mouseScreenPos = UnityEngine.InputSystem.Mouse.current.position.ReadValue();
             Vector3 mouseWorldPos = mainCamera.ScreenToWorldPoint(new Vector3(mouseScreenPos.x, mouseScreenPos.y, 0f));
@@ -795,7 +847,7 @@ public class CharacterCombat : MonoBehaviour
             Gizmos.DrawWireSphere(mouseWorldPos, stats.HoverDetectionRadius);
         }
 
-        // Mostrar enemigo actualmente hovereado (CYAN)
+        // Enemigo hovereado actualmente
         if (currentHoveredCapturable != null)
         {
             MonoBehaviour hoveredMB = currentHoveredCapturable as MonoBehaviour;
@@ -807,7 +859,7 @@ public class CharacterCombat : MonoBehaviour
             }
         }
 
-        // Mostrar ˙ltimo enemigo hovereado (MAGENTA)
+        // √öltimo enemigo hovereado
         if (lastHoveredCapturable != null && lastHoveredCapturable != currentHoveredCapturable)
         {
             MonoBehaviour lastHoveredMB = lastHoveredCapturable as MonoBehaviour;
@@ -816,6 +868,21 @@ public class CharacterCombat : MonoBehaviour
                 Gizmos.color = Color.magenta;
                 Gizmos.DrawWireSphere(lastHoveredMB.transform.position, 0.4f);
             }
+        }
+    }
+    private void DrawGizmoCircle(Vector2 center, float radius, Color color)
+    {
+        Gizmos.color = color;
+        int segments = 20;
+        float angleStep = 360f / segments;
+        Vector2 prevPoint = center + new Vector2(radius, 0);
+
+        for (int i = 1; i <= segments; i++)
+        {
+            float angle = angleStep * i * Mathf.Deg2Rad;
+            Vector2 newPoint = center + new Vector2(Mathf.Cos(angle), Mathf.Sin(angle)) * radius;
+            Gizmos.DrawLine(prevPoint, newPoint);
+            prevPoint = newPoint;
         }
     }
 }

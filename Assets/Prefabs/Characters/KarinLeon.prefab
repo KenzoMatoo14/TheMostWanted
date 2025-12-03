@@ -78,7 +78,7 @@ GameObject:
   - component: {fileID: 622402198734177142}
   - component: {fileID: 3644227165850059102}
   - component: {fileID: 3773028318689638925}
-  - component: {fileID: 1515010653943222068}
+  - component: {fileID: 3293016826008746421}
   m_Layer: 7
   m_Name: KarinLeon
   m_TagString: Player
@@ -284,6 +284,11 @@ MonoBehaviour:
   stats: {fileID: 11400000, guid: 70991d1f1a798fc479b30a411f2b32dc, type: 2}
   attackPoint: {fileID: 2132750857719259876}
   whipTip: {fileID: 1309075633236346617}
+  whipCapsuleRadius: 0.55
+  showAttackArea: 1
+  audioSource: {fileID: 0}
+  whipSound: {fileID: 0}
+  whipSoundVolume: 1
   ropeRenderer: {fileID: 7979152171787755717}
   hookScript: {fileID: 622402198734177142}
   captureUI: {fileID: 0}
@@ -341,7 +346,7 @@ MonoBehaviour:
   - {fileID: 622402198734177142}
   - {fileID: 3644227165850059102}
   disableAllScriptsExceptThis: 0
---- !u!114 &1515010653943222068
+--- !u!114 &3293016826008746421
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -350,7 +355,7 @@ MonoBehaviour:
   m_GameObject: {fileID: 5844657866263057001}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 3bdfc9b8621a2c249963561772d540ca, type: 3}
+  m_Script: {fileID: 11500000, guid: a3ea383b0f033e0468f521cf70c745d6, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
 --- !u!1 &6008110985469946520
@@ -541,11 +546,11 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 4432738480614870148, guid: 5d3a163c6ed489847bc55f1907a63459, type: 3}
       propertyPath: m_LocalPosition.x
-      value: 0.0398
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 4432738480614870148, guid: 5d3a163c6ed489847bc55f1907a63459, type: 3}
       propertyPath: m_LocalPosition.y
-      value: 0.0343
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 4432738480614870148, guid: 5d3a163c6ed489847bc55f1907a63459, type: 3}
       propertyPath: m_LocalPosition.z
