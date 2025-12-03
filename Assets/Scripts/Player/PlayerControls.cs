@@ -144,6 +144,24 @@ public partial class @PlayerControls: IInputActionCollection2, IDisposable
                     ""processors"": """",
                     ""interactions"": """",
                     ""initialStateCheck"": false
+                },
+                {
+                    ""name"": ""LookUp"",
+                    ""type"": ""Button"",
+                    ""id"": ""2afdc46a-262b-4c5b-93fc-32fcffba5f8d"",
+                    ""expectedControlType"": """",
+                    ""processors"": """",
+                    ""interactions"": """",
+                    ""initialStateCheck"": false
+                },
+                {
+                    ""name"": ""LookDown"",
+                    ""type"": ""Button"",
+                    ""id"": ""8d240cf0-8dec-4b39-bad9-d9711ae423df"",
+                    ""expectedControlType"": """",
+                    ""processors"": """",
+                    ""interactions"": """",
+                    ""initialStateCheck"": false
                 }
             ],
             ""bindings"": [
@@ -234,6 +252,28 @@ public partial class @PlayerControls: IInputActionCollection2, IDisposable
                     ""action"": ""FireWhip"",
                     ""isComposite"": false,
                     ""isPartOfComposite"": false
+                },
+                {
+                    ""name"": """",
+                    ""id"": ""b9a493b7-71c4-45e6-ad6a-c07962447d5f"",
+                    ""path"": ""<Keyboard>/w"",
+                    ""interactions"": """",
+                    ""processors"": """",
+                    ""groups"": """",
+                    ""action"": ""LookUp"",
+                    ""isComposite"": false,
+                    ""isPartOfComposite"": false
+                },
+                {
+                    ""name"": """",
+                    ""id"": ""dad19210-5070-4eb4-a7da-7500aa34d701"",
+                    ""path"": ""<Keyboard>/s"",
+                    ""interactions"": """",
+                    ""processors"": """",
+                    ""groups"": """",
+                    ""action"": ""LookDown"",
+                    ""isComposite"": false,
+                    ""isPartOfComposite"": false
                 }
             ]
         },
@@ -296,6 +336,8 @@ public partial class @PlayerControls: IInputActionCollection2, IDisposable
         m_Movement_Pressed1 = m_Movement.FindAction("Pressed1", throwIfNotFound: true);
         m_Movement_Pressed2 = m_Movement.FindAction("Pressed2", throwIfNotFound: true);
         m_Movement_FireWhip = m_Movement.FindAction("FireWhip", throwIfNotFound: true);
+        m_Movement_LookUp = m_Movement.FindAction("LookUp", throwIfNotFound: true);
+        m_Movement_LookDown = m_Movement.FindAction("LookDown", throwIfNotFound: true);
         // Combat
         m_Combat = asset.FindActionMap("Combat", throwIfNotFound: true);
         m_Combat_HitWhip = m_Combat.FindAction("HitWhip", throwIfNotFound: true);
@@ -387,6 +429,8 @@ public partial class @PlayerControls: IInputActionCollection2, IDisposable
     private readonly InputAction m_Movement_Pressed1;
     private readonly InputAction m_Movement_Pressed2;
     private readonly InputAction m_Movement_FireWhip;
+    private readonly InputAction m_Movement_LookUp;
+    private readonly InputAction m_Movement_LookDown;
     /// <summary>
     /// Provides access to input actions defined in input action map "Movement".
     /// </summary>
@@ -422,6 +466,14 @@ public partial class @PlayerControls: IInputActionCollection2, IDisposable
         /// Provides access to the underlying input action "Movement/FireWhip".
         /// </summary>
         public InputAction @FireWhip => m_Wrapper.m_Movement_FireWhip;
+        /// <summary>
+        /// Provides access to the underlying input action "Movement/LookUp".
+        /// </summary>
+        public InputAction @LookUp => m_Wrapper.m_Movement_LookUp;
+        /// <summary>
+        /// Provides access to the underlying input action "Movement/LookDown".
+        /// </summary>
+        public InputAction @LookDown => m_Wrapper.m_Movement_LookDown;
         /// <summary>
         /// Provides access to the underlying input action map instance.
         /// </summary>
@@ -466,6 +518,12 @@ public partial class @PlayerControls: IInputActionCollection2, IDisposable
             @FireWhip.started += instance.OnFireWhip;
             @FireWhip.performed += instance.OnFireWhip;
             @FireWhip.canceled += instance.OnFireWhip;
+            @LookUp.started += instance.OnLookUp;
+            @LookUp.performed += instance.OnLookUp;
+            @LookUp.canceled += instance.OnLookUp;
+            @LookDown.started += instance.OnLookDown;
+            @LookDown.performed += instance.OnLookDown;
+            @LookDown.canceled += instance.OnLookDown;
         }
 
         /// <summary>
@@ -495,6 +553,12 @@ public partial class @PlayerControls: IInputActionCollection2, IDisposable
             @FireWhip.started -= instance.OnFireWhip;
             @FireWhip.performed -= instance.OnFireWhip;
             @FireWhip.canceled -= instance.OnFireWhip;
+            @LookUp.started -= instance.OnLookUp;
+            @LookUp.performed -= instance.OnLookUp;
+            @LookUp.canceled -= instance.OnLookUp;
+            @LookDown.started -= instance.OnLookDown;
+            @LookDown.performed -= instance.OnLookDown;
+            @LookDown.canceled -= instance.OnLookDown;
         }
 
         /// <summary>
@@ -684,6 +748,20 @@ public partial class @PlayerControls: IInputActionCollection2, IDisposable
         /// <seealso cref="UnityEngine.InputSystem.InputAction.performed" />
         /// <seealso cref="UnityEngine.InputSystem.InputAction.canceled" />
         void OnFireWhip(InputAction.CallbackContext context);
+        /// <summary>
+        /// Method invoked when associated input action "LookUp" is either <see cref="UnityEngine.InputSystem.InputAction.started" />, <see cref="UnityEngine.InputSystem.InputAction.performed" /> or <see cref="UnityEngine.InputSystem.InputAction.canceled" />.
+        /// </summary>
+        /// <seealso cref="UnityEngine.InputSystem.InputAction.started" />
+        /// <seealso cref="UnityEngine.InputSystem.InputAction.performed" />
+        /// <seealso cref="UnityEngine.InputSystem.InputAction.canceled" />
+        void OnLookUp(InputAction.CallbackContext context);
+        /// <summary>
+        /// Method invoked when associated input action "LookDown" is either <see cref="UnityEngine.InputSystem.InputAction.started" />, <see cref="UnityEngine.InputSystem.InputAction.performed" /> or <see cref="UnityEngine.InputSystem.InputAction.canceled" />.
+        /// </summary>
+        /// <seealso cref="UnityEngine.InputSystem.InputAction.started" />
+        /// <seealso cref="UnityEngine.InputSystem.InputAction.performed" />
+        /// <seealso cref="UnityEngine.InputSystem.InputAction.canceled" />
+        void OnLookDown(InputAction.CallbackContext context);
     }
     /// <summary>
     /// Interface to implement callback methods for all input action callbacks associated with input actions defined by "Combat" which allows adding and removing callbacks.

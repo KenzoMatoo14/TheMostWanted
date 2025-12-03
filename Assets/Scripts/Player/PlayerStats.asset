@@ -37,8 +37,8 @@ MonoBehaviour:
   GrappleLayer:
     serializedVersion: 2
     m_Bits: 520
-  PullStrength: 12
-  PullTime: 0.28
+  PullStrength: 10
+  PullTime: 0.33
   RopeShorten: 0.75
   SwingForce: 25
   ConstraintForce: 50
