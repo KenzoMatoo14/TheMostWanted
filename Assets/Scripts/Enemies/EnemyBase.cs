@@ -42,7 +42,7 @@ public abstract class EnemyBase : MonoBehaviour, IDamageable, IStunnable, ICaptu
     public UnityEvent OnReleased;
 
     protected int currentHealth;
-    protected bool isDead = false;
+    public bool isDead = false;
     protected bool isCaptured = false;
     protected bool isBeingCaptured = false;
 
@@ -598,8 +598,10 @@ public abstract class EnemyBase : MonoBehaviour, IDamageable, IStunnable, ICaptu
     }
     protected virtual void OnDeathCustom()
     {
-        // Las clases hijas pueden sobrescribir este m�todo
-        // Por ejemplo: animaciones de muerte, drop de items, etc.
+        if (ScoreManager.Instance != null)
+        {
+            ScoreManager.Instance.OnEnemyKilled();
+        }
     }
 
 

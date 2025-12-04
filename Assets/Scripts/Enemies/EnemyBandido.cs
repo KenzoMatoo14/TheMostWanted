@@ -62,6 +62,12 @@ public class EnemyBandido : EnemyBase
     [SerializeField] private Gradient stunBarGradient;
     [SerializeField] private bool hideWhenZero = true;
 
+    [Header("Death Settings")]
+    [SerializeField] private float deathGravityScale = 15f; // Gravedad al morir
+    [SerializeField] private float deathFallSpeed = 20f; // Velocidad de caída adicional
+    [SerializeField] private float deathDestroyDelay = 3f; // Tiempo antes de destruir
+    private float originalGravityScale = 0f; // Guardar gravedad original
+
     // Estado interno
     private enum BanditState { Patrol, Chase, Attack, Waiting }
     private BanditState currentState = BanditState.Patrol;
@@ -70,14 +76,14 @@ public class EnemyBandido : EnemyBase
     private bool patrolForward = true; // Para el modo ping-pong
     private float waitTimer = 0f;
     private float attackTimer = 0f;
-    private bool isAttacking = false;
+    public bool isAttacking = false;
     private float attackWindupTimer = 0f;
     private float visionCheckTimer = 0f;
     private bool hasLineOfSight = false;
     private float timeWithoutLineOfSight = 0f;
 
     private float jumpTimer = 0f;
-    private bool isGrounded = false;
+    public bool isGrounded = false;
     private bool wasBlocked = false;
 
     private Transform player;
@@ -162,6 +168,7 @@ public class EnemyBandido : EnemyBase
             {
                 rb.linearVelocity = new Vector2(0, rb.linearVelocity.y);
             }
+
             return;
         }
 
@@ -859,28 +866,33 @@ public class EnemyBandido : EnemyBase
     protected override void OnDeathCustom()
     {
         base.OnDeathCustom();
-
         if (logBehaviorDetails)
         {
             Debug.Log($"{gameObject.name} ha muerto");
         }
 
-        // Detener completamente
         if (rb != null)
         {
+            // Detener movimiento actual
             rb.linearVelocity = Vector2.zero;
-            rb.simulated = false;
+
+            // Activar gravedad alta para caída rápida
+            rb.gravityScale = deathGravityScale;
+
+            // Aplicar velocidad de caída inmediata hacia abajo
+            rb.linearVelocity = new Vector2(0f, -deathFallSpeed);
+
+            // Asegurarse de que el Rigidbody esté activo
+            rb.simulated = true;
+
+            if (logBehaviorDetails)
+            {
+                Debug.Log($"{gameObject.name}: Caída rápida activada (Gravedad: {deathGravityScale}, Velocidad: {deathFallSpeed})");
+            }
         }
 
-        // Desactivar colisiones
-        Collider2D[] cols = GetComponents<Collider2D>();
-        foreach (Collider2D col in cols)
-        {
-            col.enabled = false;
-        }
-
-        // Destruir después de un tiempo
-        Destroy(gameObject, 3f);
+        // Destruir después de que caiga (puedes ajustar el tiempo)
+        Destroy(gameObject, 1f);
     }
 
     protected virtual void OnAttackStartedCustom()

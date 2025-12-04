@@ -313,6 +313,16 @@ public class PlayerStats : MonoBehaviour, IDamageable
 
         CancelKnockback();
 
+        // NUEVO: Reactivar los scripts del jugador
+        EnablePlayerScripts();
+
+        Animator animator = GetComponentInChildren<Animator>();
+        if (animator != null)
+        {
+            animator.SetBool("isDeath", false);
+            animator.Play("Idle", 0, 0f); // Forzar la animación Idle inmediatamente
+        }
+
         Debug.Log("Player revivido!");
 
         // Actualizar la barra de vida
@@ -320,6 +330,7 @@ public class PlayerStats : MonoBehaviour, IDamageable
 
         OnHealthChanged?.Invoke(currentHealth);
     }
+
 
     /// <summary>
     /// Actualiza la HealthBar con los valores actuales

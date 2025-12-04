@@ -67,6 +67,15 @@ public class EnemyEvilBat : EnemyBase
     [SerializeField] private Gradient stunBarGradient;
     [SerializeField] private bool hideWhenZero = true;
 
+    [Header("Animation Controller")]
+    [SerializeField] private BatAnimationController animationController;
+
+    [Header("Death Settings")]
+    [SerializeField] private float deathGravityScale = 15f; // Gravedad al morir
+    [SerializeField] private float deathFallSpeed = 20f; // Velocidad de caída adicional
+    [SerializeField] private float deathDestroyDelay = 3f; // Tiempo antes de destruir
+    private float originalGravityScale = 0f; // Guardar gravedad original
+
     // Estado interno
     private enum BatState { Patrol, Chase, Attack, Waiting }
     private BatState currentState = BatState.Patrol;
@@ -108,6 +117,14 @@ public class EnemyEvilBat : EnemyBase
         if (visionOrigin == null)
         {
             visionOrigin = transform;
+        }
+        if (animationController == null)
+        {
+            animationController = GetComponent<BatAnimationController>();
+        }
+        if (rb != null)
+        {
+            originalGravityScale = rb.gravityScale;
         }
 
         FindPlayer();
@@ -738,11 +755,11 @@ public class EnemyEvilBat : EnemyBase
 
         if (directionX > 0.01f)
         {
-            spriteRenderer.flipX = false;
+            spriteRenderer.flipX = true;
         }
         else if (directionX < -0.01f)
         {
-            spriteRenderer.flipX = true;
+            spriteRenderer.flipX = false;
         }
     }
 
@@ -875,19 +892,39 @@ public class EnemyEvilBat : EnemyBase
             Debug.Log($"{gameObject.name} ha muerto");
         }
 
+        // ACTIVAR LA ANIMACIÓN DE MUERTE
+        if (animationController != null)
+        {
+            animationController.TriggerDeath();
+            if (logBehaviorDetails)
+            {
+                Debug.Log($"{gameObject.name}: Animación de muerte activada");
+            }
+        }
+        else
+        {
+            Debug.LogWarning($"{gameObject.name}: No se encontró BatAnimationController!");
+        }
+
+        // HACER QUE CAIGA SUPER RÁPIDO
         if (rb != null)
         {
-            rb.linearVelocity = Vector2.zero;
-            rb.simulated = false;
+            // Activar gravedad alta
+            rb.gravityScale = deathGravityScale;
+
+            // Aplicar velocidad de caída inmediata hacia abajo
+            rb.linearVelocity = new Vector2(0f, -deathFallSpeed);
+
+            // Asegurarse de que el Rigidbody siga activo para que la física funcione
+            rb.simulated = true;
+
+            if (logBehaviorDetails)
+            {
+                Debug.Log($"{gameObject.name}: Caída rápida activada (Gravedad: {deathGravityScale}, Velocidad: {deathFallSpeed})");
+            }
         }
 
-        Collider2D[] cols = GetComponents<Collider2D>();
-        foreach (Collider2D col in cols)
-        {
-            col.enabled = false;
-        }
-
-        Destroy(gameObject, 3f);
+        Destroy(gameObject, deathDestroyDelay);
     }
     protected virtual void OnAttackStartedCustom()
     {
