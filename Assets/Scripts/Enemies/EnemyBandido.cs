@@ -1,5 +1,4 @@
-using UnityEngine;
-using UnityEngine.UI;
+ï»¿using UnityEngine;
 
 public class EnemyBandido : EnemyBase
 {
@@ -11,7 +10,7 @@ public class EnemyBandido : EnemyBase
     [SerializeField] private float patrolWaitTime = 2f; // Tiempo de espera en cada punto
     [SerializeField] private Transform[] patrolPoints; // Puntos de patrulla
     [SerializeField] private bool loopPatrol = true; // true = loop, false = ping-pong
-    [SerializeField] private float waypointReachDistance = 0.2f; // Distancia para considerar que llegó al punto
+    [SerializeField] private float waypointReachDistance = 0.2f; // Distancia para considerar que llegï¿½ al punto
     [SerializeField] private bool constrainToGroundMovement = true;
 
     [Header("Chase Settings")]
@@ -21,20 +20,20 @@ public class EnemyBandido : EnemyBase
     [SerializeField] private LayerMask playerLayer;
 
     [Header("Line of Sight Settings")]
-    [SerializeField] private LayerMask obstacleLayer; // Capa de paredes/obstáculos
+    [SerializeField] private LayerMask obstacleLayer; // Capa de paredes/obstï¿½culos
     [SerializeField] private bool requireLineOfSight = true; // Activar/desactivar LOS
-    [SerializeField] private float visionCheckInterval = 0.2f; // Frecuencia de chequeo (optimización)
+    [SerializeField] private float visionCheckInterval = 0.2f; // Frecuencia de chequeo (optimizaciï¿½n)
     [SerializeField] private Transform visionOrigin; // Punto desde donde mira (ojos del enemigo)
-    [SerializeField] private bool debugLineOfSight = true; // Mostrar rayos de visión
-    [SerializeField] private float loseLineOfSightDelay = 0.5f; // Tiempo antes de perder al jugador sin visión
+    [SerializeField] private bool debugLineOfSight = true; // Mostrar rayos de visiï¿½n
+    [SerializeField] private float loseLineOfSightDelay = 0.5f; // Tiempo antes de perder al jugador sin visiï¿½n
 
     [Header("Attack Settings")]
     [SerializeField] private float attackRange = 1.5f;
     [SerializeField] private float attackCooldown = 1.5f;
     [SerializeField] private int attackDamage = 10;
-    [SerializeField] private float attackWindupTime = 0.3f; // Tiempo antes de hacer daño
+    [SerializeField] private float attackWindupTime = 0.3f; // Tiempo antes de hacer daï¿½o
     [SerializeField] private Transform attackPoint; // Punto desde donde se verifica el ataque
-    [SerializeField] private float attackRadius = 1f; // Radio del área de ataque
+    [SerializeField] private float attackRadius = 1f; // Radio del ï¿½rea de ataque
 
     [Header("Jump Settings")]
     [SerializeField] private bool canJump = true;
@@ -55,16 +54,9 @@ public class EnemyBandido : EnemyBase
     [SerializeField] private Color chaseColor = Color.red;
     [SerializeField] private Color patrolColor = Color.white;
 
-    [Header("Stun Bar UI")]
-    [SerializeField] private Slider stunBar;
-    [SerializeField] private bool autoFindStunBar = true;
-    [SerializeField] private Image stunBarFillImage;
-    [SerializeField] private Gradient stunBarGradient;
-    [SerializeField] private bool hideWhenZero = true;
-
     [Header("Death Settings")]
     [SerializeField] private float deathGravityScale = 15f; // Gravedad al morir
-    [SerializeField] private float deathFallSpeed = 20f; // Velocidad de caída adicional
+    [SerializeField] private float deathFallSpeed = 20f; // Velocidad de caï¿½da adicional
     [SerializeField] private float deathDestroyDelay = 3f; // Tiempo antes de destruir
     private float originalGravityScale = 0f; // Guardar gravedad original
 
@@ -104,7 +96,7 @@ public class EnemyBandido : EnemyBase
             attackPoint = transform;
         }
 
-        // Si no se asigna un punto de visión, usar la posición del enemigo
+        // Si no se asigna un punto de visiï¿½n, usar la posiciï¿½n del enemigo
         if (visionOrigin == null)
         {
             visionOrigin = transform;
@@ -134,8 +126,6 @@ public class EnemyBandido : EnemyBase
             CreateDefaultPatrolPoints();
         }
 
-        InitializeStunBar();
-
         if (logBehaviorDetails)
         {
             Debug.Log($"Bandido {gameObject.name} inicializado");
@@ -144,10 +134,8 @@ public class EnemyBandido : EnemyBase
 
     protected override void Update()
     {
-        base.Update();
-
-        // No hacer nada si está muerto, capturado o siendo capturado
-        if (isDead || isCaptured )
+        // No hacer nada si estï¿½ muerto, capturado o siendo capturado
+        if (isDead || isCaptured)
         {
             if (rb != null)
             {
@@ -156,12 +144,14 @@ public class EnemyBandido : EnemyBase
             return;
         }
 
+        base.Update();
+
         if (player == null)
         {
             FindPlayer();
         }
 
-        // No moverse si está completamente aturdido
+        // No moverse si estï¿½ completamente aturdido
         if (IsFullyStunned())
         {
             if (rb != null)
@@ -205,7 +195,7 @@ public class EnemyBandido : EnemyBase
                 player = playerObj.transform;
                 if (logBehaviorDetails)
                 {
-                    Debug.Log($"{gameObject.name} encontró al jugador: {player.name}");
+                    Debug.Log($"{gameObject.name} encontrï¿½ al jugador: {player.name}");
                 }
             }
         }
@@ -214,7 +204,7 @@ public class EnemyBandido : EnemyBase
     #region Line of Sight
 
     /// <summary>
-    /// Verifica si el enemigo tiene línea de visión directa al jugador
+    /// Verifica si el enemigo tiene lï¿½nea de visiï¿½n directa al jugador
     /// </summary>
     private bool CheckLineOfSight()
     {
@@ -247,24 +237,24 @@ public class EnemyBandido : EnemyBase
         // Si el raycast golpea algo
         if (hit.collider != null)
         {
-            // Verificar si lo que golpeó es el jugador
+            // Verificar si lo que golpeï¿½ es el jugador
             if (hit.collider.CompareTag("Player"))
             {
-                return true; // Visión clara al jugador
+                return true; // Visiï¿½n clara al jugador
             }
             else
             {
-                // Golpeó un obstáculo antes de llegar al jugador
+                // Golpeï¿½ un obstï¿½culo antes de llegar al jugador
                 return false;
             }
         }
 
-        // No golpeó nada (no debería pasar si el jugador tiene collider)
+        // No golpeï¿½ nada (no deberï¿½a pasar si el jugador tiene collider)
         return false;
     }
 
     /// <summary>
-    /// Actualiza el estado de línea de visión con intervalo de tiempo (optimización)
+    /// Actualiza el estado de lï¿½nea de visiï¿½n con intervalo de tiempo (optimizaciï¿½n)
     /// </summary>
     private void UpdateLineOfSight()
     {
@@ -276,27 +266,27 @@ public class EnemyBandido : EnemyBase
             hasLineOfSight = CheckLineOfSight();
             visionCheckTimer = visionCheckInterval;
 
-            // Si perdió línea de visión, empezar a contar
+            // Si perdiï¿½ lï¿½nea de visiï¿½n, empezar a contar
             if (previousLineOfSight && !hasLineOfSight)
             {
                 timeWithoutLineOfSight = 0f;
                 if (logBehaviorDetails && currentState == BanditState.Chase)
                 {
-                    Debug.Log($"{gameObject.name} perdió línea de visión temporalmente");
+                    Debug.Log($"{gameObject.name} perdiï¿½ lï¿½nea de visiï¿½n temporalmente");
                 }
             }
-            // Si recuperó línea de visión, resetear contador
+            // Si recuperï¿½ lï¿½nea de visiï¿½n, resetear contador
             else if (!previousLineOfSight && hasLineOfSight)
             {
                 timeWithoutLineOfSight = 0f;
                 if (logBehaviorDetails && currentState == BanditState.Chase)
                 {
-                    Debug.Log($"{gameObject.name} recuperó línea de visión");
+                    Debug.Log($"{gameObject.name} recuperï¿½ lï¿½nea de visiï¿½n");
                 }
             }
         }
 
-        // Si no tiene línea de visión, incrementar el contador
+        // Si no tiene lï¿½nea de visiï¿½n, incrementar el contador
         if (!hasLineOfSight && currentState == BanditState.Chase)
         {
             timeWithoutLineOfSight += Time.deltaTime;
@@ -313,7 +303,7 @@ public class EnemyBandido : EnemyBase
 
     private void UpdateBehavior()
     {
-        // Actualizar línea de visión
+        // Actualizar lï¿½nea de visiï¿½n
         UpdateLineOfSight();
 
         switch (currentState)
@@ -345,7 +335,7 @@ public class EnemyBandido : EnemyBase
 
         if (logBehaviorDetails)
         {
-            Debug.Log($"{gameObject.name} cambió de {currentState} a {newState}");
+            Debug.Log($"{gameObject.name} cambiï¿½ de {currentState} a {newState}");
         }
 
         currentState = newState;
@@ -398,7 +388,7 @@ public class EnemyBandido : EnemyBase
         lastMoveDirection = direction;
         UpdateSpriteFlip(direction.x);
 
-        // Verificar si llegó al punto
+        // Verificar si llegï¿½ al punto
         float distanceToPoint = Mathf.Abs(transform.position.x - targetPoint.position.x);
         if (distanceToPoint <= waypointReachDistance)
         {
@@ -407,8 +397,6 @@ public class EnemyBandido : EnemyBase
     }
     private void OnReachedPatrolPoint()
     {
-        ChangeState(BanditState.Waiting);
-
         // Avanzar al siguiente punto
         if (loopPatrol)
         {
@@ -484,7 +472,7 @@ public class EnemyBandido : EnemyBase
         {
             if (logBehaviorDetails)
             {
-                Debug.Log($"{gameObject.name} detectó al jugador a {distanceToPlayer:F2} unidades");
+                Debug.Log($"{gameObject.name} detectï¿½ al jugador a {distanceToPlayer:F2} unidades");
             }
             ChangeState(BanditState.Chase);
         }
@@ -540,7 +528,7 @@ public class EnemyBandido : EnemyBase
         {
             if (logBehaviorDetails)
             {
-                Debug.Log($"{gameObject.name} perdió de vista al jugador");
+                Debug.Log($"{gameObject.name} perdiï¿½ de vista al jugador");
             }
             timeWithoutLineOfSight = 0f;
             ChangeState(BanditState.Patrol);
@@ -584,7 +572,7 @@ public class EnemyBandido : EnemyBase
             Debug.Log($"{gameObject.name} iniciando ataque");
         }
 
-        // Aquí puedes activar animación de ataque
+        // Aquï¿½ puedes activar animaciï¿½n de ataque
         OnAttackStartedCustom();
     }
     private void ExecuteAttack()
@@ -603,7 +591,7 @@ public class EnemyBandido : EnemyBase
             if (damageable != null)
             {
                 damageable.TakeDamage(attackDamage, transform.position);
-                Debug.Log($"{gameObject.name} golpeó a {hit.gameObject.name}");
+                Debug.Log($"{gameObject.name} golpeï¿½ a {hit.gameObject.name}");
             }
         }
 
@@ -642,17 +630,17 @@ public class EnemyBandido : EnemyBase
     }
     private bool ShouldJump()
     {
-        // Verificar si hay un obstáculo delante usando OverlapCircle (igual que groundCheck)
+        // Verificar si hay un obstï¿½culo delante usando OverlapCircle (igual que groundCheck)
         bool hasObstacle = CheckObstacleAhead();
 
-        // Verificar si el jugador está encima
+        // Verificar si el jugador estï¿½ encima
         bool playerAbove = IsPlayerAbove();
 
         if (hasObstacle || playerAbove)
         {
             if (debugJump)
             {
-                string reason = hasObstacle ? "obstáculo detectado" : "jugador encima";
+                string reason = hasObstacle ? "obstï¿½culo detectado" : "jugador encima";
                 Debug.Log($"{gameObject.name} va a saltar: {reason}");
             }
             return true;
@@ -664,19 +652,19 @@ public class EnemyBandido : EnemyBase
     {
         if (obstacleCheck == null) return false;
 
-        // Determinar dirección de movimiento
+        // Determinar direcciï¿½n de movimiento
         float direction = lastMoveDirection.x != 0 ? Mathf.Sign(lastMoveDirection.x) :
                          (transform.localScale.x > 0 ? -1f : 1f);
 
-        // Calcular posición del check adelante del enemigo
+        // Calcular posiciï¿½n del check adelante del enemigo
         Vector2 checkPosition = (Vector2)obstacleCheck.position + new Vector2(direction * obstacleCheckDistance, 0);
 
-        // Usar OverlapCircle para detectar obstáculos (igual que groundCheck)
+        // Usar OverlapCircle para detectar obstï¿½culos (igual que groundCheck)
         bool hasObstacle = Physics2D.OverlapCircle(checkPosition, obstacleCheckRadius, groundLayer);
 
         if (debugJump && hasObstacle)
         {
-            Debug.Log($"{gameObject.name} detectó obstáculo adelante");
+            Debug.Log($"{gameObject.name} detectï¿½ obstï¿½culo adelante");
         }
 
         return hasObstacle;
@@ -709,7 +697,7 @@ public class EnemyBandido : EnemyBase
 
         if (debugJump)
         {
-            Debug.Log($"{gameObject.name} realizó un salto con fuerza {jumpForce}");
+            Debug.Log($"{gameObject.name} realizï¿½ un salto con fuerza {jumpForce}");
         }
 
         OnJumpPerformed();
@@ -750,89 +738,6 @@ public class EnemyBandido : EnemyBase
 
     #endregion
 
-    #region Stun Bar
-
-    private void InitializeStunBar()
-    {
-        if (stunBar == null && autoFindStunBar)
-        {
-            FindStunBar();
-        }
-
-        if (stunBar != null)
-        {
-            stunBar.minValue = 0f;
-            stunBar.maxValue = 100f;
-            stunBar.value = 0f;
-
-            if (stunBarFillImage == null)
-            {
-                stunBarFillImage = stunBar.fillRect?.GetComponent<Image>();
-            }
-
-            if (hideWhenZero)
-            {
-                SetStunBarVisibility(false);
-            }
-        }
-    }
-
-    private void FindStunBar()
-    {
-        Transform stunBarTransform = transform.Find("StunBar");
-
-        if (stunBarTransform == null)
-        {
-            Slider[] sliders = GetComponentsInChildren<Slider>(true);
-            foreach (Slider slider in sliders)
-            {
-                if (slider.gameObject.name.Contains("Stun"))
-                {
-                    stunBar = slider;
-                    break;
-                }
-            }
-        }
-        else
-        {
-            stunBar = stunBarTransform.GetComponent<Slider>();
-        }
-    }
-
-    protected override void OnStunnedChangedCustom(float stunnedValue)
-    {
-        base.OnStunnedChangedCustom(stunnedValue);
-        UpdateStunBar(stunnedValue);
-    }
-
-    private void UpdateStunBar(float stunnedValue)
-    {
-        if (stunBar == null) return;
-
-        stunBar.value = stunnedValue;
-
-        if (hideWhenZero)
-        {
-            SetStunBarVisibility(stunnedValue > 0);
-        }
-
-        if (stunBarFillImage != null && stunBarGradient != null)
-        {
-            float normalizedValue = stunnedValue / 100f;
-            stunBarFillImage.color = stunBarGradient.Evaluate(normalizedValue);
-        }
-    }
-
-    private void SetStunBarVisibility(bool visible)
-    {
-        if (stunBar != null)
-        {
-            stunBar.gameObject.SetActive(visible);
-        }
-    }
-
-    #endregion
-
     #region Custom Override Methods
 
     protected override void InitializeEnemy()
@@ -850,10 +755,10 @@ public class EnemyBandido : EnemyBase
 
         if (logBehaviorDetails)
         {
-            Debug.Log($"{gameObject.name} recibió {damageAmount} de daño");
+            Debug.Log($"{gameObject.name} recibiï¿½ {damageAmount} de daï¿½o");
         }
 
-        // Entrar en modo persecución si está patrullando
+        // Entrar en modo persecuciï¿½n si estï¿½ patrullando
         if (currentState == BanditState.Patrol || currentState == BanditState.Waiting)
         {
             if (player != null)
@@ -876,22 +781,22 @@ public class EnemyBandido : EnemyBase
             // Detener movimiento actual
             rb.linearVelocity = Vector2.zero;
 
-            // Activar gravedad alta para caída rápida
+            // Activar gravedad alta para caï¿½da rï¿½pida
             rb.gravityScale = deathGravityScale;
 
-            // Aplicar velocidad de caída inmediata hacia abajo
+            // Aplicar velocidad de caï¿½da inmediata hacia abajo
             rb.linearVelocity = new Vector2(0f, -deathFallSpeed);
 
-            // Asegurarse de que el Rigidbody esté activo
+            // Asegurarse de que el Rigidbody estï¿½ activo
             rb.simulated = true;
 
             if (logBehaviorDetails)
             {
-                Debug.Log($"{gameObject.name}: Caída rápida activada (Gravedad: {deathGravityScale}, Velocidad: {deathFallSpeed})");
+                Debug.Log($"{gameObject.name}: Caï¿½da rï¿½pida activada (Gravedad: {deathGravityScale}, Velocidad: {deathFallSpeed})");
             }
         }
 
-        // Destruir después de que caiga (puedes ajustar el tiempo)
+        // Destruir despuï¿½s de que caiga (puedes ajustar el tiempo)
         Destroy(gameObject, 1f);
     }
 
@@ -910,7 +815,7 @@ public class EnemyBandido : EnemyBase
     #region Gizmos
     private void OnDrawGizmosSelected()
     {
-        // Rango de detección
+        // Rango de detecciï¿½n
         Gizmos.color = Color.yellow;
         Gizmos.DrawWireSphere(transform.position, detectionRange);
 
@@ -933,7 +838,7 @@ public class EnemyBandido : EnemyBase
                 {
                     Gizmos.DrawWireSphere(patrolPoints[i].position, 0.3f);
 
-                    // Líneas entre puntos
+                    // Lï¿½neas entre puntos
                     if (i < patrolPoints.Length - 1 && patrolPoints[i + 1] != null)
                     {
                         Gizmos.DrawLine(patrolPoints[i].position, patrolPoints[i + 1].position);
@@ -945,7 +850,7 @@ public class EnemyBandido : EnemyBase
                 }
             }
         }
-        // Línea de visión (en Play Mode)
+        // Lï¿½nea de visiï¿½n (en Play Mode)
         if (Application.isPlaying && player != null && debugLineOfSight)
         {
             Vector3 visionPos = visionOrigin != null ? visionOrigin.position : transform.position;
@@ -960,7 +865,7 @@ public class EnemyBandido : EnemyBase
             Gizmos.DrawWireSphere(groundCheck.position, groundCheckRadius);
         }
 
-        // Detección de obstáculos para salto
+        // Detecciï¿½n de obstï¿½culos para salto
         if (canJump)
         {
             Vector3 boxCenter = transform.position + Vector3.up * (playerAboveDetectionHeight * 0.5f);

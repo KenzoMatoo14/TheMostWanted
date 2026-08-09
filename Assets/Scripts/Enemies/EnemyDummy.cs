@@ -1,5 +1,4 @@
-using UnityEngine;
-using UnityEngine.UI;
+ï»¿using UnityEngine;
 using System.Collections;
 
 public class EnemyDummy : EnemyBase
@@ -12,13 +11,6 @@ public class EnemyDummy : EnemyBase
     [SerializeField] private float revivalTime = 3f;
     [SerializeField] private bool showRevivalCountdown = true;
 
-    [Header("Stun Bar UI")]
-    [SerializeField] private Slider stunBar;
-    [SerializeField] private bool autoFindStunBar = true;
-    [SerializeField] private Image stunBarFillImage;
-    [SerializeField] private Gradient stunBarGradient;
-    [SerializeField] private bool hideWhenZero = true;
-
     // Variables para el sistema de revival
     private Vector3 initialPosition;
     private Quaternion initialRotation;
@@ -26,16 +18,11 @@ public class EnemyDummy : EnemyBase
 
     protected override void Start()
     {
-        // Guardar posición inicial
+        // Guardar posiciï¿½n inicial
         initialPosition = transform.position;
         initialRotation = transform.rotation;
 
         base.Start();
-
-        if (stunBar == null && autoFindStunBar)
-        {
-            FindStunBar();
-        }
     }
 
     ////////////////////////////////// REVIVAL SYSTEM
@@ -47,7 +34,7 @@ public class EnemyDummy : EnemyBase
 
         if (showRevivalCountdown)
         {
-            Debug.Log($"{gameObject.name} revivirá en {revivalTime} segundos...");
+            Debug.Log($"{gameObject.name} revivirï¿½ en {revivalTime} segundos...");
         }
 
         // Esperar el tiempo de revival
@@ -74,9 +61,9 @@ public class EnemyDummy : EnemyBase
 
     private void ReviveEnemy()
     {
-        Debug.Log($"{gameObject.name} ¡Ha revivido!");
+        Debug.Log($"{gameObject.name} ï¿½Ha revivido!");
 
-        // Restaurar posición y rotación inicial
+        // Restaurar posiciï¿½n y rotaciï¿½n inicial
         transform.position = initialPosition;
         transform.rotation = initialRotation;
 
@@ -100,129 +87,21 @@ public class EnemyDummy : EnemyBase
             rb.angularVelocity = 0f;
         }
 
-        // Actualizar UI
-        if (healthBar != null)
-        {
-            healthBar.UpdateHealthBar(currentHealth, GetMaxHealth());
-            healthBar.gameObject.SetActive(true);
-        }
-
-        // Reinicializar la stun bar
-        InitializeStunBar();
-
         // Reactivar el GameObject si estaba desactivado
         gameObject.SetActive(true);
 
-        // Llamar método personalizable para efectos de revival
+        // Llamar mï¿½todo personalizable para efectos de revival
         OnReviveCustom();
     }
 
     protected virtual void OnReviveCustom()
     {
         // Las clases hijas pueden sobrescribir para efectos de revival
-        // Por ejemplo: animación, partículas, sonido, etc.
+        // Por ejemplo: animaciï¿½n, partï¿½culas, sonido, etc.
         if (logDamageDetails)
         {
             Debug.Log($"{gameObject.name} - Revival completo");
         }
-    }
-
-    ////////////////////////////////// STUNNED
-
-    private void InitializeStunBar()
-    {
-        if (stunBar == null && autoFindStunBar)
-        {
-            FindStunBar();
-        }
-
-        if (stunBar != null)
-        {
-            stunBar.minValue = 0f;
-            stunBar.maxValue = 100f;
-            stunBar.value = 0f;
-
-            if (stunBarFillImage == null)
-            {
-                stunBarFillImage = stunBar.fillRect?.GetComponent<Image>();
-            }
-
-            if (hideWhenZero)
-            {
-                SetStunBarVisibility(false);
-            }
-
-            Debug.Log($"StunBar inicializada en {gameObject.name}");
-        }
-        else
-        {
-            Debug.LogWarning($"No se encontró StunBar en {gameObject.name}");
-        }
-    }
-
-    private void FindStunBar()
-    {
-        Transform stunBarTransform = transform.Find("StunBar");
-
-        if (stunBarTransform == null)
-        {
-            Slider[] sliders = GetComponentsInChildren<Slider>(true);
-            foreach (Slider slider in sliders)
-            {
-                if (slider.gameObject.name.Contains("Stun"))
-                {
-                    stunBar = slider;
-                    break;
-                }
-            }
-        }
-        else
-        {
-            stunBar = stunBarTransform.GetComponent<Slider>();
-        }
-    }
-
-    protected override void OnStunnedChangedCustom(float stunnedValue)
-    {
-        base.OnStunnedChangedCustom(stunnedValue);
-        UpdateStunBar(stunnedValue);
-
-        if (logDamageDetails)
-        {
-            //Debug.Log($"Dummy Stun actualizado: {stunnedValue:F1}%");
-        }
-    }
-
-    private void UpdateStunBar(float stunnedValue)
-    {
-        if (stunBar == null) return;
-
-        stunBar.value = stunnedValue;
-
-        if (hideWhenZero)
-        {
-            SetStunBarVisibility(stunnedValue > 0);
-        }
-
-        if (stunBarFillImage != null && stunBarGradient != null)
-        {
-            float normalizedValue = stunnedValue / 100f;
-            stunBarFillImage.color = stunBarGradient.Evaluate(normalizedValue);
-        }
-    }
-
-    private void SetStunBarVisibility(bool visible)
-    {
-        if (stunBar != null)
-        {
-            stunBar.gameObject.SetActive(visible);
-        }
-    }
-
-    public void SetStunBar(Slider newStunBar)
-    {
-        stunBar = newStunBar;
-        InitializeStunBar();
     }
 
     ////////////////////////////////////////////////////
@@ -231,7 +110,6 @@ public class EnemyDummy : EnemyBase
     {
         base.InitializeEnemy();
         Debug.Log($"Dummy {gameObject.name} inicializado con {GetMaxHealth()} puntos de vida");
-        InitializeStunBar();
     }
 
     protected override void OnDamageTakenCustom(int damageAmount)
@@ -240,7 +118,7 @@ public class EnemyDummy : EnemyBase
 
         if (logDamageDetails)
         {
-            Debug.Log($"Dummy recibió {damageAmount} de daño específico");
+            Debug.Log($"Dummy recibiï¿½ {damageAmount} de daï¿½o especï¿½fico");
         }
     }
 
@@ -258,12 +136,12 @@ public class EnemyDummy : EnemyBase
         }
         else
         {
-            // Si no puede revivir, destruir después de un tiempo
+            // Si no puede revivir, destruir despuï¿½s de un tiempo
             Destroy(gameObject, 2f);
         }
     }
 
-    // Método público para resetear la posición inicial si es necesario
+    // Mï¿½todo pï¿½blico para resetear la posiciï¿½n inicial si es necesario
     public void SetInitialPosition(Vector3 position)
     {
         initialPosition = position;
@@ -274,7 +152,7 @@ public class EnemyDummy : EnemyBase
         initialRotation = rotation;
     }
 
-    // Método para cancelar el revival (útil si necesitas interrumpirlo)
+    // Mï¿½todo para cancelar el revival (ï¿½til si necesitas interrumpirlo)
     public void CancelRevival()
     {
         if (isReviving)
@@ -285,7 +163,7 @@ public class EnemyDummy : EnemyBase
         }
     }
 
-    // Getter para saber si está en proceso de revival
+    // Getter para saber si estï¿½ en proceso de revival
     public bool IsReviving()
     {
         return isReviving;

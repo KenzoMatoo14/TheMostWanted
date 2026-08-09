@@ -3,11 +3,8 @@ using UnityEngine;
 
 public abstract class EnemyBase : MonoBehaviour, IDamageable, IStunnable, ICaptureable
 {
-    [Header("Enemy Stats")] 
+    [Header("Enemy Stats")]
     [SerializeField] protected Enemy enemyStats;
-
-    [Header("UI Reference")]
-    [SerializeField] protected HealthBar healthBar;
 
     [Header("Visual Effects")]
     [SerializeField] protected float damageFlashDuration = 0.5f;
@@ -61,12 +58,6 @@ public abstract class EnemyBase : MonoBehaviour, IDamageable, IStunnable, ICaptu
     protected DamageFlashEffect damageFlashEffect;
     protected virtual void Start()
     {
-        // Configurar referencias autom�ticamente si no est�n asignadas
-        if (healthBar == null)
-        {
-            healthBar = GetComponentInChildren<HealthBar>();
-        }
-
         if (enemyStats == null)
         {
             Debug.LogError($"No se asign� el ScriptableObject Enemy en {gameObject.name}");
@@ -184,7 +175,7 @@ public abstract class EnemyBase : MonoBehaviour, IDamageable, IStunnable, ICaptu
         if (rb != null)
         {
             // Restaurar propiedades físicas normales
-            rb.gravityScale = 1f; 
+            rb.gravityScale = 1f;
 
             // Aplicar la velocidad de liberación si se proporcionó
             if (releaseVelocity != Vector2.zero)
@@ -516,12 +507,6 @@ public abstract class EnemyBase : MonoBehaviour, IDamageable, IStunnable, ICaptu
     protected virtual void InitializeHealth()
     {
         currentHealth = enemyStats.MaxHealth;
-
-        // Actualizar la barra de vida
-        if (healthBar != null)
-        {
-            healthBar.UpdateHealthBar(currentHealth, enemyStats.MaxHealth);
-        }
     }
     public virtual void TakeDamage(int amount, Vector2 damageSourcePosition = default)
     {
@@ -541,12 +526,6 @@ public abstract class EnemyBase : MonoBehaviour, IDamageable, IStunnable, ICaptu
         if (damageSourcePosition != default)
         {
             ApplyKnockback(actualDamage, damageSourcePosition);
-        }
-
-        // Actualizar UI
-        if (healthBar != null)
-        {
-            healthBar.UpdateHealthBar(currentHealth, enemyStats.MaxHealth);
         }
 
         OnDamageTaken?.Invoke();
@@ -570,12 +549,6 @@ public abstract class EnemyBase : MonoBehaviour, IDamageable, IStunnable, ICaptu
         currentHealth = Mathf.Clamp(currentHealth, 0, enemyStats.MaxHealth);
 
         Debug.Log($"{gameObject.name} - Curaci�n recibida: {actualHeal}. Vida actual: {currentHealth}/{enemyStats.MaxHealth}");
-
-        // Actualizar UI
-        if (healthBar != null)
-        {
-            healthBar.UpdateHealthBar(currentHealth, enemyStats.MaxHealth);
-        }
 
         OnHealedCustom(actualHeal); // M�todo virtual para comportamiento espec�fico
     }

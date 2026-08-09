@@ -1,5 +1,4 @@
-using UnityEngine;
-using UnityEngine.UI;
+ï»¿using UnityEngine;
 
 public class EnemyEvilBat : EnemyBase
 {
@@ -9,21 +8,21 @@ public class EnemyEvilBat : EnemyBase
     [Header("Random Patrol Settings")]
     [SerializeField] private float patrolSpeed = 2f;
     [SerializeField] private float patrolWaitTime = 2f; // Tiempo de espera en cada punto
-    [SerializeField] private float patrolRadius = 5f; // Radio desde la posición inicial
-    [SerializeField] private float waypointReachDistance = 0.2f; // Distancia para considerar que llegó al punto
-    [SerializeField] private bool useStartPositionAsCenter = true; // Usar posición inicial como centro
+    [SerializeField] private float patrolRadius = 5f; // Radio desde la posiciï¿½n inicial
+    [SerializeField] private float waypointReachDistance = 0.2f; // Distancia para considerar que llegï¿½ al punto
+    [SerializeField] private bool useStartPositionAsCenter = true; // Usar posiciï¿½n inicial como centro
     [SerializeField] private Transform customPatrolCenter; // Centro personalizado (opcional)
     [SerializeField] private bool validatePatrolPath = true;
     [SerializeField] private int maxPathAttempts = 5;
-    [SerializeField] private float pathValidationRayCount = 8; // Número de rayos para validar el camino
-    [SerializeField] private LayerMask pathObstacleLayer; // Layer de obstáculos para pathfinding
+    [SerializeField] private float pathValidationRayCount = 8; // Nï¿½mero de rayos para validar el camino
+    [SerializeField] private LayerMask pathObstacleLayer; // Layer de obstï¿½culos para pathfinding
 
     [Header("Wing Flap Movement Settings")]
-    [SerializeField] private float flapAmplitude = 0.3f; // Amplitud del aleteo (qué tan alto/bajo)
-    [SerializeField] private float flapFrequency = 3f; // Frecuencia del aleteo (qué tan rápido)
-    [SerializeField] private float horizontalWaveAmplitude = 0.2f; // Ondulación horizontal
+    [SerializeField] private float flapAmplitude = 0.3f; // Amplitud del aleteo (quï¿½ tan alto/bajo)
+    [SerializeField] private float flapFrequency = 3f; // Frecuencia del aleteo (quï¿½ tan rï¿½pido)
+    [SerializeField] private float horizontalWaveAmplitude = 0.2f; // Ondulaciï¿½n horizontal
     [SerializeField] private float horizontalWaveFrequency = 2f;
-    [SerializeField] private bool usePerlinNoise = true; // Usar ruido Perlin para movimiento más orgánico
+    [SerializeField] private bool usePerlinNoise = true; // Usar ruido Perlin para movimiento mï¿½s orgï¿½nico
     [SerializeField] private float perlinNoiseSpeed = 1f;
 
     [Header("Idle/Waiting Hover Settings")]
@@ -60,19 +59,12 @@ public class EnemyEvilBat : EnemyBase
     [SerializeField] private Color chaseColor = Color.red;
     [SerializeField] private Color patrolColor = Color.white;
 
-    [Header("Stun Bar UI")]
-    [SerializeField] private Slider stunBar;
-    [SerializeField] private bool autoFindStunBar = true;
-    [SerializeField] private Image stunBarFillImage;
-    [SerializeField] private Gradient stunBarGradient;
-    [SerializeField] private bool hideWhenZero = true;
-
     [Header("Animation Controller")]
     [SerializeField] private BatAnimationController animationController;
 
     [Header("Death Settings")]
     [SerializeField] private float deathGravityScale = 15f; // Gravedad al morir
-    [SerializeField] private float deathFallSpeed = 20f; // Velocidad de caída adicional
+    [SerializeField] private float deathFallSpeed = 20f; // Velocidad de caï¿½da adicional
     [SerializeField] private float deathDestroyDelay = 3f; // Tiempo antes de destruir
     private float originalGravityScale = 0f; // Guardar gravedad original
 
@@ -143,7 +135,6 @@ public class EnemyEvilBat : EnemyBase
 
         // Generar primer punto de patrulla
         GenerateNewPatrolPoint();
-        InitializeStunBar();
 
         if (logBehaviorDetails)
         {
@@ -153,8 +144,6 @@ public class EnemyEvilBat : EnemyBase
 
     protected override void Update()
     {
-        base.Update();
-
         if (isDead || isCaptured)
         {
             if (rb != null)
@@ -163,6 +152,8 @@ public class EnemyEvilBat : EnemyBase
             }
             return;
         }
+
+        base.Update();
 
         if (player == null)
         {
@@ -197,7 +188,7 @@ public class EnemyEvilBat : EnemyBase
                 player = playerObj.transform;
                 if (logBehaviorDetails)
                 {
-                    Debug.Log($"{gameObject.name} encontró al jugador: {player.name}");
+                    Debug.Log($"{gameObject.name} encontrï¿½ al jugador: {player.name}");
                 }
             }
         }
@@ -261,7 +252,7 @@ public class EnemyEvilBat : EnemyBase
                 timeWithoutLineOfSight = 0f;
                 if (logBehaviorDetails && currentState == BatState.Chase)
                 {
-                    Debug.Log($"{gameObject.name} perdió línea de visión temporalmente");
+                    Debug.Log($"{gameObject.name} perdiï¿½ lï¿½nea de visiï¿½n temporalmente");
                 }
             }
             else if (!previousLineOfSight && hasLineOfSight)
@@ -269,7 +260,7 @@ public class EnemyEvilBat : EnemyBase
                 timeWithoutLineOfSight = 0f;
                 if (logBehaviorDetails && currentState == BatState.Chase)
                 {
-                    Debug.Log($"{gameObject.name} recuperó línea de visión");
+                    Debug.Log($"{gameObject.name} recuperï¿½ lï¿½nea de visiï¿½n");
                 }
             }
         }
@@ -297,19 +288,19 @@ public class EnemyEvilBat : EnemyBase
 
         if (usePerlinNoise)
         {
-            // Usar ruido Perlin para movimiento más orgánico y natural
+            // Usar ruido Perlin para movimiento mï¿½s orgï¿½nico y natural
             float perlinTime = Time.time * perlinNoiseSpeed + perlinNoiseOffset;
             verticalOffset = (Mathf.PerlinNoise(perlinTime, 0f) - 0.5f) * 2f * flapAmplitude;
             horizontalOffset = (Mathf.PerlinNoise(0f, perlinTime) - 0.5f) * 2f * horizontalWaveAmplitude;
         }
         else
         {
-            // Usar senos para movimiento más predecible
+            // Usar senos para movimiento mï¿½s predecible
             verticalOffset = Mathf.Sin(flapTimer * flapFrequency) * flapAmplitude;
             horizontalOffset = Mathf.Sin(horizontalWaveTimer * horizontalWaveFrequency) * horizontalWaveAmplitude;
         }
 
-        // Calcular dirección perpendicular para el movimiento horizontal
+        // Calcular direcciï¿½n perpendicular para el movimiento horizontal
         Vector2 perpendicular = new Vector2(-baseDirection.y, baseDirection.x);
 
         // Combinar offsets
@@ -369,7 +360,7 @@ public class EnemyEvilBat : EnemyBase
 
         if (logBehaviorDetails)
         {
-            Debug.Log($"{gameObject.name} cambió de {currentState} a {newState}");
+            Debug.Log($"{gameObject.name} cambiï¿½ de {currentState} a {newState}");
         }
 
         currentState = newState;
@@ -378,8 +369,8 @@ public class EnemyEvilBat : EnemyBase
         {
             case BatState.Waiting:
                 waitTimer = patrolWaitTime;
-                waitingStartPosition = transform.position; // Guardar posición actual
-                // Resetear los timers para un hover más suave
+                waitingStartPosition = transform.position; // Guardar posiciï¿½n actual
+                // Resetear los timers para un hover mï¿½s suave
                 flapTimer = 0f;
                 horizontalWaveTimer = 0f;
                 if (rb != null) rb.linearVelocity = Vector2.zero;
@@ -409,7 +400,7 @@ public class EnemyEvilBat : EnemyBase
         Vector2 direction = to - from;
         float distance = direction.magnitude;
 
-        // Si la distancia es muy corta, siempre es válido
+        // Si la distancia es muy corta, siempre es vï¿½lido
         if (distance < 0.5f)
         {
             return true;
@@ -429,9 +420,9 @@ public class EnemyEvilBat : EnemyBase
             return false;
         }
 
-        // Validación adicional con múltiples rayos para mejor detección
+        // Validaciï¿½n adicional con mï¿½ltiples rayos para mejor detecciï¿½n
         float angleStep = 360f / pathValidationRayCount;
-        float checkRadius = 0.3f; // Radio de verificación alrededor del punto
+        float checkRadius = 0.3f; // Radio de verificaciï¿½n alrededor del punto
 
         for (int i = 0; i < pathValidationRayCount; i++)
         {
@@ -451,7 +442,7 @@ public class EnemyEvilBat : EnemyBase
             {
                 if (logBehaviorDetails)
                 {
-                    Debug.Log($"{gameObject.name}: Camino bloqueado en ángulo {angle}° por {hit.collider.name}");
+                    Debug.Log($"{gameObject.name}: Camino bloqueado en ï¿½ngulo {angle}ï¿½ por {hit.collider.name}");
                 }
                 return false;
             }
@@ -467,7 +458,7 @@ public class EnemyEvilBat : EnemyBase
         {
             if (logBehaviorDetails)
             {
-                Debug.Log($"{gameObject.name}: Punto {point} inválido, overlapping con {hit.name}");
+                Debug.Log($"{gameObject.name}: Punto {point} invï¿½lido, overlapping con {hit.name}");
             }
             return false;
         }
@@ -496,12 +487,12 @@ public class EnemyEvilBat : EnemyBase
             // Validar si el punto es alcanzable
             if (validatePatrolPath)
             {
-                // Primero verificar si el punto no está dentro de un obstáculo
+                // Primero verificar si el punto no estï¿½ dentro de un obstï¿½culo
                 if (!IsPointValid(candidatePoint))
                 {
                     if (logBehaviorDetails)
                     {
-                        Debug.Log($"{gameObject.name}: Intento {attempts} - Punto dentro de obstáculo");
+                        Debug.Log($"{gameObject.name}: Intento {attempts} - Punto dentro de obstï¿½culo");
                     }
                     continue;
                 }
@@ -517,25 +508,25 @@ public class EnemyEvilBat : EnemyBase
                 }
             }
 
-            // Punto válido encontrado
+            // Punto vï¿½lido encontrado
             currentPatrolTarget = candidatePoint;
             validPointFound = true;
 
             if (logBehaviorDetails)
             {
-                Debug.Log($"{gameObject.name}: Punto válido encontrado en intento {attempts}: {currentPatrolTarget}");
+                Debug.Log($"{gameObject.name}: Punto vï¿½lido encontrado en intento {attempts}: {currentPatrolTarget}");
             }
         }
 
-        // Si no se encontró un punto válido después de todos los intentos
+        // Si no se encontrï¿½ un punto vï¿½lido despuï¿½s de todos los intentos
         if (!validPointFound)
         {
-            // Fallback: usar la posición actual como objetivo (quedarse quieto)
+            // Fallback: usar la posiciï¿½n actual como objetivo (quedarse quieto)
             currentPatrolTarget = transform.position;
 
             if (logBehaviorDetails)
             {
-                Debug.LogWarning($"{gameObject.name}: No se encontró punto válido después de {maxPathAttempts} intentos. Quedándose en posición actual.");
+                Debug.LogWarning($"{gameObject.name}: No se encontrï¿½ punto vï¿½lido despuï¿½s de {maxPathAttempts} intentos. Quedï¿½ndose en posiciï¿½n actual.");
             }
         }
     }
@@ -590,7 +581,7 @@ public class EnemyEvilBat : EnemyBase
 
         if (rb != null)
         {
-            // Movimiento suave hacia la posición de hover
+            // Movimiento suave hacia la posiciï¿½n de hover
             Vector2 hoverVelocity = (targetPosition - transform.position) * 2f;
             rb.linearVelocity = hoverVelocity;
         }
@@ -621,7 +612,7 @@ public class EnemyEvilBat : EnemyBase
         {
             if (logBehaviorDetails)
             {
-                Debug.Log($"{gameObject.name} detectó al jugador a {distanceToPlayer:F2} unidades");
+                Debug.Log($"{gameObject.name} detectï¿½ al jugador a {distanceToPlayer:F2} unidades");
             }
             ChangeState(BatState.Chase);
         }
@@ -637,7 +628,7 @@ public class EnemyEvilBat : EnemyBase
         Vector2 direction = (player.position - transform.position).normalized;
         float speed = chaseSpeed * GetMovementSpeedMultiplier();
 
-        // Aplicar movimiento con aleteo (más agresivo en persecución)
+        // Aplicar movimiento con aleteo (mï¿½s agresivo en persecuciï¿½n)
         ApplyFlapMovement(direction, speed);
 
         lastMoveDirection = direction;
@@ -667,7 +658,7 @@ public class EnemyEvilBat : EnemyBase
         {
             if (logBehaviorDetails)
             {
-                Debug.Log($"{gameObject.name} perdió de vista al jugador");
+                Debug.Log($"{gameObject.name} perdiï¿½ de vista al jugador");
             }
             timeWithoutLineOfSight = 0f;
             ChangeState(BatState.Patrol);
@@ -726,7 +717,7 @@ public class EnemyEvilBat : EnemyBase
             if (damageable != null)
             {
                 damageable.TakeDamage(attackDamage, transform.position);
-                Debug.Log($"{gameObject.name} golpeó a {hit.gameObject.name}");
+                Debug.Log($"{gameObject.name} golpeï¿½ a {hit.gameObject.name}");
             }
         }
 
@@ -773,89 +764,6 @@ public class EnemyEvilBat : EnemyBase
 
     #endregion
 
-    #region Stun Bar
-
-    private void InitializeStunBar()
-    {
-        if (stunBar == null && autoFindStunBar)
-        {
-            FindStunBar();
-        }
-
-        if (stunBar != null)
-        {
-            stunBar.minValue = 0f;
-            stunBar.maxValue = 100f;
-            stunBar.value = 0f;
-
-            if (stunBarFillImage == null)
-            {
-                stunBarFillImage = stunBar.fillRect?.GetComponent<Image>();
-            }
-
-            if (hideWhenZero)
-            {
-                SetStunBarVisibility(false);
-            }
-        }
-    }
-
-    private void FindStunBar()
-    {
-        Transform stunBarTransform = transform.Find("StunBar");
-
-        if (stunBarTransform == null)
-        {
-            Slider[] sliders = GetComponentsInChildren<Slider>(true);
-            foreach (Slider slider in sliders)
-            {
-                if (slider.gameObject.name.Contains("Stun"))
-                {
-                    stunBar = slider;
-                    break;
-                }
-            }
-        }
-        else
-        {
-            stunBar = stunBarTransform.GetComponent<Slider>();
-        }
-    }
-
-    protected override void OnStunnedChangedCustom(float stunnedValue)
-    {
-        base.OnStunnedChangedCustom(stunnedValue);
-        UpdateStunBar(stunnedValue);
-    }
-
-    private void UpdateStunBar(float stunnedValue)
-    {
-        if (stunBar == null) return;
-
-        stunBar.value = stunnedValue;
-
-        if (hideWhenZero)
-        {
-            SetStunBarVisibility(stunnedValue > 0);
-        }
-
-        if (stunBarFillImage != null && stunBarGradient != null)
-        {
-            float normalizedValue = stunnedValue / 100f;
-            stunBarFillImage.color = stunBarGradient.Evaluate(normalizedValue);
-        }
-    }
-
-    private void SetStunBarVisibility(bool visible)
-    {
-        if (stunBar != null)
-        {
-            stunBar.gameObject.SetActive(visible);
-        }
-    }
-
-    #endregion
-
     #region Custom Override Methods
 
     protected override void InitializeEnemy()
@@ -872,7 +780,7 @@ public class EnemyEvilBat : EnemyBase
 
         if (logBehaviorDetails)
         {
-            Debug.Log($"{gameObject.name} recibió {damageAmount} de daño");
+            Debug.Log($"{gameObject.name} recibiï¿½ {damageAmount} de daï¿½o");
         }
 
         if (currentState == BatState.Patrol || currentState == BatState.Waiting)
@@ -892,35 +800,35 @@ public class EnemyEvilBat : EnemyBase
             Debug.Log($"{gameObject.name} ha muerto");
         }
 
-        // ACTIVAR LA ANIMACIÓN DE MUERTE
+        // ACTIVAR LA ANIMACIï¿½N DE MUERTE
         if (animationController != null)
         {
             animationController.TriggerDeath();
             if (logBehaviorDetails)
             {
-                Debug.Log($"{gameObject.name}: Animación de muerte activada");
+                Debug.Log($"{gameObject.name}: Animaciï¿½n de muerte activada");
             }
         }
         else
         {
-            Debug.LogWarning($"{gameObject.name}: No se encontró BatAnimationController!");
+            Debug.LogWarning($"{gameObject.name}: No se encontrï¿½ BatAnimationController!");
         }
 
-        // HACER QUE CAIGA SUPER RÁPIDO
+        // HACER QUE CAIGA SUPER Rï¿½PIDO
         if (rb != null)
         {
             // Activar gravedad alta
             rb.gravityScale = deathGravityScale;
 
-            // Aplicar velocidad de caída inmediata hacia abajo
+            // Aplicar velocidad de caï¿½da inmediata hacia abajo
             rb.linearVelocity = new Vector2(0f, -deathFallSpeed);
 
-            // Asegurarse de que el Rigidbody siga activo para que la física funcione
+            // Asegurarse de que el Rigidbody siga activo para que la fï¿½sica funcione
             rb.simulated = true;
 
             if (logBehaviorDetails)
             {
-                Debug.Log($"{gameObject.name}: Caída rápida activada (Gravedad: {deathGravityScale}, Velocidad: {deathFallSpeed})");
+                Debug.Log($"{gameObject.name}: Caï¿½da rï¿½pida activada (Gravedad: {deathGravityScale}, Velocidad: {deathFallSpeed})");
             }
         }
 
