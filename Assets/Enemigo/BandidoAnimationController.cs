@@ -164,6 +164,8 @@ public class BandidoAnimationController : MonoBehaviour
         Debug.Log($"isRunning: {animator.GetBool("isRunning")}");
     }
 
+#if UNITY_EDITOR
+
     // Método para debug visual en el editor
     private void OnDrawGizmos()
     {
@@ -171,7 +173,11 @@ public class BandidoAnimationController : MonoBehaviour
         {
             // Mostrar velocidad
             Vector3 pos = transform.position + Vector3.up * 2f;
+
+
             UnityEditor.Handles.Label(pos, $"Speed: {rb.linearVelocity.x:F2}");
         }
-    }
+}
+
+#endif
 }
