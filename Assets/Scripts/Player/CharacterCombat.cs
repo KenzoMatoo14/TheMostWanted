@@ -251,81 +251,9 @@ public class CharacterCombat : MonoBehaviour
     }
     void StartCapture()
     {
-        targetCapturable = null;
-        targetMB = null;
-        targetEnemy = null;
-
-        // PRIORIDAD 1: CurrentHoveredCapturable
-        if (currentHoveredCapturable != null)
-        {
-            targetCapturable = currentHoveredCapturable;
-            targetMB = currentHoveredCapturable as MonoBehaviour;
-            targetEnemy = currentHoveredCapturable as EnemyBase;
-            if (targetEnemy != null)
-            {
-                string objectType = targetEnemy != null ? "Enemigo" : "Objeto";
-                Debug.Log($"[CAPTURA] Objetivo: CurrentHovered - {targetMB.name} ({objectType})");
-            }
-        }
-
-        // PRIORIDAD 2: Último enemigo atacado (si está en rango)
-        if (targetCapturable == null && lastAttackedEnemy != null)
-        {
-            float distance = Vector2.Distance(transform.position, lastAttackedEnemy.transform.position);
-            if (distance <= stats.CaptureRange && !lastAttackedEnemy.IsDead())
-            {
-                targetCapturable = lastAttackedEnemy;
-                targetMB = lastAttackedEnemy;
-                targetEnemy = lastAttackedEnemy;
-                Debug.Log($"[CAPTURA] Objetivo: Último Atacado en rango - {targetEnemy.name} (distancia: {distance:F2}m)");
-            }
-            else
-            {
-                if (lastAttackedEnemy.IsDead())
-                {
-                    Debug.Log($"[CAPTURA] Último Atacado está muerto: {lastAttackedEnemy.name}");
-                }
-                else
-                {
-                    Debug.Log($"[CAPTURA] Último Atacado fuera de rango: {lastAttackedEnemy.name} (distancia: {distance:F2}m / max: {stats.CaptureRange}m)");
-                }
-            }
-        }
-
-        // PRIORIDAD 3: LastHoveredCapturable (si está en rango)
-        if (targetCapturable == null && lastHoveredCapturable != null)
-        {
-            MonoBehaviour lastHoveredMB = lastHoveredCapturable as MonoBehaviour;
-            if (lastHoveredMB != null)
-            {
-                float distance = Vector2.Distance(transform.position, lastHoveredMB.transform.position);
-                if (distance <= stats.CaptureRange)
-                {
-                    targetCapturable = lastHoveredCapturable;
-                    targetMB = lastHoveredMB;
-                    targetEnemy = lastHoveredCapturable as EnemyBase;
-
-                    string objectType = targetEnemy != null ? "Enemigo" : "Objeto";
-                    Debug.Log($"[CAPTURA] Objetivo: LastHovered en rango - {targetMB.name} ({objectType}) (distancia: {distance:F2}m)");
-                }
-                else
-                {
-                    Debug.Log($"[CAPTURA] LastHovered fuera de rango: {lastHoveredMB.name} (distancia: {distance:F2}m / max: {stats.CaptureRange}m)");
-                }
-            }
-        }
-
-        // PRIORIDAD 4: FindNearestEnemy (fallback)
-        if (targetCapturable == null)
-        {
-            Debug.Log("[CAPTURA] Usando FindNearestCapturable (fallback)");
-            targetCapturable = FindNearestCapturable();
-            if (targetCapturable != null)
-            {
-                targetMB = targetCapturable as MonoBehaviour;
-                targetEnemy = targetCapturable as EnemyBase;
-            }
-        }
+        targetCapturable = ResolveCaptureTarget();
+        targetMB = targetCapturable as MonoBehaviour;
+        targetEnemy = targetCapturable as EnemyBase;
 
         if (targetCapturable != null && targetMB != null)
         {
@@ -354,6 +282,41 @@ public class CharacterCombat : MonoBehaviour
         {
             Debug.Log("No hay enemigos en rango para capturar");
         }
+    }
+    /// <summary>
+    /// Resuelve qu� objetivo capturar, en orden de prioridad:
+    /// 1) lo que el mouse est� hovereando ahora mismo
+    /// 2) el �ltimo enemigo golpeado, si sigue vivo y en rango
+    /// 3) el �ltimo objeto hovereado, si sigue en rango
+    /// 4) el capturable m�s cercano (fallback)
+    /// </summary>
+    ICaptureable ResolveCaptureTarget()
+    {
+        if (currentHoveredCapturable != null)
+        {
+            Debug.Log($"[CAPTURA] Objetivo: CurrentHovered - {((MonoBehaviour)currentHoveredCapturable).name}");
+            return currentHoveredCapturable;
+        }
+
+        if (lastAttackedEnemy != null && !lastAttackedEnemy.IsDead() && IsWithinCaptureRange(lastAttackedEnemy.transform))
+        {
+            Debug.Log($"[CAPTURA] Objetivo: �ltimo Atacado en rango - {lastAttackedEnemy.name}");
+            return lastAttackedEnemy;
+        }
+
+        MonoBehaviour lastHoveredMB = lastHoveredCapturable as MonoBehaviour;
+        if (lastHoveredMB != null && IsWithinCaptureRange(lastHoveredMB.transform))
+        {
+            Debug.Log($"[CAPTURA] Objetivo: LastHovered en rango - {lastHoveredMB.name}");
+            return lastHoveredCapturable;
+        }
+
+        Debug.Log("[CAPTURA] Usando FindNearestCapturable (fallback)");
+        return FindNearestCapturable();
+    }
+    bool IsWithinCaptureRange(Transform target)
+    {
+        return Vector2.Distance(transform.position, target.position) <= stats.CaptureRange;
     }
     void StopCapture()
     {
@@ -596,21 +559,10 @@ public class CharacterCombat : MonoBehaviour
         if (targetCapturable != null && targetMB != null && hasEnemyCaptured)
         {
             Debug.Log($"Objeto {targetMB.name} murió mientras estaba capturado - limpiando estado");
-
-            // Desuscribirse del evento de muerte (si aún no se ha hecho)
-            if (targetEnemy != null)
-            {
-                targetEnemy.OnDeath.RemoveListener(OnCapturedEnemyDied);
-            }
         }
 
         // Usar el método centralizado para limpiar
         CleanupCaptureState();
-    }
-    private void OnCapturedEnemyDied()
-    {
-        Debug.Log("Evento OnDeath recibido del enemigo capturado");
-        ReleaseEnemyOnDeath();
     }
 
     ///////////////////////// MELEE

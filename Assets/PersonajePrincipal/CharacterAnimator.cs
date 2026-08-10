@@ -4,7 +4,7 @@ public class CharacterAnimator : MonoBehaviour
 {
     private Animator animator;
     private Rigidbody2D rb;
-    private CharacterController controller;
+    private PlayerController controller;
     private PlayerStats stats;
     private GrapplingHook hook;
 
@@ -13,7 +13,7 @@ public class CharacterAnimator : MonoBehaviour
     void Start()
     {
         animator = GetComponentInChildren<Animator>();
-        controller = GetComponent<CharacterController>();
+        controller = GetComponent<PlayerController>();
         rb = controller.GetComponent<Rigidbody2D>();
         stats = GetComponent<PlayerStats>();
         hook = GetComponent<GrapplingHook>();

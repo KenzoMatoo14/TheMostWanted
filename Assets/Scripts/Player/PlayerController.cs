@@ -1,8 +1,13 @@
 using UnityEngine;
 using UnityEngine.InputSystem;
+using UnityEngine.Scripting.APIUpdating;
 
+// [MovedFrom] le dice a Unity que esta clase es la continuación de "CharacterController":
+// así, cualquier referencia ya asignada en prefabs/escenas al script viejo se remapea
+// automáticamente a este, en vez de quedar en "Missing (Mono Script)".
+[MovedFrom(true, null, null, "CharacterController")]
 [RequireComponent(typeof(Rigidbody2D))]
-public class CharacterController : MonoBehaviour
+public class PlayerController : MonoBehaviour
 {
     private Rigidbody2D rb;
     private PlayerControls controls;
@@ -113,19 +118,6 @@ public class CharacterController : MonoBehaviour
             }
         }
 
-        // Handle dash timing
-        if (isDashing)
-        {
-            rb.gravityScale = 0f; // cancel gravity while dashing
-
-            dashTime -= Time.deltaTime;
-            if (dashTime <= 0f)
-            {
-                isDashing = false;
-                rb.gravityScale = originalGravityScale; // restore gravity
-            }
-        }
-
         if (dashCooldownTimer > 0f)
         {
             dashCooldownTimer -= Time.deltaTime;
@@ -138,6 +130,8 @@ public class CharacterController : MonoBehaviour
 
         if (isDashing)
         {
+            rb.gravityScale = 0f; // cancelar gravedad mientras dashea
+
             if (grapplingHook.IsHooked())
             {
                 grapplingHook.ReleaseHook();
@@ -149,7 +143,9 @@ public class CharacterController : MonoBehaviour
             // Reducimos la velocidad poco a poco (como Hollow Knight)
             dashSpeed = Mathf.MoveTowards(dashSpeed, 0f, stats.DashForce / stats.DashDuration * Time.fixedDeltaTime);
 
-            // Control del tiempo de dash
+            // Control del tiempo de dash (única fuente de verdad: antes también se
+            // descontaba en Update(), lo que hacía que el dash durara menos de lo
+            // configurado y de forma distinta según el framerate)
             dashTime -= Time.fixedDeltaTime;
             if (dashTime <= 0f || dashSpeed <= 0.1f)
             {

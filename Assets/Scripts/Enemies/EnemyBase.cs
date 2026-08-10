@@ -90,7 +90,7 @@ public abstract class EnemyBase : MonoBehaviour, IDamageable, IStunnable, ICaptu
     }
     protected virtual void ApplyKnockback(int damageAmount, Vector2 damageSource)
     {
-        if (!enemyStats.Knockback.CanBeKnockback || rb == null || isDead) return;
+        if (!enemyStats.Knockback.CanBeKnockback || rb == null || isDead || isCaptured || isBeingCaptured) return;
 
         // Calcular el porcentaje de daño respecto a la vida máxima
         float damagePercentage = Mathf.Clamp01((float)damageAmount / enemyStats.MaxHealth);

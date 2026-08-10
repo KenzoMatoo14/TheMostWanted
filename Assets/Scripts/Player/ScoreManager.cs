@@ -1,4 +1,4 @@
-using UnityEngine;
+ï»¿using UnityEngine;
 using UnityEngine.Events;
 using TMPro;
 
@@ -11,6 +11,8 @@ public class ScoreManager : MonoBehaviour
     [SerializeField] private int currentScore = 0;
     [SerializeField] private int pointsPerCoin = 10; // Puntos que vale cada moneda
     [SerializeField] private int pointsPerEnemyKill = 100; // Puntos base por matar un enemigo
+
+    private int lastKnownCoinTotal = 0;
 
     [Header("UI Reference")]
     [SerializeField] private TextMeshProUGUI scoreText;
@@ -41,6 +43,7 @@ public class ScoreManager : MonoBehaviour
         if (CoinManager.Instance != null)
         {
             CoinManager.Instance.OnCoinsChanged.AddListener(OnCoinsCollected);
+            lastKnownCoinTotal = CoinManager.Instance.GetCoins();
         }
 
         // Actualizar UI inicial
@@ -48,24 +51,28 @@ public class ScoreManager : MonoBehaviour
     }
 
     /// <summary>
-    /// Se llama cuando se recolectan monedas
+    /// Se llama cuando cambia el total de monedas (recolecciÃ³n o gasto)
     /// </summary>
     private void OnCoinsCollected(int totalCoins)
     {
-        // Aquí puedes calcular el incremento basado en las monedas nuevas
-        // o simplemente añadir puntos fijos por cada evento
-        AddScore(pointsPerCoin);
+        int coinsGained = totalCoins - lastKnownCoinTotal;
+        lastKnownCoinTotal = totalCoins;
+
+        // Si el total bajÃ³ (se gastaron monedas, ej. tienda), no sumamos puntaje
+        if (coinsGained <= 0) return;
+
+        AddScore(pointsPerCoin * coinsGained);
     }
 
     /// <summary>
-    /// Añade puntos al puntaje total
+    /// Aï¿½ade puntos al puntaje total
     /// </summary>
     public void AddScore(int points)
     {
         if (points <= 0) return;
 
         currentScore += points;
-        Debug.Log($"Puntos añadidos: +{points}. Total: {currentScore}");
+        Debug.Log($"Puntos aï¿½adidos: +{points}. Total: {currentScore}");
 
         UpdateScoreUI();
         OnScoreChanged?.Invoke(currentScore);
@@ -111,7 +118,7 @@ public class ScoreManager : MonoBehaviour
     }
 
     /// <summary>
-    /// Establece un puntaje específico
+    /// Establece un puntaje especï¿½fico
     /// </summary>
     public void SetScore(int score)
     {
@@ -129,7 +136,7 @@ public class ScoreManager : MonoBehaviour
         }
     }
 
-    // Acceso estático
+    // Acceso estï¿½tico
     public static ScoreManager Instance
     {
         get { return instance; }

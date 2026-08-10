@@ -1,4 +1,4 @@
-using UnityEngine;
+ï»¿using UnityEngine;
 
 public class PlayerStats : MonoBehaviour, IDamageable
 {
@@ -13,7 +13,7 @@ public class PlayerStats : MonoBehaviour, IDamageable
     [SerializeField] private float maxKnockbackDistance = 1.5f;
     [SerializeField] private float knockbackDuration = 0.2f;
     [SerializeField] private AnimationCurve knockbackCurve = AnimationCurve.EaseInOut(0, 1, 1, 0);
-    [Tooltip("Reducción del knockback para el jugador (0.5 = 50% del knockback normal)")]
+    [Tooltip("Reducciï¿½n del knockback para el jugador (0.5 = 50% del knockback normal)")]
     [SerializeField] private float playerKnockbackReduction = 0.5f;
 
     private int currentHealth;
@@ -39,26 +39,26 @@ public class PlayerStats : MonoBehaviour, IDamageable
         // Validar que tenemos el ScriptableObject
         if (playerStatsData == null)
         {
-            Debug.LogError("PlayerStats: No se asignó ScriptableStats! Asigna el ScriptableObject en el inspector.");
+            Debug.LogError("PlayerStats: No se asignï¿½ ScriptableStats! Asigna el ScriptableObject en el inspector.");
             return;
         }
 
         rb = GetComponent<Rigidbody2D>();
         if (rb == null && canBeKnockback)
         {
-            Debug.LogWarning("PlayerStats: No se encontró Rigidbody2D. El knockback no funcionará.");
+            Debug.LogWarning("PlayerStats: No se encontrï¿½ Rigidbody2D. El knockback no funcionarï¿½.");
         }
 
         // Inicializar la vida desde el ScriptableObject
         currentHealth = playerStatsData.maxHealth;
 
-        // Auto-encontrar la HealthBar si no está asignada
+        // Auto-encontrar la HealthBar si no estï¿½ asignada
         if (healthBar == null)
         {
             healthBar = FindObjectOfType<HealthBar>();
             if (healthBar == null)
             {
-                Debug.LogWarning("PlayerStats: No se encontró ninguna HealthBar en la escena.");
+                Debug.LogWarning("PlayerStats: No se encontrï¿½ ninguna HealthBar en la escena.");
             }
         }
 
@@ -87,7 +87,7 @@ public class PlayerStats : MonoBehaviour, IDamageable
             return;
         }
 
-        // Aplicar knockback usando la curva de animación
+        // Aplicar knockback usando la curva de animaciï¿½n
         float curveValue = knockbackCurve.Evaluate(progress);
         float currentSpeed = (knockbackStartDistance / knockbackDuration) * curveValue;
 
@@ -100,14 +100,14 @@ public class PlayerStats : MonoBehaviour, IDamageable
     {
         if (!canBeKnockback || rb == null || isDead) return;
 
-        // Calcular el porcentaje de daño respecto a la vida máxima
+        // Calcular el porcentaje de daï¿½o respecto a la vida mï¿½xima
         float damagePercentage = Mathf.Clamp01((float)damageAmount / playerStatsData.maxHealth);
 
-        // Calcular la distancia de knockback basada en el porcentaje de daño
-        // Aplicar reducción para el jugador
+        // Calcular la distancia de knockback basada en el porcentaje de daï¿½o
+        // Aplicar reducciï¿½n para el jugador
         knockbackStartDistance = damagePercentage * maxKnockbackDistance * playerKnockbackReduction;
 
-        // Calcular la dirección del knockback (desde la fuente del daño hacia el jugador)
+        // Calcular la direcciï¿½n del knockback (desde la fuente del daï¿½o hacia el jugador)
         Vector2 playerPosition = transform.position;
         knockbackDirection = (playerPosition - damageSource).normalized;
 
@@ -115,7 +115,7 @@ public class PlayerStats : MonoBehaviour, IDamageable
         isKnockbackActive = true;
         knockbackTimer = 0f;
 
-        Debug.Log($"Player - Knockback aplicado: {knockbackStartDistance:F2} unidades. Daño: {damagePercentage * 100:F1}%");
+        Debug.Log($"Player - Knockback aplicado: {knockbackStartDistance:F2} unidades. Daï¿½o: {damagePercentage * 100:F1}%");
     }
 
     public void CancelKnockback()
@@ -138,12 +138,12 @@ public class PlayerStats : MonoBehaviour, IDamageable
 
     public void TakeDamage(int amount, Vector2 damageSourcePosition = default)
     {
-        if (isDead) return; // No recibir más daño si ya está muerto
+        if (isDead) return; // No recibir mï¿½s daï¿½o si ya estï¿½ muerto
 
         currentHealth -= amount;
         currentHealth = Mathf.Max(currentHealth, 0); // No bajar de 0
 
-        Debug.Log($"Player recibió {amount} de daño. Vida actual: {currentHealth}/{playerStatsData.maxHealth}");
+        Debug.Log($"Player recibiï¿½ {amount} de daï¿½o. Vida actual: {currentHealth}/{playerStatsData.maxHealth}");
 
         if (damageSourcePosition != default)
         {
@@ -155,7 +155,7 @@ public class PlayerStats : MonoBehaviour, IDamageable
         // Invocar evento de cambio de vida
         OnHealthChanged?.Invoke(currentHealth);
 
-        // Verificar si murió
+        // Verificar si muriï¿½
         if (currentHealth <= 0)
         {
             Die();
@@ -193,7 +193,7 @@ public class PlayerStats : MonoBehaviour, IDamageable
         if (isDead || playerStatsData == null) return;
 
         currentHealth += amount;
-        currentHealth = Mathf.Min(currentHealth, playerStatsData.maxHealth); // No superar el máximo
+        currentHealth = Mathf.Min(currentHealth, playerStatsData.maxHealth); // No superar el mï¿½ximo
 
         Debug.Log($"Player curado {amount}. Vida actual: {currentHealth}/{playerStatsData.maxHealth}");
 
@@ -204,7 +204,7 @@ public class PlayerStats : MonoBehaviour, IDamageable
     }
 
     /// <summary>
-    /// Restaura la vida al máximo
+    /// Restaura la vida al mï¿½ximo
     /// </summary>
     public void FullHeal()
     {
@@ -231,12 +231,21 @@ public class PlayerStats : MonoBehaviour, IDamageable
 
         UpdateHealthBar();
 
+        // Si el jugador tenÃ­a un enemigo capturado, soltarlo ANTES de desactivar
+        // CharacterCombat - si no, el enemigo queda siguiendo el mouse para siempre,
+        // porque CharacterCombat (quien lo controla) se apaga y nadie mÃ¡s lo suelta.
+        CharacterCombat combat = GetComponent<CharacterCombat>();
+        if (combat != null)
+        {
+            combat.ReleaseEnemy();
+        }
+
         DisablePlayerScripts();
 
         // Invocar evento de muerte
         OnDeath?.Invoke();
 
-        // - Reproducir animación de muerte
+        // - Reproducir animaciï¿½n de muerte
         // - Mostrar pantalla de Game Over
     }
     /// <summary>
@@ -302,7 +311,7 @@ public class PlayerStats : MonoBehaviour, IDamageable
     }
 
     /// <summary>
-    /// Revive al jugador (útil para respawn)
+    /// Revive al jugador (ï¿½til para respawn)
     /// </summary>
     public void Revive()
     {
@@ -320,7 +329,7 @@ public class PlayerStats : MonoBehaviour, IDamageable
         if (animator != null)
         {
             animator.SetBool("isDeath", false);
-            animator.Play("Idle", 0, 0f); // Forzar la animación Idle inmediatamente
+            animator.Play("Idle", 0, 0f); // Forzar la animaciï¿½n Idle inmediatamente
         }
 
         Debug.Log("Player revivido!");

@@ -18,7 +18,9 @@ public class HitStopManager : MonoBehaviour
         }
     }
 
-    private bool isHitStopping = false;
+    private Coroutine hitStopCoroutine;
+    private float hitStopEndTime = 0f; // en Time.realtimeSinceStartup
+    private float preHitStopTimeScale = 1f;
 
     private void Awake()
     {
@@ -34,34 +36,42 @@ public class HitStopManager : MonoBehaviour
     }
 
     /// <summary>
-    /// Pausa el juego por una fracción de segundo para dar feedback de impacto
+    /// Pausa el juego para dar feedback de impacto. Es el único punto del proyecto
+    /// que debe modificar Time.timeScale para este propósito - cualquier otro sistema
+    /// (impact frames, etc.) debe pedirle la pausa a este manager en vez de tocar
+    /// Time.timeScale directamente, para evitar que dos pausas se pisen entre sí.
+    /// Si ya hay un hitstop en curso, esta llamada EXTIENDE la pausa hasta cubrir
+    /// el pedido más largo, en vez de ignorarse o reiniciar el contador.
     /// </summary>
-    /// <param name="duration">Duración del hitstop en segundos</param>
+    /// <param name="duration">Duración del hitstop en segundos (tiempo real)</param>
     public void DoHitStop(float duration)
     {
-        if (!isHitStopping)
+        float requestedEndTime = Time.realtimeSinceStartup + duration;
+
+        if (hitStopCoroutine == null)
         {
-            StartCoroutine(HitStopCoroutine(duration));
+            preHitStopTimeScale = Time.timeScale;
+            Time.timeScale = 0f;
+            hitStopEndTime = requestedEndTime;
+            hitStopCoroutine = StartCoroutine(HitStopCoroutine());
+        }
+        else
+        {
+            // Ya hay un hitstop activo: extender si el nuevo pedido dura más
+            hitStopEndTime = Mathf.Max(hitStopEndTime, requestedEndTime);
         }
     }
 
-    private IEnumerator HitStopCoroutine(float duration)
+    private IEnumerator HitStopCoroutine()
     {
-        isHitStopping = true;
+        // Usamos tiempo real (no afectado por timeScale) para saber cuándo terminar
+        while (Time.realtimeSinceStartup < hitStopEndTime)
+        {
+            yield return null;
+        }
 
-        // Guardar el timeScale original
-        float originalTimeScale = Time.timeScale;
-
-        // Pausar el tiempo
-        Time.timeScale = 0f;
-
-        // Esperar usando unscaledTime (no afectado por timeScale)
-        yield return new WaitForSecondsRealtime(duration);
-
-        // Restaurar el timeScale
-        Time.timeScale = originalTimeScale;
-
-        isHitStopping = false;
+        Time.timeScale = preHitStopTimeScale;
+        hitStopCoroutine = null;
     }
 
     /// <summary>
@@ -69,6 +79,21 @@ public class HitStopManager : MonoBehaviour
     /// </summary>
     public bool IsHitStopping()
     {
-        return isHitStopping;
+        return hitStopCoroutine != null;
+    }
+
+    /// <summary>
+    /// Cancela un hitstop en curso SIN restaurar Time.timeScale por su cuenta.
+    /// Pensado para sistemas externos (como el menú de pausa) que necesitan tomar
+    /// control total de Time.timeScale y quieren asegurarse de que este manager
+    /// no se lo pise después con su propia restauración.
+    /// </summary>
+    public void ForceStop()
+    {
+        if (hitStopCoroutine != null)
+        {
+            StopCoroutine(hitStopCoroutine);
+            hitStopCoroutine = null;
+        }
     }
 }

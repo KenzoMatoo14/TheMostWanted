@@ -16,7 +16,7 @@ MonoBehaviour:
   DamageFlashDuration: 0.15
   Knockback:
     CanBeKnockback: 1
-    MaxKnockbackDistance: 2.33
+    MaxKnockbackDistance: 8
     KnockbackDuration: 0.2
     KnockbackCurve:
       serializedVersion: 2

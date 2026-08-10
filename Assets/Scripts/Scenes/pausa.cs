@@ -58,6 +58,8 @@ public class pausa : MonoBehaviour
             pauseMenuUI.SetActive(false);
         }
 
+        // Cancelamos cualquier hitstop en curso para que no nos pise el timeScale después
+        HitStopManager.Instance.ForceStop();
         Time.timeScale = 1f;
         GameIsPaused = false;
     }
@@ -69,12 +71,15 @@ public class pausa : MonoBehaviour
             pauseMenuUI.SetActive(true);
         }
 
+        // Cancelamos cualquier hitstop en curso para que no nos pise el timeScale después
+        HitStopManager.Instance.ForceStop();
         Time.timeScale = 0f;
         GameIsPaused = true;
     }
 
     public void LoadMenu(string menuSceneName)
     {
+        HitStopManager.Instance.ForceStop();
         Time.timeScale = 1f;
         GameIsPaused = false; // Asegura que el estado de pausa se resetee
         SceneManager.LoadScene(menuSceneName);

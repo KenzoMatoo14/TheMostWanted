@@ -6,7 +6,7 @@ public class GrapplingHook : MonoBehaviour
 {
     [Header("References")]
     [SerializeField] private PlayerControls controls;
-    [SerializeField] private CharacterController character;
+    [SerializeField] private PlayerController character;
     [SerializeField] private Transform firePoint;
     [SerializeField] private LineRenderer ropeRenderer;
     [SerializeField] private ScriptableStats stats;
@@ -19,7 +19,6 @@ public class GrapplingHook : MonoBehaviour
     private float targetRopeLength;
     private bool isPulling = false;
     private float swingDirection = 1f;
-    private Vector2 moveInput;
     private float lastHookTime = -999f;
     public bool canUseHook = true;
 
@@ -28,8 +27,6 @@ public class GrapplingHook : MonoBehaviour
         controls = new PlayerControls();
         controls.Movement.FireWhip.performed += ctx => TryHook();
         controls.Movement.FireWhip.canceled += ctx => ReleaseHook();
-        controls.Movement.Move.performed += ctx => moveInput = new Vector2(ctx.ReadValue<float>(), 0f);
-        controls.Movement.Move.canceled += ctx => moveInput = Vector2.zero;
     }
 
     void Start()
@@ -179,7 +176,7 @@ public class GrapplingHook : MonoBehaviour
         Vector2 tangent = new Vector2(-ropeVector.y, ropeVector.x).normalized;
 
         // Input del jugador para controlar la dirección del swing (con intensidad ajustable)
-        float horizontalInput = moveInput.x;
+        float horizontalInput = character != null ? character.moveInput.x : 0f;
 
         // Aplicar fuerza de swing
         rb.AddForce(tangent * horizontalInput * stats.SwingForce, ForceMode2D.Force);

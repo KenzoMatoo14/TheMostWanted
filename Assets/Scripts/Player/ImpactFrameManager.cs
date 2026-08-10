@@ -207,35 +207,30 @@ public class ImpactFrameManager : MonoBehaviour
         }
         impactCamera.enabled = true;
 
-        // 4. Reproducir sonido de impacto
+        // 5. Reproducir sonido de impacto
         PlayImpactSound();
 
-        // 5. Aplicar hitstop si está habilitado
-        float originalTimeScale = Time.timeScale;
+        // 6. Pedir el hitstop al HitStopManager (dueño único de Time.timeScale).
+        //    Le pedimos que cubra toda la duración visual del efecto (fade in + hold + fade out)
+        //    para que el tiempo quede pausado mientras se ve el flash blanco.
         if (applyHitstop)
         {
-            Time.timeScale = 0f;
+            HitStopManager.Instance.DoHitStop(fadeTime * 2f + duration);
         }
 
-        // 6. Fade in (opcional)
+        // 7. Fade in (opcional)
         if (fadeTime > 0f)
         {
             yield return new WaitForSecondsRealtime(fadeTime);
         }
 
-        // 7. Mantener el efecto visible
+        // 8. Mantener el efecto visible
         yield return new WaitForSecondsRealtime(duration);
 
-        // 8. Fade out (opcional)
+        // 9. Fade out (opcional)
         if (fadeTime > 0f)
         {
             yield return new WaitForSecondsRealtime(fadeTime);
-        }
-
-        // 9. Restaurar hitstop
-        if (applyHitstop)
-        {
-            Time.timeScale = originalTimeScale;
         }
 
         // 10. Desactivar cámara y limpiar
@@ -321,10 +316,9 @@ public class ImpactFrameManager : MonoBehaviour
 
         RestoreOriginalLayers();
 
-        if (applyHitstop)
-        {
-            Time.timeScale = 1f;
-        }
+        // Nota: ya no forzamos Time.timeScale = 1f aquí. HitStopManager es el único
+        // dueño de esa variable; su propia corrutina se encarga de restaurarla cuando
+        // corresponda, incluso si este efecto se cancela a mitad de camino.
 
         isActive = false;
 
