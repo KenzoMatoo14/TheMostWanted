@@ -13,3 +13,67 @@ MonoBehaviour:
   m_Name: Evil Bat
   m_EditorClassIdentifier: 
   MaxHealth: 18
+  DamageFlashDuration: 0.15
+  Knockback:
+    CanBeKnockback: 1
+    MaxKnockbackDistance: 2.33
+    KnockbackDuration: 0.2
+    KnockbackCurve:
+      serializedVersion: 2
+      m_Curve:
+      - serializedVersion: 3
+        time: 0
+        value: 1
+        inSlope: 0
+        outSlope: 0
+        tangentMode: 0
+        weightedMode: 0
+        inWeight: 0
+        outWeight: 0
+      - serializedVersion: 3
+        time: 1
+        value: 0
+        inSlope: 0
+        outSlope: 0
+        tangentMode: 0
+        weightedMode: 0
+        inWeight: 0
+        outWeight: 0
+      m_PreInfinity: 2
+      m_PostInfinity: 2
+      m_RotationOrder: 4
+  Capture:
+    CaptureDifficulty: 0.5
+    CapturedColor: {r: 0, g: 1, b: 0, a: 1}
+    StunToCaptureProgressMultiplier: 0.8
+    RequireMinimumStunToCapture: 0
+    MinimumStunForCapture: 30
+  Stun:
+    StunnedDecayBaseRate: 10
+    StunnedDecaySlowdownFactor: 0.5
+    StunnedMovementImpactMax: 0.9
+    StunnedMovementCurve:
+      serializedVersion: 2
+      m_Curve:
+      - serializedVersion: 3
+        time: 0
+        value: 0
+        inSlope: 0
+        outSlope: 1
+        tangentMode: 0
+        weightedMode: 0
+        inWeight: 0
+        outWeight: 0
+      - serializedVersion: 3
+        time: 1
+        value: 1
+        inSlope: 1
+        outSlope: 0
+        tangentMode: 0
+        weightedMode: 0
+        inWeight: 0
+        outWeight: 0
+      m_PreInfinity: 2
+      m_PostInfinity: 2
+      m_RotationOrder: 4
+    StunnedThresholdForFullStop: 95

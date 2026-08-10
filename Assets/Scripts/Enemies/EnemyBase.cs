@@ -1,3 +1,4 @@
+using System.Collections.Generic;
 using UnityEngine.Events;
 using UnityEngine;
 
@@ -5,29 +6,6 @@ public abstract class EnemyBase : MonoBehaviour, IDamageable, IStunnable, ICaptu
 {
     [Header("Enemy Stats")]
     [SerializeField] protected Enemy enemyStats;
-
-    [Header("Visual Effects")]
-    [SerializeField] protected float damageFlashDuration = 0.5f;
-
-    [Header("Knockback Settings")]
-    [SerializeField] protected bool canBeKnockback = true;
-    [SerializeField] protected float maxKnockbackDistance = 2.33f;
-    [SerializeField] protected float knockbackDuration = 0.2f; // Duración del knockback en segundos
-    [SerializeField] protected AnimationCurve knockbackCurve = AnimationCurve.EaseInOut(0, 1, 1, 0);
-
-    [Header("Capture Settings")]
-    [SerializeField] protected float captureDifficulty = 0.5f; // 0.0 = imposible, 1.0 = muy f�cil
-    [SerializeField] protected Color capturedColor = Color.green;
-    [SerializeField] protected float stunToCaptureProgressMultiplier = 0.8f; // 80% del stun se convierte en progreso inicial
-    [SerializeField] protected bool requireMinimumStunToCapture = false;
-    [SerializeField] protected float minimumStunForCapture = 30f; // Stun m�nimo requerido para capturar
-
-    [Header("Stunned Settings")]
-    [SerializeField] protected float stunnedDecayBaseRate = 10f; // Velocidad base de reducci�n por segundo
-    [SerializeField] protected float stunnedDecaySlowdownFactor = 0.5f; // Factor que ralentiza la reducci�n seg�n el nivel
-    [SerializeField] protected float stunnedMovementImpactMax = 0.9f; // Reducci�n m�xima de velocidad (90%)
-    [SerializeField] protected AnimationCurve stunnedMovementCurve = AnimationCurve.Linear(0, 0, 1, 1); // Curva de impacto
-    [SerializeField] protected float stunnedThresholdForFullStop = 95f; // A partir de este % el enemigo se detiene completamente
 
     [Header("Events")]
     public UnityEvent OnDamageTaken;
@@ -53,7 +31,10 @@ public abstract class EnemyBase : MonoBehaviour, IDamageable, IStunnable, ICaptu
 
     protected Rigidbody2D rb;
     protected Collider2D[] colliders;
-    protected MonoBehaviour[] aiComponents;
+
+    // Componentes que DisableAIComponents() apag� al capturar, para poder
+    // reactivar exactamente esos (y no algo que ya estaba apagado por otra razón)
+    private readonly List<MonoBehaviour> componentsDisabledByCapture = new List<MonoBehaviour>();
 
     protected DamageFlashEffect damageFlashEffect;
     protected virtual void Start()
@@ -88,7 +69,7 @@ public abstract class EnemyBase : MonoBehaviour, IDamageable, IStunnable, ICaptu
         if (!isKnockbackActive || rb == null) return;
 
         knockbackTimer += Time.deltaTime;
-        float progress = knockbackTimer / knockbackDuration;
+        float progress = knockbackTimer / enemyStats.Knockback.KnockbackDuration;
 
         if (progress >= 1f)
         {
@@ -99,8 +80,8 @@ public abstract class EnemyBase : MonoBehaviour, IDamageable, IStunnable, ICaptu
         }
 
         // Aplicar knockback usando la curva de animación
-        float curveValue = knockbackCurve.Evaluate(progress);
-        float currentSpeed = (knockbackStartDistance / knockbackDuration) * curveValue;
+        float curveValue = enemyStats.Knockback.KnockbackCurve.Evaluate(progress);
+        float currentSpeed = (knockbackStartDistance / enemyStats.Knockback.KnockbackDuration) * curveValue;
         rb.linearVelocity = knockbackDirection * currentSpeed;
     }
     public virtual bool IsInKnockback()
@@ -109,13 +90,13 @@ public abstract class EnemyBase : MonoBehaviour, IDamageable, IStunnable, ICaptu
     }
     protected virtual void ApplyKnockback(int damageAmount, Vector2 damageSource)
     {
-        if (!canBeKnockback || rb == null || isDead) return;
+        if (!enemyStats.Knockback.CanBeKnockback || rb == null || isDead) return;
 
         // Calcular el porcentaje de daño respecto a la vida máxima
         float damagePercentage = Mathf.Clamp01((float)damageAmount / enemyStats.MaxHealth);
 
         // Calcular la distancia de knockback basada en el porcentaje de daño
-        knockbackStartDistance = damagePercentage * maxKnockbackDistance;
+        knockbackStartDistance = damagePercentage * enemyStats.Knockback.MaxKnockbackDistance;
 
         // Calcular la dirección del knockback (desde la fuente del daño hacia el enemigo)
         Vector2 enemyPosition = transform.position;
@@ -241,51 +222,43 @@ public abstract class EnemyBase : MonoBehaviour, IDamageable, IStunnable, ICaptu
     }
     protected virtual void ReenableAIComponents()
     {
-        /*
-        MonoBehaviour[] components = GetComponents<MonoBehaviour>();
-
-        foreach (MonoBehaviour component in components)
+        foreach (MonoBehaviour component in componentsDisabledByCapture)
         {
-            // Reactivar componentes que fueron desactivados durante la captura
-            if (component != this && !component.enabled)
-            {
-                // No reactivar componentes de renderizado/físicas básicas
-                if (!(component is SpriteRenderer) &&
-                    !(component is Animator) &&
-                    !(component is Rigidbody2D) &&
-                    !(component is Collider2D))
-                {
-                    component.enabled = true;
-                    Debug.Log($"{gameObject.name} - Componente reactivado: {component.GetType().Name}");
-                }
-            }
+            // El componente podr�a haber sido destruido mientras estaba capturado
+            if (component == null) continue;
+
+            component.enabled = true;
+            Debug.Log($"{gameObject.name} - Componente reactivado: {component.GetType().Name}");
         }
-        */
+
+        componentsDisabledByCapture.Clear();
     }
     protected virtual void DisableAIComponents()
     {
-        /*
-        // Desactivar todos los MonoBehaviour excepto este script base
+        componentsDisabledByCapture.Clear();
+
         MonoBehaviour[] components = GetComponents<MonoBehaviour>();
 
         foreach (MonoBehaviour component in components)
         {
-            // No desactivar este script base ni componentes esenciales
-            if (component != this && component.enabled)
+            // No desactivarse a s� mismo, ni algo que ya estaba desactivado por otra raz�n
+            if (component == this || !component.enabled) continue;
+
+            if (!IsProtectedFromCaptureDisable(component))
             {
-                // Puedes agregar excepciones espec�ficas si es necesario
-                // Por ejemplo, no desactivar el SpriteRenderer, Animator, etc.
-                if (!(component is SpriteRenderer) &&
-                    !(component is Animator) &&
-                    !(component is Rigidbody2D) &&
-                    !(component is Collider2D))
-                {
-                    component.enabled = false;
-                    Debug.Log($"{gameObject.name} - Componente desactivado: {component.GetType().Name}");
-                }
+                component.enabled = false;
+                componentsDisabledByCapture.Add(component);
+                Debug.Log($"{gameObject.name} - Componente desactivado: {component.GetType().Name}");
             }
         }
-        */
+    }
+    /// <summary>
+    /// Punto de extensi�n para excluir componentes espec�ficos de ser apagados al capturar.
+    /// Por defecto no hay excepciones (aparte de este mismo script): se agregan seg�n se necesiten.
+    /// </summary>
+    protected virtual bool IsProtectedFromCaptureDisable(MonoBehaviour component)
+    {
+        return false;
     }
     public virtual void CancelCapture() // Cancela el proceso de captura
     {
@@ -304,7 +277,7 @@ public abstract class EnemyBase : MonoBehaviour, IDamageable, IStunnable, ICaptu
 
         // Convertir el stun actual en progreso de captura
         float stunPercentage = currentStunned / maxStunned;
-        float initialProgress = stunPercentage * stunToCaptureProgressMultiplier;
+        float initialProgress = stunPercentage * enemyStats.Capture.StunToCaptureProgressMultiplier;
 
         return Mathf.Clamp01(initialProgress);
     }
@@ -323,9 +296,9 @@ public abstract class EnemyBase : MonoBehaviour, IDamageable, IStunnable, ICaptu
             return false;
 
         // Si requiere stun m�nimo, verificar
-        if (requireMinimumStunToCapture && currentStunned < minimumStunForCapture)
+        if (enemyStats.Capture.RequireMinimumStunToCapture && currentStunned < enemyStats.Capture.MinimumStunForCapture)
         {
-            Debug.Log($"{gameObject.name} - Stun insuficiente para captura ({currentStunned:F1}/{minimumStunForCapture})");
+            Debug.Log($"{gameObject.name} - Stun insuficiente para captura ({currentStunned:F1}/{enemyStats.Capture.MinimumStunForCapture})");
             return false;
         }
 
@@ -333,7 +306,7 @@ public abstract class EnemyBase : MonoBehaviour, IDamageable, IStunnable, ICaptu
     }
     public virtual float GetCaptureDifficulty()
     {
-        return captureDifficulty;
+        return enemyStats.Capture.CaptureDifficulty;
     }
     public virtual float GetCaptureSpeedMultiplier()
     {
@@ -385,8 +358,8 @@ public abstract class EnemyBase : MonoBehaviour, IDamageable, IStunnable, ICaptu
             // Calcular la velocidad de reducci�n basada en el nivel actual
             // Mientras m�s alto sea el stunned, m�s lento se reduce
             float stunnedNormalized = currentStunned / maxStunned;
-            float decaySlowdown = 1f - (stunnedNormalized * stunnedDecaySlowdownFactor);
-            float actualDecayRate = stunnedDecayBaseRate * decaySlowdown;
+            float decaySlowdown = 1f - (stunnedNormalized * enemyStats.Stun.StunnedDecaySlowdownFactor);
+            float actualDecayRate = enemyStats.Stun.StunnedDecayBaseRate * decaySlowdown;
 
             // Reducir el stunned
             currentStunned -= actualDecayRate * Time.deltaTime;
@@ -410,7 +383,7 @@ public abstract class EnemyBase : MonoBehaviour, IDamageable, IStunnable, ICaptu
         OnStunnedAddedCustom(amount, previousStunned, currentStunned);
 
         // Si alcanza el umbral m�ximo, detener completamente
-        if (currentStunned >= stunnedThresholdForFullStop && previousStunned < stunnedThresholdForFullStop)
+        if (currentStunned >= enemyStats.Stun.StunnedThresholdForFullStop && previousStunned < enemyStats.Stun.StunnedThresholdForFullStop)
         {
             OnFullyStunned();
         }
@@ -450,7 +423,7 @@ public abstract class EnemyBase : MonoBehaviour, IDamageable, IStunnable, ICaptu
     }
     public virtual bool IsFullyStunned() // Verifica si el enemigo est� completamente aturdido (stunned >= threshold)
     {
-        return currentStunned >= stunnedThresholdForFullStop;
+        return currentStunned >= enemyStats.Stun.StunnedThresholdForFullStop;
     }
     public virtual float GetStunnedPercentage() // Obtiene el porcentaje actual de stunned(0-1)
     {
@@ -467,12 +440,12 @@ public abstract class EnemyBase : MonoBehaviour, IDamageable, IStunnable, ICaptu
     public virtual float GetMovementSpeedMultiplier()
     {
         if (currentStunned <= 0) return 1f;
-        if (currentStunned >= stunnedThresholdForFullStop) return 0f;
+        if (currentStunned >= enemyStats.Stun.StunnedThresholdForFullStop) return 0f;
 
         // Usar la curva de animaci�n para calcular el impacto
         float stunnedNormalized = currentStunned / maxStunned;
-        float curveValue = stunnedMovementCurve.Evaluate(stunnedNormalized);
-        float reduction = curveValue * stunnedMovementImpactMax;
+        float curveValue = enemyStats.Stun.StunnedMovementCurve.Evaluate(stunnedNormalized);
+        float reduction = curveValue * enemyStats.Stun.StunnedMovementImpactMax;
 
         return 1f - reduction;
     } // Calcula el multiplicador de velocidad basado en el stunned actual
@@ -518,9 +491,9 @@ public abstract class EnemyBase : MonoBehaviour, IDamageable, IStunnable, ICaptu
 
         Debug.Log($"{gameObject.name} - Da�o recibido: {actualDamage}. Vida actual: {currentHealth}/{enemyStats.MaxHealth}");
 
-        if (damageFlashEffect != null && damageFlashDuration > 0f)
+        if (damageFlashEffect != null && enemyStats.DamageFlashDuration > 0f)
         {
-            damageFlashEffect.Flash(damageFlashDuration);
+            damageFlashEffect.Flash(enemyStats.DamageFlashDuration);
         }
 
         if (damageSourcePosition != default)
