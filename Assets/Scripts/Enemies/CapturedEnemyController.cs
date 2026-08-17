@@ -20,6 +20,8 @@ public class CapturedEnemyController : MonoBehaviour
     [SerializeField] private float dragSpeed = 75;
     [SerializeField] private float maxDistanceFromPlayer = 10f;
     [SerializeField] private float smoothTime = 0.1f;
+    [Tooltip("Qué tan fuerte (unidades de mundo por segundo) el cursor es arrastrado solo hacia el centro del jugador cada frame. Si no compensás moviendo el mouse, el cursor -y el objeto capturado con él- vuelve al centro a esta velocidad. 0 = desactivado")]
+    [SerializeField] private float cursorCenteringForce = 6f;
 
     [Header("Velocity Tracking")]
     private Vector2 previousPosition;
@@ -213,6 +215,15 @@ public class CapturedEnemyController : MonoBehaviour
 
         previousHealth = currentHealth;
     }
+    /// <summary>
+    /// Lee la posición absoluta del cursor y la usa como target de arrastre. Además, cada
+    /// frame arrastra el cursor (con WarpCursorPosition, el cursor real del sistema) un poco
+    /// hacia el jugador — simula la fuerza de centrado que tenía la versión anterior, sólo
+    /// que ahora en vez de aplicarle una fuerza al objeto, movemos el propio cursor. Como el
+    /// objeto sigue 1:1 la posición del mouse, arrastrar el cursor arrastra el objeto con él.
+    /// Si el jugador compensa moviendo el mouse hacia afuera, ese movimiento se suma normalmente
+    /// el próximo frame porque solo desplazamos el cursor, no lo fijamos a un punto.
+    /// </summary>
     void UpdateTargetPosition()
     {
         if (mouse == null)
@@ -222,7 +233,21 @@ public class CapturedEnemyController : MonoBehaviour
         Vector2 mouseScreenPosition = mouse.position.ReadValue();
         Vector3 mouseWorldPosition = mainCamera.ScreenToWorldPoint(mouseScreenPosition);
         mouseWorldPosition.z = 0f;
-        targetPosition = mouseWorldPosition;
+
+        Vector2 centeredWorldPosition = mouseWorldPosition;
+        if (cursorCenteringForce > 0f && playerTransform != null)
+        {
+            centeredWorldPosition = Vector2.MoveTowards(
+                mouseWorldPosition,
+                playerTransform.position,
+                cursorCenteringForce * Time.deltaTime
+            );
+
+            Vector3 centeredScreenPosition = mainCamera.WorldToScreenPoint(centeredWorldPosition);
+            mouse.WarpCursorPosition(centeredScreenPosition);
+        }
+
+        targetPosition = centeredWorldPosition;
     }
     void MoveTowardsTarget()
     {

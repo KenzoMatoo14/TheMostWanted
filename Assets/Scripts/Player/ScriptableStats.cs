@@ -60,10 +60,10 @@ public class ScriptableStats : ScriptableObject
     public LayerMask EnemyLayers;
 
     [Header("Stun System")]
-    [Tooltip("Multiplicador de stun basado en el % de daño. Ej: 1.5 = si haces 10% de daño, aplicas 15% de stun")]
+    [Tooltip("Multiplicador de stun basado en el % de daï¿½o. Ej: 1.5 = si haces 10% de daï¿½o, aplicas 15% de stun")]
     public float StunMultiplier = 1.5f;
     public bool ApplyStunOnHit = true;
-    [Tooltip("Stun adicional si el enemigo está por debajo de 50% vida")]
+    [Tooltip("Stun adicional si el enemigo estï¿½ por debajo de 50% vida")]
     public float LowHealthStunBonus = 5f;
     [Tooltip("Aplicar bonus de stun por vida baja")]
     public bool ApplyLowHealthBonus = false;
@@ -71,12 +71,17 @@ public class ScriptableStats : ScriptableObject
     [Header("Capture System")]
     [Tooltip("Tiempo para completar la captura (en segundos)")]
     public float CaptureTime = 5f;
-    [Tooltip("Distancia máxima para capturar enemigos")]
+    [Tooltip("Distancia mï¿½xima para capturar enemigos")]
     public float CaptureRange = 4f;
+    [Tooltip("Cuanto progreso suma cada click del boton de captura, como fraccion de CaptureTime (0-1). Ej: 0.15 = necesitas ~7 clicks para llenar la barra")]
+    [Range(0f, 1f)]
+    public float CaptureChargePerClick = 0.15f;
+    [Tooltip("Velocidad a la que decae solo el progreso de captura cuando no se hace click, como fraccion de CaptureTime por segundo. Mas bajo = decae mas lento")]
+    public float CaptureDecayRate = 0.2f;
 
     [Header("Hover Detection")]
     [Tooltip("Radio del raycast circular para detectar hover")]
     public float HoverDetectionRadius = 0.5f;
-    [Tooltip("Distancia máxima del raycast para hover")]
+    [Tooltip("Distancia mï¿½xima del raycast para hover")]
     public float HoverDetectionDistance = 10f;
 }

@@ -65,8 +65,7 @@ public class CharacterCombat : MonoBehaviour
 
         controls.Combat.HitWhip.performed += ctx => HandleHitWhipInput();
 
-        controls.Combat.Capture.started += ctx => ToggleCapture();
-        controls.Combat.Capture.canceled += ctx => OnCaptureButtonReleased();
+        controls.Combat.Capture.started += ctx => HandleCaptureClick();
 
         // Validar que las stats existan
         if (stats == null)
@@ -90,7 +89,7 @@ public class CharacterCombat : MonoBehaviour
 
         if (isCapturing)
         {
-            UpdateCapture();
+            UpdateCaptureDecay();
         }
 
         // Actualizar la cuerda de captura si hay un enemigo capturado
@@ -228,25 +227,44 @@ public class CharacterCombat : MonoBehaviour
 
     ///////////////////////// CAPTURE
 
-    void ToggleCapture()
+    /// <summary>
+    /// Cada click del botón de captura es un "golpe" de carga: si no hay nada en proceso
+    /// de captura, arranca el intento (resuelve objetivo + progreso inicial por stun); en
+    /// cualquier caso, ese mismo click también suma un poco de carga (AddCaptureCharge).
+    /// Ya no hace falta mantener presionado - el progreso se sostiene solo entre clicks
+    /// (ver UpdateCaptureDecay) y decae lentamente si dejás de hacer click.
+    /// </summary>
+    void HandleCaptureClick()
     {
         if (hasEnemyCaptured)
         {
             // Si ya hay un enemigo capturado, liberarlo
             ReleaseEnemy();
+            return;
         }
-        else
+
+        if (!isCapturing)
         {
-            // Si no hay enemigo capturado, iniciar captura
             StartCapture();
         }
-    }
-    void OnCaptureButtonReleased()
-    {
-        // Solo detener la captura si estamos en proceso de capturar (no si ya está capturado)
-        if (isCapturing && !hasEnemyCaptured)
+
+        if (isCapturing)
         {
-            StopCapture();
+            AddCaptureCharge();
+        }
+    }
+    void AddCaptureCharge()
+    {
+        currentCaptureProgress += stats.CaptureChargePerClick * stats.CaptureTime;
+        currentCaptureProgress = Mathf.Min(currentCaptureProgress, stats.CaptureTime);
+
+        UpdateCaptureUI();
+
+        Debug.Log($"[CAPTURA] Click de carga: {currentCaptureProgress:F1}/{stats.CaptureTime:F1}");
+
+        if (currentCaptureProgress >= stats.CaptureTime)
+        {
+            CompleteCapture();
         }
     }
     void StartCapture()
@@ -333,7 +351,12 @@ public class CharacterCombat : MonoBehaviour
 
         Debug.Log("Captura cancelada");
     }
-    void UpdateCapture()
+    /// <summary>
+    /// Corre todos los frames mientras hay un intento de captura en curso (no solo cuando
+    /// se hace click): valida que el objetivo siga vivo y en rango, y hace decaer lentamente
+    /// el progreso acumulado si el jugador no sigue haciendo click para mantenerlo/subirlo.
+    /// </summary>
+    void UpdateCaptureDecay()
     {
         if (targetCapturable == null || targetMB == null)
         {
@@ -349,13 +372,15 @@ public class CharacterCombat : MonoBehaviour
             return;
         }
 
-        currentCaptureProgress += Time.deltaTime;
+        currentCaptureProgress -= stats.CaptureDecayRate * stats.CaptureTime * Time.deltaTime;
+        currentCaptureProgress = Mathf.Max(currentCaptureProgress, 0f);
 
         UpdateCaptureUI();
 
-        if (currentCaptureProgress >= stats.CaptureTime)
+        if (currentCaptureProgress <= 0f)
         {
-            CompleteCapture();
+            Debug.Log("El progreso de captura decayó por completo - captura cancelada");
+            StopCapture();
         }
     }
     void UpdateCaptureUI()
