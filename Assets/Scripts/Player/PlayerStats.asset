@@ -34,6 +34,7 @@ MonoBehaviour:
     serializedVersion: 2
     m_Bits: 584
   MaxGrappleDistance: 20
+  GrappleAimRadius: 0.3
   GrappleLayer:
     serializedVersion: 2
     m_Bits: 520
@@ -44,6 +45,8 @@ MonoBehaviour:
   ConstraintForce: 50
   ConstraintSpeed: 35
   Dampening: 0.95
+  MaxSwingSpeed: 20
+  MaxSwingAngle: 100
   CooldownTime: 0.3
   MeleeDamage: 10
   AttackCooldown: 0.33

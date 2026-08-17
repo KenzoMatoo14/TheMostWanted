@@ -38,6 +38,8 @@ public class ScriptableStats : ScriptableObject
     [Header("Grapple Settings")]
     public float MaxGrappleDistance = 15f;
     public LayerMask GrappleLayer;
+    [Tooltip("Radio de tolerancia del disparo del gancho (circle cast en vez de un raycast de una sola linea). Da un poco de perdon si el mouse no apunta exactamente al borde del objeto.")]
+    public float GrappleAimRadius = 0.3f;
 
     [Header("Pull Effect")]
     public float PullStrength = 12f;
@@ -49,6 +51,11 @@ public class ScriptableStats : ScriptableObject
     public float ConstraintForce = 50f;
     public float ConstraintSpeed = 15f;
     public float Dampening = 0.95f;
+    [Tooltip("Velocidad maxima (unidades/seg) que el jugador puede alcanzar mientras esta enganchado. Evita que el swing se acelere sin limite (por ejemplo, bombeando el input en circulos) y se vuelva incontrolable.")]
+    public float MaxSwingSpeed = 20f;
+    [Tooltip("Angulo maximo (en grados, medido desde recto hacia abajo del gancho) que el jugador puede alcanzar hacia cada lado. Evita que el swing de una vuelta completa alrededor del gancho, lo cual lo vuelve impredecible para diseñar niveles de parkour. Mantener bien por debajo de 180 para evitar el punto opuesto al gancho.")]
+    [Range(0f, 170f)]
+    public float MaxSwingAngle = 100f;
 
     [Header("Grappling Hook Cooldown")]
     public float CooldownTime = 1f;

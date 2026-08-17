@@ -102,8 +102,18 @@ public class PlayerController : MonoBehaviour
         {
             bool bufferedJump = (stats.JumpBuffer > 0f && Time.time < lastJumpPressedTime + stats.JumpBuffer);
 
+            // Saltar mientras estás enganchado cancela el swing. Va antes que todo lo demás y
+            // no depende de jumpCount/coyote: es una salida del swing, no un salto aéreo normal.
+            // Con MaxJumps = 0 el branch de abajo (jumpCount > 0) nunca se cumple estando en el
+            // aire, así que sin este caso especial Jump() jamás se ejecutaba estando colgado y
+            // el gancho no se soltaba nunca.
+            if (grapplingHook.IsHooked())
+            {
+                Jump();
+                lastJumpPressedTime = -1f;
+            }
             // Salto desde suelo o coyote time (NO gasta jumpCount)
-            if (!consumedGroundJump && (isGrounded || (stats.CoyoteTime > 0f && Time.time < timeLeftGrounded + stats.CoyoteTime)))
+            else if (!consumedGroundJump && (isGrounded || (stats.CoyoteTime > 0f && Time.time < timeLeftGrounded + stats.CoyoteTime)))
             {
                 Jump();
                 consumedGroundJump = true;
@@ -182,6 +192,15 @@ public class PlayerController : MonoBehaviour
 
     private void Jump()
     {
+        // Saltar mientras estás en el grapple cancela el swing (sin esto, Jump() pisaba
+        // linearVelocity.y pero seguías atado a la cuerda, y el próximo FixedUpdate te
+        // tironeaba de vuelta hacia el radio - se sentía como un latigazo random). Se llama
+        // a ReleaseHook() en vez de replicar su lógica para no duplicar el boost de velocidad.
+        if (grapplingHook.IsHooked())
+        {
+            grapplingHook.ReleaseHook();
+        }
+
         rb.linearVelocity = new Vector2(rb.linearVelocity.x, stats.JumpForce);
     }
     private void CutJump()
