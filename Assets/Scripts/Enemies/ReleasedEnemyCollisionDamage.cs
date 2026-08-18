@@ -2,8 +2,8 @@ using UnityEngine;
 using System.Collections.Generic;
 
 /// <summary>
-/// Script temporal que se añade a un enemigo liberado para que cause daño por colisión
-/// basado en su velocidad durante un tiempo limitado después de ser liberado.
+/// Script temporal que se aï¿½ade a un enemigo liberado para que cause daï¿½o por colisiï¿½n
+/// basado en su velocidad durante un tiempo limitado despuï¿½s de ser liberado.
 /// </summary>
 public class ReleasedEnemyCollisionDamage : MonoBehaviour
 {
@@ -43,8 +43,6 @@ public class ReleasedEnemyCollisionDamage : MonoBehaviour
         activeDuration = duration;
 
         startTime = Time.time;
-
-        Debug.Log($"ReleasedEnemyCollisionDamage inicializado en {gameObject.name} por {activeDuration}s");
     }
 
     void Update()
@@ -54,15 +52,13 @@ public class ReleasedEnemyCollisionDamage : MonoBehaviour
 
         if (elapsedTime >= activeDuration)
         {
-            Debug.Log($"{gameObject.name} - Tiempo de colisión expirado ({activeDuration}s)");
             Destroy(this);
             return;
         }
 
-        // Si la velocidad es muy baja, también desactivar
+        // Si la velocidad es muy baja, tambiï¿½n desactivar
         if (rb != null && rb.linearVelocity.magnitude < velocityThreshold)
         {
-            Debug.Log($"{gameObject.name} - Velocidad muy baja ({rb.linearVelocity.magnitude:F2}), desactivando colisiones");
             Destroy(this);
             return;
         }
@@ -72,7 +68,7 @@ public class ReleasedEnemyCollisionDamage : MonoBehaviour
 
     void OnCollisionEnter2D(Collision2D collision)
     {
-        // Verificar si el objeto está en la capa de daño
+        // Verificar si el objeto estï¿½ en la capa de daï¿½o
         if (((1 << collision.gameObject.layer) & damageableLayers) == 0)
             return;
 
@@ -85,11 +81,11 @@ public class ReleasedEnemyCollisionDamage : MonoBehaviour
         if (Time.time - lastDamageTime < damageCooldown)
             return;
 
-        // Verificar si ya dañamos este collider recientemente
+        // Verificar si ya daï¿½amos este collider recientemente
         if (recentlyDamagedColliders.Contains(collision.collider))
             return;
 
-        // Aplicar daño
+        // Aplicar daï¿½o
         ApplyCollisionDamage(collision, currentVelocity);
     }
     void ApplyCollisionDamage(Collision2D collision, float velocityMagnitude)
@@ -97,10 +93,10 @@ public class ReleasedEnemyCollisionDamage : MonoBehaviour
         IDamageable damageable = collision.gameObject.GetComponent<IDamageable>();
         if (damageable != null)
         {
-            // Calcular daño basado en la velocidad
+            // Calcular daï¿½o basado en la velocidad
             float velocityRatio = velocityMagnitude / minVelocityForDamage;
             int damage = Mathf.RoundToInt(velocityRatio * damageMultiplier);
-            damage = Mathf.Max(damage, 1); // Mínimo 1 de daño
+            damage = Mathf.Max(damage, 1); // Mï¿½nimo 1 de daï¿½o
 
             // Aplicar stun al enemigo golpeado si es posible
             EnemyBase enemyHit = damageable as EnemyBase;
@@ -109,19 +105,17 @@ public class ReleasedEnemyCollisionDamage : MonoBehaviour
                 enemyHit.AddStunned(damage);
             }
 
-            // Aplicar daño al objetivo
+            // Aplicar daï¿½o al objetivo
             damageable.TakeDamage(damage);
 
-            // El enemigo liberado también recibe daño por el impacto
+            // El enemigo liberado tambiï¿½n recibe daï¿½o por el impacto
             if (enemyBase != null)
             {
                 enemyBase.TakeDamage(damage);
                 enemyBase.AddStunned(damage);
             }
 
-            Debug.Log($"{gameObject.name} (liberado) hizo {damage} de daño a {collision.gameObject.name} con velocidad {velocityMagnitude:F2}");
-
-            // Registrar el daño
+            // Registrar el daï¿½o
             lastDamageTime = Time.time;
             recentlyDamagedColliders.Add(collision.collider);
 
@@ -132,6 +126,7 @@ public class ReleasedEnemyCollisionDamage : MonoBehaviour
     void ApplyBounceEffect(Collision2D collision, float velocityMagnitude)
     {
         if (rb == null) return;
+        if (collision.contacts.Length == 0) return;
 
         // Aplicar un rebote al enemigo liberado
         Vector2 bounceDirection = (rb.position - collision.GetContact(0).point).normalized;
@@ -140,14 +135,10 @@ public class ReleasedEnemyCollisionDamage : MonoBehaviour
     }
     void CleanupDamagedColliders()
     {
-        // Limpiar la lista de colliders dañados recientemente después del cooldown
+        // Limpiar la lista de colliders daï¿½ados recientemente despuï¿½s del cooldown
         if (Time.time - lastDamageTime > damageCooldown)
         {
             recentlyDamagedColliders.Clear();
         }
-    }
-    void OnDestroy()
-    {
-        Debug.Log($"ReleasedEnemyCollisionDamage destruido en {gameObject.name}");
     }
 }

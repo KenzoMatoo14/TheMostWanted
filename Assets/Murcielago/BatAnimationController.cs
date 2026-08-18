@@ -1,7 +1,7 @@
 using UnityEngine;
 
 /// <summary>
-/// Controla las animaciones del murciélago (idle, ataque y muerte)
+/// Controla las animaciones del murciï¿½lago (idle, ataque y muerte)
 /// Este script debe agregarse al mismo GameObject que tiene EnemyEvilBat1
 /// </summary>
 [RequireComponent(typeof(EnemyEvilBat))]
@@ -11,12 +11,11 @@ public class BatAnimationController : MonoBehaviour
     [Header("Referencias")]
     [SerializeField] private Animator animator;
 
-    [Header("Configuración")]
+    [Header("Configuraciï¿½n")]
     [SerializeField] private bool debugAnimations = false;
 
     private EnemyEvilBat enemyBat;
     private bool isDead = false;
-    private bool isAttacking = false;
 
     void Start()
     {
@@ -25,7 +24,7 @@ public class BatAnimationController : MonoBehaviour
             animator = GetComponent<Animator>();
             if (animator == null)
             {
-                UnityEngine.Debug.LogError($"{gameObject.name}: No se encontró Animator!");
+                UnityEngine.Debug.LogError($"{gameObject.name}: No se encontrï¿½ Animator!");
                 enabled = false;
                 return;
             }
@@ -46,32 +45,10 @@ public class BatAnimationController : MonoBehaviour
 
         if (debugAnimations)
         {
-            UnityEngine.Debug.Log($"{gameObject.name}: Animación de muerte activada");
+            UnityEngine.Debug.Log($"{gameObject.name}: Animaciï¿½n de muerte activada");
         }
     }
 
-    /// <summary>
-    /// Resetea las animaciones
-    /// </summary>
-    public void ResetAnimations()
-    {
-        isDead = false;
-        isAttacking = false;
-        animator.SetBool("isDead", false);
-    }
-
-    /// <summary>
-    /// Fuerza la activación manual de la animación idle (opcional)
-    /// </summary>
-    public void ForceIdle()
-    {
-        if (!isDead && !isAttacking)
-        {
-            animator.Play("VolarMurcielago"); // Reemplaza con el nombre exacto de tu animación idle
-        }
-    }
-
-    // Getters públicos por si necesitas verificar el estado
+    // Getter pï¿½blico por si necesitas verificar el estado
     public bool IsDead => isDead;
-    public bool IsAttacking => isAttacking;
 }

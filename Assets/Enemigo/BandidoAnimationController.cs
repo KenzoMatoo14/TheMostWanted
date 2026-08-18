@@ -35,19 +35,11 @@ public class BandidoAnimationController : MonoBehaviour
             Debug.LogError($"{gameObject.name}: ¡No se encontró Rigidbody2D en el padre!");
             Debug.LogError("Asegúrate de que este script esté en un hijo del GameObject con Rigidbody2D");
         }
-        else
-        {
-            Debug.Log($"✅ Rigidbody2D encontrado en: {rb.gameObject.name}");
-        }
 
         if (enemy == null)
         {
             Debug.LogError($"{gameObject.name}: ¡No se encontró EnemyBandido en el padre!");
             Debug.LogError("Asegúrate de que este script esté en un hijo del GameObject con EnemyBandido");
-        }
-        else
-        {
-            Debug.Log($"✅ EnemyBandido encontrado en: {enemy.gameObject.name}");
         }
 
         // Verificar SpriteRenderer
@@ -55,17 +47,6 @@ public class BandidoAnimationController : MonoBehaviour
         if (spriteRenderer == null)
         {
             Debug.LogWarning($"{gameObject.name}: No hay SpriteRenderer en este GameObject");
-        }
-        else
-        {
-            Debug.Log($"✅ SpriteRenderer encontrado correctamente");
-        }
-
-        // Verificar animaciones
-        if (animator.runtimeAnimatorController != null)
-        {
-            AnimationClip[] clips = animator.runtimeAnimatorController.animationClips;
-            Debug.Log($"📊 {clips.Length} animaciones cargadas");
         }
     }
 

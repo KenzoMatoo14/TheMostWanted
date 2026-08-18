@@ -75,6 +75,7 @@ public class CapturedEnemyController : MonoBehaviour
 
     private Collider2D playerCollider;
     private Collider2D[] objectColliders;
+    private RigidbodyConstraints2D originalConstraints;
 
     public void Initialize(Transform player, Camera camera, CharacterCombat combat)
     {
@@ -114,6 +115,7 @@ public class CapturedEnemyController : MonoBehaviour
         }
 
         // Configurar el Rigidbody2D para el arrastre
+        originalConstraints = rb.constraints;
         rb.gravityScale = 0f;
         rb.linearDamping = drag;
         rb.mass = mass;
@@ -132,7 +134,6 @@ public class CapturedEnemyController : MonoBehaviour
         {
             Vector3 enemyScreenPosition = mainCamera.WorldToScreenPoint(rb.position);
             Mouse.current.WarpCursorPosition(enemyScreenPosition);
-            Debug.Log($"Cursor movido a la posición del enemigo: {enemyScreenPosition}");
         }
 
         if (damageable != null)
@@ -146,9 +147,6 @@ public class CapturedEnemyController : MonoBehaviour
         }
 
         isInitialized = true;
-
-        string objectType = isEnemy ? "Enemigo" : "Objeto";
-        Debug.Log($"CapturedEnemyController inicializado en {gameObject.name} ({objectType})");
     }
 
     void Update()
@@ -192,7 +190,6 @@ public class CapturedEnemyController : MonoBehaviour
             foreach (Collider2D objCollider in objectColliders)
             {
                 Physics2D.IgnoreCollision(objCollider, playerCollider, true);
-                Debug.Log($"Colisión ignorada entre {gameObject.name} y {playerTransform.name}");
             }
         }
     }
@@ -206,9 +203,6 @@ public class CapturedEnemyController : MonoBehaviour
         // Si la vida disminuyó, el enemigo recibió daño
         if (currentHealth < previousHealth)
         {
-            int damageTaken = previousHealth - currentHealth;
-            Debug.Log($"{gameObject.name} recibió {damageTaken} de daño mientras estaba capturado - Liberando...");
-
             // Notificar al CharacterCombat para que libere al enemigo
             characterCombat.ReleaseEnemy();
         }
@@ -271,8 +265,6 @@ public class CapturedEnemyController : MonoBehaviour
         if (distanceToPlayer > maxDistanceFromPlayer)
         {
             // El enemigo salió del rango, liberarlo automáticamente
-            Debug.Log($"{gameObject.name} salió del rango máximo ({distanceToPlayer:F2} > {maxDistanceFromPlayer}) - Liberando automáticamente...");
-
             // Notificar al CharacterCombat para que libere al enemigo
             if (characterCombat != null)
             {
@@ -371,7 +363,6 @@ public class CapturedEnemyController : MonoBehaviour
                 ? collision.contacts[0].point
                 : (Vector2)transform.position;
 
-            int healthBeforeDamage = target.GetCurrentHealth();
             bool wasAlive = !target.IsDead();
 
             //Aplicar stun al objetivo si es enemigo
@@ -380,7 +371,6 @@ public class CapturedEnemyController : MonoBehaviour
             {
                 float stunAmount = damage * 1.5f;
                 targetEnemy.AddStunned(stunAmount);
-                Debug.Log($"{gameObject.name} aplicó {stunAmount:F1} de stun a {collision.gameObject.name}");
             }
 
             //Aplicar daño con knockback si está habilitado
@@ -391,29 +381,22 @@ public class CapturedEnemyController : MonoBehaviour
                 Vector2 knockbackSource = impactPoint - currentVelocity.normalized * 0.5f;
 
                 target.TakeDamage(damage, knockbackSource);
-
-                Debug.Log($"{gameObject.name} hizo {damage} de daño con knockback a {collision.gameObject.name} (velocidad: {velocityMagnitude:F2})");
             }
             else
             {
                 target.TakeDamage(damage);
-
-                Debug.Log($"{gameObject.name} hizo {damage} de daño a {collision.gameObject.name} (velocidad: {velocityMagnitude:F2})");
             }
 
             bool enemyDied = wasAlive && target.IsDead();
 
             if (enemyDied)
             {
-                Debug.Log($"⚡ ¡ENEMIGO {collision.gameObject.name} ELIMINADO! Activando Impact Frame");
                 TriggerImpactFrameOnKill(collision.gameObject, velocityMagnitude);
             }
 
             // Si es una caja, destruirla después del impacto
             if (isBox && throwableBox != null)
             {
-                Debug.Log($"💥 Caja {gameObject.name} se destruirá por impacto mientras está capturada");
-
                 // Liberar la caja primero (esto limpia el estado de captura)
                 if (characterCombat != null)
                 {
@@ -432,7 +415,6 @@ public class CapturedEnemyController : MonoBehaviour
             {
                 enemyBase.TakeDamage(damage, impactPoint);
                 enemyBase.AddStunned(1.5f * damage);
-                Debug.Log($"{gameObject.name} (capturado) también recibió {damage} de daño del impacto");
             }
             // Las cajas y otros objetos NO reciben daño mientras están capturados
 
@@ -449,36 +431,23 @@ public class CapturedEnemyController : MonoBehaviour
         if (impactManager == null) return;
         if (velocityMagnitude < minVelocityForImpactFrame)
         {
-            Debug.Log($"Velocidad insuficiente para Impact Frame ({velocityMagnitude:F2} < {minVelocityForImpactFrame})");
             return;
         }
 
         // 🎬 DISPARAR IMPACT FRAME
         impactManager.TriggerImpact(gameObject, enemy);
-
-        Debug.Log($"✨ Impact Frame disparado: {gameObject.name} (capturado) vs {enemy.name} (velocidad: {velocityMagnitude:F2})");
     }
 
     void ApplyBounceEffect(Collision2D collision)
     {
         //NUEVO: Rebote mejorado usando la normal del contacto
-        Vector2 bounceDirection;
+        if (collision.contacts.Length == 0) return;
 
-        if (collision.contacts.Length > 0)
-        {
-            // Usar la normal del contacto para un rebote más realista
-            bounceDirection = collision.contacts[0].normal;
-        }
-        else
-        {
-            // Fallback: dirección desde el punto de impacto
-            bounceDirection = (rb.position - collision.GetContact(0).point).normalized;
-        }
+        // Usar la normal del contacto para un rebote más realista
+        Vector2 bounceDirection = collision.contacts[0].normal;
 
         float bounceForce = velocityMagnitude * 0.3f;
         rb.AddForce(bounceDirection * bounceForce, ForceMode2D.Impulse);
-
-        Debug.Log($"Rebote aplicado a {gameObject.name}: dirección {bounceDirection}, fuerza {bounceForce:F2}");
     }
     void OnDisable()
     {
@@ -490,7 +459,6 @@ public class CapturedEnemyController : MonoBehaviour
                 if (objCollider != null)
                 {
                     Physics2D.IgnoreCollision(objCollider, playerCollider, false);
-                    Debug.Log($"Colisión restaurada entre {gameObject.name} y {playerTransform?.name}");
                 }
             }
         }
@@ -501,7 +469,11 @@ public class CapturedEnemyController : MonoBehaviour
             rb.gravityScale = 1f;
             rb.linearDamping = 0f;
             rb.linearVelocity = Vector2.zero;
-            rb.constraints = RigidbodyConstraints2D.None; // O el valor que tenías originalmente
+            // Enderezar el objeto antes de re-congelar la rotación: mientras estaba capturado
+            // la rotación quedó libre (constraints = None) y un choque contra el ambiente pudo
+            // haberlo dejado girado (ej. murciélago al revés, bandido acostado).
+            rb.rotation = 0f;
+            rb.constraints = originalConstraints;
         }
 
         // Restaurar color original del sprite
@@ -514,8 +486,6 @@ public class CapturedEnemyController : MonoBehaviour
         isInitialized = false;
         velocityHistory.Clear();
         recentlyDamagedColliders.Clear();
-
-        Debug.Log($"CapturedEnemyController desactivado en {gameObject.name}");
     }
     public Vector2 GetReleaseVelocity()
     {

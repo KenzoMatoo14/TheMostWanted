@@ -105,8 +105,6 @@ public abstract class EnemyBase : MonoBehaviour, IDamageable, IStunnable, ICaptu
         // Iniciar el knockback
         isKnockbackActive = true;
         knockbackTimer = 0f;
-
-        Debug.Log($"{gameObject.name} - Knockback aplicado: {knockbackStartDistance:F2} unidades. Daño: {damagePercentage * 100:F1}%");
     }
     public virtual void CancelKnockback()
     {
@@ -123,7 +121,6 @@ public abstract class EnemyBase : MonoBehaviour, IDamageable, IStunnable, ICaptu
     {
         if (!CanBeCaptured())
         {
-            Debug.Log($"{gameObject.name} no puede ser capturado en este momento");
             return false;
         }
 
@@ -133,7 +130,6 @@ public abstract class EnemyBase : MonoBehaviour, IDamageable, IStunnable, ICaptu
         OnCaptureStarted?.Invoke();
         OnCaptureStartedCustom();
 
-        Debug.Log($"{gameObject.name} - Captura iniciada. Progreso inicial: {GetCaptureStartProgress() * 100f:F1}%");
         return true;
     }
     public virtual bool Release(Vector2 releaseVelocity = default)
@@ -146,8 +142,6 @@ public abstract class EnemyBase : MonoBehaviour, IDamageable, IStunnable, ICaptu
 
         isCaptured = false;
         isBeingCaptured = false;
-
-        Debug.Log($"{gameObject.name} - Enemigo liberado");
 
         // Reactivar componentes de IA
         ReenableAIComponents();
@@ -162,7 +156,6 @@ public abstract class EnemyBase : MonoBehaviour, IDamageable, IStunnable, ICaptu
             if (releaseVelocity != Vector2.zero)
             {
                 rb.linearVelocity = releaseVelocity;
-                Debug.Log($"{gameObject.name} - Velocidad aplicada: {releaseVelocity.magnitude:F2} m/s");
             }
             else
             {
@@ -191,8 +184,6 @@ public abstract class EnemyBase : MonoBehaviour, IDamageable, IStunnable, ICaptu
         isCaptured = true;
         isBeingCaptured = false;
 
-        Debug.Log($"�{gameObject.name} capturado exitosamente!");
-
         FreezeEnemy();
 
         OnCaptured?.Invoke();
@@ -217,8 +208,6 @@ public abstract class EnemyBase : MonoBehaviour, IDamageable, IStunnable, ICaptu
 
         // Limpiar el stunned
         ClearStunned();
-
-        Debug.Log($"{gameObject.name} - Enemigo congelado: comportamientos desactivados");
     }
     protected virtual void ReenableAIComponents()
     {
@@ -228,7 +217,6 @@ public abstract class EnemyBase : MonoBehaviour, IDamageable, IStunnable, ICaptu
             if (component == null) continue;
 
             component.enabled = true;
-            Debug.Log($"{gameObject.name} - Componente reactivado: {component.GetType().Name}");
         }
 
         componentsDisabledByCapture.Clear();
@@ -248,7 +236,6 @@ public abstract class EnemyBase : MonoBehaviour, IDamageable, IStunnable, ICaptu
             {
                 component.enabled = false;
                 componentsDisabledByCapture.Add(component);
-                Debug.Log($"{gameObject.name} - Componente desactivado: {component.GetType().Name}");
             }
         }
     }
@@ -267,7 +254,6 @@ public abstract class EnemyBase : MonoBehaviour, IDamageable, IStunnable, ICaptu
             isBeingCaptured = false;
             OnCaptureCanceled?.Invoke();
             OnCaptureCanceledCustom();
-            Debug.Log($"{gameObject.name} - Captura cancelada");
         }
     }
     public virtual float GetCaptureStartProgress() // Calcula el progreso inicial de captura basado en el stun actual,  M�s stun = barra empieza m�s llena
@@ -298,7 +284,6 @@ public abstract class EnemyBase : MonoBehaviour, IDamageable, IStunnable, ICaptu
         // Si requiere stun m�nimo, verificar
         if (enemyStats.Capture.RequireMinimumStunToCapture && currentStunned < enemyStats.Capture.MinimumStunForCapture)
         {
-            Debug.Log($"{gameObject.name} - Stun insuficiente para captura ({currentStunned:F1}/{enemyStats.Capture.MinimumStunForCapture})");
             return false;
         }
 
@@ -377,8 +362,6 @@ public abstract class EnemyBase : MonoBehaviour, IDamageable, IStunnable, ICaptu
         currentStunned += amount;
         currentStunned = Mathf.Clamp(currentStunned, 0f, maxStunned);
 
-        Debug.Log($"{gameObject.name} - Stunned a�adido: {amount}. Nivel actual: {currentStunned:F1}%");
-
         OnStunnedChanged?.Invoke(currentStunned);
         OnStunnedAddedCustom(amount, previousStunned, currentStunned);
 
@@ -396,8 +379,6 @@ public abstract class EnemyBase : MonoBehaviour, IDamageable, IStunnable, ICaptu
         currentStunned -= amount;
         currentStunned = Mathf.Clamp(currentStunned, 0f, maxStunned);
 
-        Debug.Log($"{gameObject.name} - Stunned reducido: {amount}. Nivel actual: {currentStunned:F1}%");
-
         OnStunnedChanged?.Invoke(currentStunned);
         OnStunnedReducedCustom(amount, previousStunned, currentStunned);
     }
@@ -405,8 +386,6 @@ public abstract class EnemyBase : MonoBehaviour, IDamageable, IStunnable, ICaptu
     {
         float previousStunned = currentStunned;
         currentStunned = Mathf.Clamp(value, 0f, maxStunned);
-
-        Debug.Log($"{gameObject.name} - Stunned establecido: {currentStunned:F1}%");
 
         OnStunnedChanged?.Invoke(currentStunned);
         OnStunnedChangedCustom(currentStunned);
@@ -416,7 +395,6 @@ public abstract class EnemyBase : MonoBehaviour, IDamageable, IStunnable, ICaptu
         if (currentStunned > 0)
         {
             currentStunned = 0f;
-            Debug.Log($"{gameObject.name} - Stunned limpiado");
             OnStunnedChanged?.Invoke(currentStunned);
             OnStunnedClearedCustom();
         }
@@ -468,7 +446,6 @@ public abstract class EnemyBase : MonoBehaviour, IDamageable, IStunnable, ICaptu
     protected virtual void OnFullyStunned()
     {
         // Las clases hijas pueden sobrescribir para efectos cuando alcanza el umbral m�ximo
-        Debug.Log($"{gameObject.name} - �Completamente aturdido!");
     }
 
     ///////////////////////////////////////////////////
@@ -488,8 +465,6 @@ public abstract class EnemyBase : MonoBehaviour, IDamageable, IStunnable, ICaptu
         int actualDamage = Mathf.Min(amount, currentHealth);
         currentHealth -= actualDamage;
         currentHealth = Mathf.Clamp(currentHealth, 0, enemyStats.MaxHealth);
-
-        Debug.Log($"{gameObject.name} - Da�o recibido: {actualDamage}. Vida actual: {currentHealth}/{enemyStats.MaxHealth}");
 
         if (damageFlashEffect != null && enemyStats.DamageFlashDuration > 0f)
         {
@@ -521,8 +496,6 @@ public abstract class EnemyBase : MonoBehaviour, IDamageable, IStunnable, ICaptu
         currentHealth += actualHeal;
         currentHealth = Mathf.Clamp(currentHealth, 0, enemyStats.MaxHealth);
 
-        Debug.Log($"{gameObject.name} - Curaci�n recibida: {actualHeal}. Vida actual: {currentHealth}/{enemyStats.MaxHealth}");
-
         OnHealedCustom(actualHeal); // M�todo virtual para comportamiento espec�fico
     }
     protected virtual void OnHealedCustom(int healAmount)
@@ -536,8 +509,6 @@ public abstract class EnemyBase : MonoBehaviour, IDamageable, IStunnable, ICaptu
         isDead = true;
 
         CancelKnockback();
-
-        Debug.Log($"{gameObject.name} muerto");
 
         OnDeath?.Invoke();
         OnDeathCustom(); // M�todo virtual para comportamiento espec�fico de muerte

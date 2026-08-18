@@ -41,17 +41,6 @@ public class EnemyDummy : EnemyBase
         while (elapsedTime < revivalTime)
         {
             elapsedTime += Time.deltaTime;
-
-            if (showRevivalCountdown)
-            {
-                float timeLeft = revivalTime - elapsedTime;
-                if (timeLeft > 0)
-                {
-                    // Puedes usar esto para actualizar UI si lo deseas
-                    // Por ejemplo: revivalText.text = $"Reviviendo en: {timeLeft:F1}s";
-                }
-            }
-
             yield return null;
         }
 
@@ -75,6 +64,9 @@ public class EnemyDummy : EnemyBase
 
         // Restaurar vida completa
         currentHealth = GetMaxHealth();
+
+        // Reactivar componentes de IA que hayan quedado apagados por una captura
+        ReenableAIComponents();
 
         // Limpiar efectos
         ClearStunned();
