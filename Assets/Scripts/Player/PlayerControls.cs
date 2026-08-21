@@ -120,24 +120,6 @@ public partial class @PlayerControls: IInputActionCollection2, IDisposable
                     ""initialStateCheck"": false
                 },
                 {
-                    ""name"": ""Pressed1"",
-                    ""type"": ""Button"",
-                    ""id"": ""893bb2ac-c511-4c32-a92f-1a2b5a7e2650"",
-                    ""expectedControlType"": """",
-                    ""processors"": """",
-                    ""interactions"": """",
-                    ""initialStateCheck"": false
-                },
-                {
-                    ""name"": ""Pressed2"",
-                    ""type"": ""Button"",
-                    ""id"": ""12bf2f10-9f56-4468-b0c7-732d16153ac2"",
-                    ""expectedControlType"": """",
-                    ""processors"": """",
-                    ""interactions"": """",
-                    ""initialStateCheck"": false
-                },
-                {
                     ""name"": ""FireWhip"",
                     ""type"": ""Button"",
                     ""id"": ""024e8694-d4d1-4597-b6af-ba673337755a"",
@@ -218,28 +200,6 @@ public partial class @PlayerControls: IInputActionCollection2, IDisposable
                     ""processors"": """",
                     ""groups"": """",
                     ""action"": ""Dash"",
-                    ""isComposite"": false,
-                    ""isPartOfComposite"": false
-                },
-                {
-                    ""name"": """",
-                    ""id"": ""c2519aae-b788-4ba0-857a-edcd6f6fdb51"",
-                    ""path"": ""<Keyboard>/1"",
-                    ""interactions"": """",
-                    ""processors"": """",
-                    ""groups"": """",
-                    ""action"": ""Pressed1"",
-                    ""isComposite"": false,
-                    ""isPartOfComposite"": false
-                },
-                {
-                    ""name"": """",
-                    ""id"": ""afa58dc1-0777-4314-b942-43625832cfc9"",
-                    ""path"": ""<Keyboard>/2"",
-                    ""interactions"": """",
-                    ""processors"": """",
-                    ""groups"": """",
-                    ""action"": ""Pressed2"",
                     ""isComposite"": false,
                     ""isPartOfComposite"": false
                 },
@@ -334,8 +294,6 @@ public partial class @PlayerControls: IInputActionCollection2, IDisposable
         m_Movement_Move = m_Movement.FindAction("Move", throwIfNotFound: true);
         m_Movement_Jump = m_Movement.FindAction("Jump", throwIfNotFound: true);
         m_Movement_Dash = m_Movement.FindAction("Dash", throwIfNotFound: true);
-        m_Movement_Pressed1 = m_Movement.FindAction("Pressed1", throwIfNotFound: true);
-        m_Movement_Pressed2 = m_Movement.FindAction("Pressed2", throwIfNotFound: true);
         m_Movement_FireWhip = m_Movement.FindAction("FireWhip", throwIfNotFound: true);
         m_Movement_LookUp = m_Movement.FindAction("LookUp", throwIfNotFound: true);
         m_Movement_LookDown = m_Movement.FindAction("LookDown", throwIfNotFound: true);
@@ -427,8 +385,6 @@ public partial class @PlayerControls: IInputActionCollection2, IDisposable
     private readonly InputAction m_Movement_Move;
     private readonly InputAction m_Movement_Jump;
     private readonly InputAction m_Movement_Dash;
-    private readonly InputAction m_Movement_Pressed1;
-    private readonly InputAction m_Movement_Pressed2;
     private readonly InputAction m_Movement_FireWhip;
     private readonly InputAction m_Movement_LookUp;
     private readonly InputAction m_Movement_LookDown;
@@ -455,14 +411,6 @@ public partial class @PlayerControls: IInputActionCollection2, IDisposable
         /// Provides access to the underlying input action "Movement/Dash".
         /// </summary>
         public InputAction @Dash => m_Wrapper.m_Movement_Dash;
-        /// <summary>
-        /// Provides access to the underlying input action "Movement/Pressed1".
-        /// </summary>
-        public InputAction @Pressed1 => m_Wrapper.m_Movement_Pressed1;
-        /// <summary>
-        /// Provides access to the underlying input action "Movement/Pressed2".
-        /// </summary>
-        public InputAction @Pressed2 => m_Wrapper.m_Movement_Pressed2;
         /// <summary>
         /// Provides access to the underlying input action "Movement/FireWhip".
         /// </summary>
@@ -510,12 +458,6 @@ public partial class @PlayerControls: IInputActionCollection2, IDisposable
             @Dash.started += instance.OnDash;
             @Dash.performed += instance.OnDash;
             @Dash.canceled += instance.OnDash;
-            @Pressed1.started += instance.OnPressed1;
-            @Pressed1.performed += instance.OnPressed1;
-            @Pressed1.canceled += instance.OnPressed1;
-            @Pressed2.started += instance.OnPressed2;
-            @Pressed2.performed += instance.OnPressed2;
-            @Pressed2.canceled += instance.OnPressed2;
             @FireWhip.started += instance.OnFireWhip;
             @FireWhip.performed += instance.OnFireWhip;
             @FireWhip.canceled += instance.OnFireWhip;
@@ -545,12 +487,6 @@ public partial class @PlayerControls: IInputActionCollection2, IDisposable
             @Dash.started -= instance.OnDash;
             @Dash.performed -= instance.OnDash;
             @Dash.canceled -= instance.OnDash;
-            @Pressed1.started -= instance.OnPressed1;
-            @Pressed1.performed -= instance.OnPressed1;
-            @Pressed1.canceled -= instance.OnPressed1;
-            @Pressed2.started -= instance.OnPressed2;
-            @Pressed2.performed -= instance.OnPressed2;
-            @Pressed2.canceled -= instance.OnPressed2;
             @FireWhip.started -= instance.OnFireWhip;
             @FireWhip.performed -= instance.OnFireWhip;
             @FireWhip.canceled -= instance.OnFireWhip;
@@ -728,20 +664,6 @@ public partial class @PlayerControls: IInputActionCollection2, IDisposable
         /// <seealso cref="UnityEngine.InputSystem.InputAction.performed" />
         /// <seealso cref="UnityEngine.InputSystem.InputAction.canceled" />
         void OnDash(InputAction.CallbackContext context);
-        /// <summary>
-        /// Method invoked when associated input action "Pressed1" is either <see cref="UnityEngine.InputSystem.InputAction.started" />, <see cref="UnityEngine.InputSystem.InputAction.performed" /> or <see cref="UnityEngine.InputSystem.InputAction.canceled" />.
-        /// </summary>
-        /// <seealso cref="UnityEngine.InputSystem.InputAction.started" />
-        /// <seealso cref="UnityEngine.InputSystem.InputAction.performed" />
-        /// <seealso cref="UnityEngine.InputSystem.InputAction.canceled" />
-        void OnPressed1(InputAction.CallbackContext context);
-        /// <summary>
-        /// Method invoked when associated input action "Pressed2" is either <see cref="UnityEngine.InputSystem.InputAction.started" />, <see cref="UnityEngine.InputSystem.InputAction.performed" /> or <see cref="UnityEngine.InputSystem.InputAction.canceled" />.
-        /// </summary>
-        /// <seealso cref="UnityEngine.InputSystem.InputAction.started" />
-        /// <seealso cref="UnityEngine.InputSystem.InputAction.performed" />
-        /// <seealso cref="UnityEngine.InputSystem.InputAction.canceled" />
-        void OnPressed2(InputAction.CallbackContext context);
         /// <summary>
         /// Method invoked when associated input action "FireWhip" is either <see cref="UnityEngine.InputSystem.InputAction.started" />, <see cref="UnityEngine.InputSystem.InputAction.performed" /> or <see cref="UnityEngine.InputSystem.InputAction.canceled" />.
         /// </summary>

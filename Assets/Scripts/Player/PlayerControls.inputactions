@@ -33,24 +33,6 @@
                     "initialStateCheck": false
                 },
                 {
-                    "name": "Pressed1",
-                    "type": "Button",
-                    "id": "893bb2ac-c511-4c32-a92f-1a2b5a7e2650",
-                    "expectedControlType": "",
-                    "processors": "",
-                    "interactions": "",
-                    "initialStateCheck": false
-                },
-                {
-                    "name": "Pressed2",
-                    "type": "Button",
-                    "id": "12bf2f10-9f56-4468-b0c7-732d16153ac2",
-                    "expectedControlType": "",
-                    "processors": "",
-                    "interactions": "",
-                    "initialStateCheck": false
-                },
-                {
                     "name": "FireWhip",
                     "type": "Button",
                     "id": "024e8694-d4d1-4597-b6af-ba673337755a",
@@ -131,28 +113,6 @@
                     "processors": "",
                     "groups": "",
                     "action": "Dash",
-                    "isComposite": false,
-                    "isPartOfComposite": false
-                },
-                {
-                    "name": "",
-                    "id": "c2519aae-b788-4ba0-857a-edcd6f6fdb51",
-                    "path": "<Keyboard>/1",
-                    "interactions": "",
-                    "processors": "",
-                    "groups": "",
-                    "action": "Pressed1",
-                    "isComposite": false,
-                    "isPartOfComposite": false
-                },
-                {
-                    "name": "",
-                    "id": "afa58dc1-0777-4314-b942-43625832cfc9",
-                    "path": "<Keyboard>/2",
-                    "interactions": "",
-                    "processors": "",
-                    "groups": "",
-                    "action": "Pressed2",
                     "isComposite": false,
                     "isPartOfComposite": false
                 },

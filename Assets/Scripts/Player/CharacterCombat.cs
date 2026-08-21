@@ -15,7 +15,7 @@ public class CharacterCombat : MonoBehaviour
     private bool canAttack = true;
 
     [Header("Whip Attack Area")]
-    [SerializeField] private float whipCapsuleRadius = 0.5f; // Radio de la cápsula
+    [SerializeField] private float whipBoxWidth = 1f; // Ancho de la caja de golpe
     [SerializeField] private bool showAttackArea = true; // Para debug visual
 
     [Header("Audio")]
@@ -188,12 +188,41 @@ public class CharacterCombat : MonoBehaviour
             }
         }
     }
-    Vector2 GetAimDirection()
+    /// <summary>
+    /// Dirección del golpe de látigo: arriba/abajo si se mantiene W/S (LookUp/LookDown),
+    /// si no la dirección horizontal a la que mira el sprite (escala X).
+    /// </summary>
+    Vector2 GetWhipDirection()
     {
-        // Si tienes un sistema de apuntado con mouse/joystick, úsalo aquí
-        // Por ahora, usar la dirección hacia donde mira el sprite (escala X)
+        bool lookingUp = controls.Movement.LookUp.IsPressed();
+        bool lookingDown = controls.Movement.LookDown.IsPressed();
+
+        if (lookingUp && !lookingDown)
+        {
+            return Vector2.up;
+        }
+        if (lookingDown && !lookingUp)
+        {
+            return Vector2.down;
+        }
+
         float facingDirection = transform.localScale.x > 0 ? 1f : -1f;
         return new Vector2(facingDirection, 0f);
+    }
+
+    /// <summary>
+    /// Calcula la caja de golpe del látigo: se extiende desde attackPoint en la dirección
+    /// de GetWhipDirection() hasta la distancia configurada por attackPoint/whipTip.
+    /// </summary>
+    void GetWhipBox(out Vector2 center, out Vector2 size, out float angle)
+    {
+        Vector2 origin = attackPoint.position;
+        Vector2 direction = GetWhipDirection();
+        float range = Vector2.Distance(attackPoint.position, whipTip.position);
+
+        center = origin + direction * (range * 0.5f);
+        size = new Vector2(range, whipBoxWidth);
+        angle = Mathf.Atan2(direction.y, direction.x) * Mathf.Rad2Deg;
     }
     ICaptureable GetTargetCapturable()
     {
@@ -630,42 +659,25 @@ public class CharacterCombat : MonoBehaviour
     }
     public void ExecuteWhipDamage()
     {
-        Debug.Log("=== EJECUTANDO DAÑO DEL LÁTIGO (CÁPSULA) ===");
+        GetWhipBox(out Vector2 boxCenter, out Vector2 boxSize, out float boxAngle);
 
-        // Calcular el punto medio entre attackPoint y whipTip
-        Vector2 capsuleStart = attackPoint.position;
-        Vector2 capsuleEnd = whipTip.position;
-
-        // Calcular dirección y distancia
-        Vector2 direction = (capsuleEnd - capsuleStart).normalized;
-        float distance = Vector2.Distance(capsuleStart, capsuleEnd);
-
-        // Usar CapsuleCast para detectar enemigos en el área de cápsula
-        RaycastHit2D[] hitEnemies = Physics2D.CapsuleCastAll(
-            capsuleStart,                    // Origen (punto de inicio)
-            new Vector2(whipCapsuleRadius * 2f, distance), // Tamaño de la cápsula (ancho, alto)
-            CapsuleDirection2D.Vertical,     // Dirección de la cápsula
-            Mathf.Atan2(direction.y, direction.x) * Mathf.Rad2Deg - 90f, // Ángulo de rotación
-            direction,                       // Dirección del cast (Vector2, no float)
-            distance,                        // Distancia del cast
-            stats.EnemyLayers                // Layers a detectar
-        );
+        Collider2D[] hitEnemies = Physics2D.OverlapBoxAll(boxCenter, boxSize, boxAngle, stats.EnemyLayers);
 
         bool hitSomething = false;
 
-        foreach (RaycastHit2D hit in hitEnemies)
+        foreach (Collider2D hit in hitEnemies)
         {
-            Debug.Log("Whip hit: " + hit.collider.gameObject.name);
+            Vector2 hitPoint = hit.ClosestPoint(boxCenter);
+            Vector2 hitNormal = hitPoint != boxCenter ? (hitPoint - boxCenter).normalized : GetWhipDirection();
+            SpawnHitParticles(hitPoint, hitNormal);
 
-            SpawnHitParticles(hit.point, hit.normal);
-
-            IDamageable damageable = hit.collider.GetComponent<IDamageable>();
+            IDamageable damageable = hit.GetComponent<IDamageable>();
             if (damageable != null)
             {
                 damageable.TakeDamage(stats.MeleeDamage, (Vector2)attackPoint.position);
                 hitSomething = true;
 
-                EnemyBase enemy = hit.collider.GetComponent<EnemyBase>();
+                EnemyBase enemy = hit.GetComponent<EnemyBase>();
                 if (enemy != null)
                 {
                     lastAttackedEnemy = enemy;
@@ -732,11 +744,12 @@ public class CharacterCombat : MonoBehaviour
     }
     public void ApplyStunOnly() // Método para aplicar stun sin daño (para habilidades especiales)
     {
-        RaycastHit2D[] hitEnemies = Physics2D.LinecastAll(attackPoint.position, whipTip.position, stats.EnemyLayers);
+        GetWhipBox(out Vector2 boxCenter, out Vector2 boxSize, out float boxAngle);
+        Collider2D[] hitEnemies = Physics2D.OverlapBoxAll(boxCenter, boxSize, boxAngle, stats.EnemyLayers);
 
-        foreach (RaycastHit2D Enemy in hitEnemies)
+        foreach (Collider2D hit in hitEnemies)
         {
-            EnemyBase enemy = Enemy.collider.GetComponent<EnemyBase>();
+            EnemyBase enemy = hit.GetComponent<EnemyBase>();
             if (enemy != null && !enemy.IsDead())
             {
                 ApplyStunToEnemy(enemy, stats.MeleeDamage);
@@ -781,24 +794,22 @@ public class CharacterCombat : MonoBehaviour
         Gizmos.color = Color.red;
         Gizmos.DrawLine(attackPoint.position, whipTip.position);
 
-        // Dibujar la cápsula de ataque si está activado showAttackArea
+        // Dibujar la caja de ataque si está activado showAttackArea
         if (showAttackArea)
         {
-            Vector2 start = attackPoint.position;
-            Vector2 end = whipTip.position;
-            Vector2 direction = (end - start).normalized;
-            Vector2 perpendicular = new Vector2(-direction.y, direction.x) * whipCapsuleRadius;
+            Vector2 direction = Application.isPlaying
+                ? GetWhipDirection()
+                : ((Vector2)(whipTip.position - attackPoint.position)).normalized;
+            float range = Vector2.Distance(attackPoint.position, whipTip.position);
+            Vector2 center = (Vector2)attackPoint.position + direction * (range * 0.5f);
+            float angle = Mathf.Atan2(direction.y, direction.x) * Mathf.Rad2Deg;
 
-            // Dibujar los bordes de la cápsula
             Gizmos.color = new Color(1f, 0f, 0f, 0.3f); // Rojo semi-transparente
 
-            // Líneas laterales
-            Gizmos.DrawLine(start + perpendicular, end + perpendicular);
-            Gizmos.DrawLine(start - perpendicular, end - perpendicular);
-
-            // Círculos en los extremos
-            DrawGizmoCircle(start, whipCapsuleRadius, Color.red);
-            DrawGizmoCircle(end, whipCapsuleRadius, Color.red);
+            Matrix4x4 oldMatrix = Gizmos.matrix;
+            Gizmos.matrix = Matrix4x4.TRS(center, Quaternion.Euler(0, 0, angle), Vector3.one);
+            Gizmos.DrawWireCube(Vector3.zero, new Vector3(range, whipBoxWidth, 0.1f));
+            Gizmos.matrix = oldMatrix;
         }
 
         // Puntos de referencia
@@ -844,21 +855,6 @@ public class CharacterCombat : MonoBehaviour
                 Gizmos.color = Color.magenta;
                 Gizmos.DrawWireSphere(lastHoveredMB.transform.position, 0.4f);
             }
-        }
-    }
-    private void DrawGizmoCircle(Vector2 center, float radius, Color color)
-    {
-        Gizmos.color = color;
-        int segments = 20;
-        float angleStep = 360f / segments;
-        Vector2 prevPoint = center + new Vector2(radius, 0);
-
-        for (int i = 1; i <= segments; i++)
-        {
-            float angle = angleStep * i * Mathf.Deg2Rad;
-            Vector2 newPoint = center + new Vector2(Mathf.Cos(angle), Mathf.Sin(angle)) * radius;
-            Gizmos.DrawLine(prevPoint, newPoint);
-            prevPoint = newPoint;
         }
     }
 }
