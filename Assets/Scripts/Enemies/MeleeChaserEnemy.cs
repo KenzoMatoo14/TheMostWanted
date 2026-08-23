@@ -326,9 +326,17 @@ public abstract class MeleeChaserEnemy : EnemyBase
             {
                 Debug.Log($"{gameObject.name} detectó al jugador a {distanceToPlayer:F2} unidades");
             }
-            ChangeState(ChaserState.Chase);
+            ChangeState(GetEngagementState());
         }
     }
+
+    /// <summary>
+    /// Estado al que se pasa al detectar al jugador desde Patrol/Waiting. Por defecto es
+    /// Chase (acercarse caminando); un enemigo que no tenga fase de acercamiento —como el
+    /// Dasher, que ataca directamente a distancia— puede devolver ChaserState.Attack en vez.
+    /// </summary>
+    protected virtual ChaserState GetEngagementState() => ChaserState.Chase;
+
     private void CheckAttackRange()
     {
         if (player == null) return;
@@ -364,7 +372,7 @@ public abstract class MeleeChaserEnemy : EnemyBase
 
     #region Attack Behavior
 
-    private void AttackBehavior()
+    protected virtual void AttackBehavior()
     {
         if (!isAttacking)
         {

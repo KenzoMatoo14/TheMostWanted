@@ -695,20 +695,6 @@ public class CharacterCombat : MonoBehaviour
             HitStopManager.Instance.DoHitStop(stats.HitStopDuration);
         }
     }
-    public void ExecuteWhipDamageFromChild()
-    {
-        // Buscar el CharacterCombat en el padre
-        CharacterCombat combat = GetComponent<CharacterCombat>();
-        if (combat != null)
-        {
-            combat.ExecuteWhipDamage();
-        }
-        else
-        {
-            Debug.LogError("No se encontró CharacterCombat en el padre!");
-        }
-    }
-
     ///////////////////////// STUNNED
     void ApplyStunToEnemy(EnemyBase enemy, int damageDealt)
     {
