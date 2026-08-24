@@ -2084,23 +2084,6 @@ Transform:
   - {fileID: 1225393468}
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
---- !u!1 &1288972685 stripped
-GameObject:
-  m_CorrespondingSourceObject: {fileID: 2206321900918223364, guid: a3d3c6088e01f1c458bdbf7ce0388727, type: 3}
-  m_PrefabInstance: {fileID: 8083730291168969384}
-  m_PrefabAsset: {fileID: 0}
---- !u!114 &1288972689
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1288972685}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 7b3ce5b14aa30e54fab9d23092e87833, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::PlayerAnimationEventRelay
 --- !u!1001 &1374271120
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -3601,9 +3584,6 @@ PrefabInstance:
     - targetCorrespondingSourceObject: {fileID: 5844657866263057001, guid: a3d3c6088e01f1c458bdbf7ce0388727, type: 3}
       insertIndex: 4
       addedObject: {fileID: 3048531961822490297}
-    - targetCorrespondingSourceObject: {fileID: 2206321900918223364, guid: a3d3c6088e01f1c458bdbf7ce0388727, type: 3}
-      insertIndex: -1
-      addedObject: {fileID: 1288972689}
   m_SourcePrefab: {fileID: 100100000, guid: a3d3c6088e01f1c458bdbf7ce0388727, type: 3}
 --- !u!1660057539 &9223372036854775807
 SceneRoots:

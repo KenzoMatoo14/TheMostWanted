@@ -326,7 +326,7 @@ public class PlayerStats : MonoBehaviour, IDamageable
         EnablePlayerScripts();
 
         Animator animator = GetComponentInChildren<Animator>();
-        if (animator != null)
+        if (animator != null && animator.runtimeAnimatorController != null)
         {
             animator.SetBool("isDeath", false);
             animator.Play("Idle", 0, 0f); // Forzar la animaci�n Idle inmediatamente

@@ -651,11 +651,16 @@ public class CharacterCombat : MonoBehaviour
     {
         PlayWhipSound();
 
-        // Activar animación de ataque
+        // Activar animación de ataque (si existe un estado para "isHiting")
         if (animator != null)
         {
             animator.SetTrigger("isHiting");
         }
+
+        // El daño se ejecuta directamente en vez de depender de un Animation Event
+        // dentro del clip de ataque, para no requerir que cada animación de golpe
+        // tenga el evento configurado a mano.
+        ExecuteWhipDamage();
     }
     public void ExecuteWhipDamage()
     {
