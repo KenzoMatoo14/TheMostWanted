@@ -10,6 +10,22 @@ public class ScriptableStats : ScriptableObject
     public GameObject HitParticleEffect;
     public float HitStopDuration = 0.1f;
 
+    [Header("--------KNOCKBACK--------")]
+    public bool CanBeKnockback = true;
+    public float MaxKnockbackDistance = 1.5f;
+    public float KnockbackDuration = 0.2f;
+    public AnimationCurve KnockbackCurve = AnimationCurve.EaseInOut(0, 1, 1, 0);
+    [Tooltip("Reducción del knockback para el jugador (0.5 = 50% del knockback normal)")]
+    public float PlayerKnockbackReduction = 0.5f;
+    [Tooltip("Impulso vertical aplicado junto al knockback horizontal, para que se sienta como un pequeño salto hacia el lado contrario del golpe (estilo Hollow Knight)")]
+    public float KnockbackUpForce = 4f;
+
+    [Header("--------INVINCIBILITY--------")]
+    [Tooltip("Tiempo de invencibilidad (i-frames) tras recibir daño")]
+    public float InvincibilityDuration = 1f;
+    [Tooltip("Cada cuánto parpadea el sprite mientras es invencible")]
+    public float InvincibilityFlickerInterval = 0.08f;
+
     [Header("--------MOVEMENT--------")]
     public float WalkSpeed = 5f;
     public float Acceleration = 25f;       // rapidez al ganar velocidad

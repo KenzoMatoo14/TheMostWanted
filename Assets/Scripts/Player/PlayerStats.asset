@@ -15,6 +15,37 @@ MonoBehaviour:
   maxHealth: 100
   HitParticleEffect: {fileID: 541851277332201417, guid: b9e8453e48eb6dd4bbd79c4bf9b5f737, type: 3}
   HitStopDuration: 0.15
+  CanBeKnockback: 1
+  MaxKnockbackDistance: 2
+  KnockbackDuration: 0.5
+  KnockbackCurve:
+    serializedVersion: 2
+    m_Curve:
+    - serializedVersion: 3
+      time: 0
+      value: 1
+      inSlope: 0
+      outSlope: 0
+      tangentMode: 0
+      weightedMode: 0
+      inWeight: 0
+      outWeight: 0
+    - serializedVersion: 3
+      time: 1
+      value: 0
+      inSlope: 0
+      outSlope: 0
+      tangentMode: 0
+      weightedMode: 0
+      inWeight: 0
+      outWeight: 0
+    m_PreInfinity: 2
+    m_PostInfinity: 2
+    m_RotationOrder: 4
+  PlayerKnockbackReduction: 0.5
+  KnockbackUpForce: 12
+  InvincibilityDuration: 1
+  InvincibilityFlickerInterval: 0.1
   WalkSpeed: 7.5
   Acceleration: 45
   Deceleration: 60
@@ -34,10 +65,10 @@ MonoBehaviour:
     serializedVersion: 2
     m_Bits: 584
   MaxGrappleDistance: 20
-  GrappleAimRadius: 0.3
   GrappleLayer:
     serializedVersion: 2
     m_Bits: 520
+  GrappleAimRadius: 0.3
   PullStrength: 10
   PullTime: 0.33
   RopeShorten: 0.75
@@ -59,5 +90,7 @@ MonoBehaviour:
   ApplyLowHealthBonus: 0
   CaptureTime: 3
   CaptureRange: 10
+  CaptureChargePerClick: 0.15
+  CaptureDecayRate: 0.2
   HoverDetectionRadius: 0.5
   HoverDetectionDistance: 10

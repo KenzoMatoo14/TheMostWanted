@@ -1,4 +1,5 @@
-﻿using UnityEngine;
+﻿using System.Collections;
+using UnityEngine;
 
 public class PlayerStats : MonoBehaviour, IDamageable
 {
@@ -7,14 +8,6 @@ public class PlayerStats : MonoBehaviour, IDamageable
 
     [Header("Health Bar Reference")]
     [SerializeField] private HealthBar healthBar;
-
-    [Header("Knockback Settings")]
-    [SerializeField] private bool canBeKnockback = true;
-    [SerializeField] private float maxKnockbackDistance = 1.5f;
-    [SerializeField] private float knockbackDuration = 0.2f;
-    [SerializeField] private AnimationCurve knockbackCurve = AnimationCurve.EaseInOut(0, 1, 1, 0);
-    [Tooltip("Reducci�n del knockback para el jugador (0.5 = 50% del knockback normal)")]
-    [SerializeField] private float playerKnockbackReduction = 0.5f;
 
     private int currentHealth;
 
@@ -34,6 +27,10 @@ public class PlayerStats : MonoBehaviour, IDamageable
     private float knockbackTimer = 0f;
     private float knockbackStartDistance = 0f;
 
+    private PlayerController playerController;
+    private SpriteRenderer[] spriteRenderers;
+    private bool isInvincible = false;
+
     void Start()
     {
         // Validar que tenemos el ScriptableObject
@@ -44,10 +41,13 @@ public class PlayerStats : MonoBehaviour, IDamageable
         }
 
         rb = GetComponent<Rigidbody2D>();
-        if (rb == null && canBeKnockback)
+        if (rb == null && playerStatsData.CanBeKnockback)
         {
             Debug.LogWarning("PlayerStats: No se encontr� Rigidbody2D. El knockback no funcionar�.");
         }
+
+        playerController = GetComponent<PlayerController>();
+        spriteRenderers = GetComponentsInChildren<SpriteRenderer>();
 
         // Inicializar la vida desde el ScriptableObject
         currentHealth = playerStatsData.maxHealth;
@@ -77,19 +77,24 @@ public class PlayerStats : MonoBehaviour, IDamageable
         if (!isKnockbackActive || rb == null) return;
 
         knockbackTimer += Time.deltaTime;
-        float progress = knockbackTimer / knockbackDuration;
+        float progress = knockbackTimer / playerStatsData.KnockbackDuration;
 
         if (progress >= 1f)
         {
             // Knockback completado
             isKnockbackActive = false;
             rb.linearVelocity = new Vector2(rb.linearVelocity.x, rb.linearVelocity.y); // Mantener velocidad Y
+
+            if (playerController != null)
+            {
+                playerController.canMove = true;
+            }
             return;
         }
 
         // Aplicar knockback usando la curva de animaci�n
-        float curveValue = knockbackCurve.Evaluate(progress);
-        float currentSpeed = (knockbackStartDistance / knockbackDuration) * curveValue;
+        float curveValue = playerStatsData.KnockbackCurve.Evaluate(progress);
+        float currentSpeed = (knockbackStartDistance / playerStatsData.KnockbackDuration) * curveValue;
 
         // Solo afectar el eje X para el jugador, mantener la velocidad Y (gravedad/salto)
         Vector2 knockbackVelocity = new Vector2(knockbackDirection.x * currentSpeed, rb.linearVelocity.y);
@@ -98,14 +103,14 @@ public class PlayerStats : MonoBehaviour, IDamageable
 
     private void ApplyKnockback(int damageAmount, Vector2 damageSource)
     {
-        if (!canBeKnockback || rb == null || isDead) return;
+        if (!playerStatsData.CanBeKnockback || rb == null || isDead) return;
 
         // Calcular el porcentaje de da�o respecto a la vida m�xima
         float damagePercentage = Mathf.Clamp01((float)damageAmount / playerStatsData.maxHealth);
 
         // Calcular la distancia de knockback basada en el porcentaje de da�o
         // Aplicar reducci�n para el jugador
-        knockbackStartDistance = damagePercentage * maxKnockbackDistance * playerKnockbackReduction;
+        knockbackStartDistance = damagePercentage * playerStatsData.MaxKnockbackDistance * playerStatsData.PlayerKnockbackReduction;
 
         // Calcular la direcci�n del knockback (desde la fuente del da�o hacia el jugador)
         Vector2 playerPosition = transform.position;
@@ -114,6 +119,17 @@ public class PlayerStats : MonoBehaviour, IDamageable
         // Iniciar el knockback
         isKnockbackActive = true;
         knockbackTimer = 0f;
+
+        // Impulso vertical instant�neo: hace que el knockback se sienta como un peque�o
+        // salto hacia el lado contrario del golpe, en vez de solo un empuj�n horizontal.
+        rb.linearVelocity = new Vector2(rb.linearVelocity.x, playerStatsData.KnockbackUpForce);
+
+        // Suspender el control del jugador mientras dura el knockback, para que
+        // PlayerController.FixedUpdate() no pise la velocidad que aplicamos aqu�.
+        if (playerController != null)
+        {
+            playerController.canMove = false;
+        }
 
         Debug.Log($"Player - Knockback aplicado: {knockbackStartDistance:F2} unidades. Da�o: {damagePercentage * 100:F1}%");
     }
@@ -124,6 +140,11 @@ public class PlayerStats : MonoBehaviour, IDamageable
         {
             isKnockbackActive = false;
             // No resetear la velocidad completamente para no interferir con el movimiento del jugador
+
+            if (playerController != null)
+            {
+                playerController.canMove = true;
+            }
         }
     }
 
@@ -134,11 +155,58 @@ public class PlayerStats : MonoBehaviour, IDamageable
 
     #endregion
 
+    #region Invincibility
+
+    public bool IsInvincible()
+    {
+        return isInvincible;
+    }
+
+    private void StartInvincibility()
+    {
+        if (playerStatsData.InvincibilityDuration <= 0f) return;
+
+        StopCoroutine(nameof(InvincibilityCoroutine));
+        StartCoroutine(InvincibilityCoroutine());
+    }
+
+    private IEnumerator InvincibilityCoroutine()
+    {
+        isInvincible = true;
+
+        float elapsed = 0f;
+        float interval = Mathf.Max(0.01f, playerStatsData.InvincibilityFlickerInterval);
+
+        while (elapsed < playerStatsData.InvincibilityDuration)
+        {
+            SetSpritesVisible(false);
+            yield return new WaitForSeconds(interval);
+            SetSpritesVisible(true);
+            yield return new WaitForSeconds(interval);
+            elapsed += interval * 2f;
+        }
+
+        SetSpritesVisible(true);
+        isInvincible = false;
+    }
+
+    private void SetSpritesVisible(bool visible)
+    {
+        if (spriteRenderers == null) return;
+
+        foreach (SpriteRenderer sr in spriteRenderers)
+        {
+            if (sr != null) sr.enabled = visible;
+        }
+    }
+
+    #endregion
+
     #region IDamageable Implementation
 
     public void TakeDamage(int amount, Vector2 damageSourcePosition = default)
     {
-        if (isDead) return; // No recibir m�s da�o si ya est� muerto
+        if (isDead || isInvincible) return; // No recibir da�o si ya est� muerto o es invencible
 
         currentHealth -= amount;
         currentHealth = Mathf.Max(currentHealth, 0); // No bajar de 0
@@ -159,6 +227,10 @@ public class PlayerStats : MonoBehaviour, IDamageable
         if (currentHealth <= 0)
         {
             Die();
+        }
+        else
+        {
+            StartInvincibility();
         }
     }
     public bool IsDead()
@@ -228,6 +300,10 @@ public class PlayerStats : MonoBehaviour, IDamageable
         Debug.Log("Player ha muerto!");
 
         CancelKnockback();
+
+        StopCoroutine(nameof(InvincibilityCoroutine));
+        isInvincible = false;
+        SetSpritesVisible(true);
 
         UpdateHealthBar();
 
@@ -321,6 +397,10 @@ public class PlayerStats : MonoBehaviour, IDamageable
         currentHealth = playerStatsData.maxHealth;
 
         CancelKnockback();
+
+        StopCoroutine(nameof(InvincibilityCoroutine));
+        isInvincible = false;
+        SetSpritesVisible(true);
 
         // NUEVO: Reactivar los scripts del jugador
         EnablePlayerScripts();
