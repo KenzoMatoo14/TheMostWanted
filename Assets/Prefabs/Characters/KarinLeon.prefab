@@ -334,6 +334,8 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   playerStatsData: {fileID: 11400000, guid: 70991d1f1a798fc479b30a411f2b32dc, type: 2}
   healthBar: {fileID: 0}
+  damageSprite: {fileID: -5971032647053106068, guid: a1b36ce776c85e24e855e2c30738615f, type: 3}
+  damageSpriteDuration: 1
   OnDeath:
     m_PersistentCalls:
       m_Calls: []

@@ -9,6 +9,11 @@ public class PlayerStats : MonoBehaviour, IDamageable
     [Header("Health Bar Reference")]
     [SerializeField] private HealthBar healthBar;
 
+    [Header("Damage Sprite")]
+    [Tooltip("Sprite que se muestra brevemente cuando el jugador recibe daño.")]
+    [SerializeField] private Sprite damageSprite;
+    [SerializeField] private float damageSpriteDuration = 0.2f;
+
     private int currentHealth;
 
     [Header("Events")]
@@ -29,6 +34,8 @@ public class PlayerStats : MonoBehaviour, IDamageable
 
     private PlayerController playerController;
     private SpriteRenderer[] spriteRenderers;
+    private SpriteRenderer mainSpriteRenderer;
+    private Animator animator;
     private bool isInvincible = false;
 
     void Start()
@@ -48,6 +55,8 @@ public class PlayerStats : MonoBehaviour, IDamageable
 
         playerController = GetComponent<PlayerController>();
         spriteRenderers = GetComponentsInChildren<SpriteRenderer>();
+        mainSpriteRenderer = GetComponent<SpriteRenderer>();
+        animator = GetComponentInChildren<Animator>();
 
         // Inicializar la vida desde el ScriptableObject
         currentHealth = playerStatsData.maxHealth;
@@ -155,6 +164,31 @@ public class PlayerStats : MonoBehaviour, IDamageable
 
     #endregion
 
+    #region Damage Sprite
+
+    private void ShowDamageSprite()
+    {
+        if (damageSprite == null || mainSpriteRenderer == null) return;
+
+        StopCoroutine(nameof(DamageSpriteCoroutine));
+        StartCoroutine(DamageSpriteCoroutine());
+    }
+
+    private IEnumerator DamageSpriteCoroutine()
+    {
+        // El Animator reescribe el sprite todos los frames mientras est� activo
+        // (incluso con un solo estado sin transiciones), as� que hay que apagarlo
+        // durante la ventana del sprite de da�o o la asignaci�n de abajo no se ver�a.
+        if (animator != null) animator.enabled = false;
+        mainSpriteRenderer.sprite = damageSprite;
+
+        yield return new WaitForSeconds(damageSpriteDuration);
+
+        if (animator != null) animator.enabled = true;
+    }
+
+    #endregion
+
     #region Invincibility
 
     public bool IsInvincible()
@@ -230,6 +264,7 @@ public class PlayerStats : MonoBehaviour, IDamageable
         }
         else
         {
+            ShowDamageSprite();
             StartInvincibility();
         }
     }
@@ -304,6 +339,9 @@ public class PlayerStats : MonoBehaviour, IDamageable
         StopCoroutine(nameof(InvincibilityCoroutine));
         isInvincible = false;
         SetSpritesVisible(true);
+
+        StopCoroutine(nameof(DamageSpriteCoroutine));
+        if (animator != null) animator.enabled = true;
 
         UpdateHealthBar();
 
@@ -402,10 +440,12 @@ public class PlayerStats : MonoBehaviour, IDamageable
         isInvincible = false;
         SetSpritesVisible(true);
 
+        StopCoroutine(nameof(DamageSpriteCoroutine));
+        if (animator != null) animator.enabled = true;
+
         // NUEVO: Reactivar los scripts del jugador
         EnablePlayerScripts();
 
-        Animator animator = GetComponentInChildren<Animator>();
         if (animator != null && animator.runtimeAnimatorController != null)
         {
             animator.SetBool("isDeath", false);

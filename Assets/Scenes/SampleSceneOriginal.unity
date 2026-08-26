@@ -3482,6 +3482,10 @@ PrefabInstance:
       value: 
       objectReference: {fileID: 519420031}
     - target: {fileID: 1331955528556402755, guid: a3d3c6088e01f1c458bdbf7ce0388727, type: 3}
+      propertyPath: m_Sprite
+      value: 
+      objectReference: {fileID: 21300000, guid: 1658f9a3ef25bb74c96e807c4605c717, type: 3}
+    - target: {fileID: 1331955528556402755, guid: a3d3c6088e01f1c458bdbf7ce0388727, type: 3}
       propertyPath: m_SortingOrder
       value: 1
       objectReference: {fileID: 0}
@@ -3517,6 +3521,14 @@ PrefabInstance:
       propertyPath: healthBar
       value: 
       objectReference: {fileID: 2065586352}
+    - target: {fileID: 3773028318689638925, guid: a3d3c6088e01f1c458bdbf7ce0388727, type: 3}
+      propertyPath: damageSprite
+      value: 
+      objectReference: {fileID: 21300000, guid: a1b36ce776c85e24e855e2c30738615f, type: 3}
+    - target: {fileID: 3773028318689638925, guid: a3d3c6088e01f1c458bdbf7ce0388727, type: 3}
+      propertyPath: damageSpriteDuration
+      value: 0.8
+      objectReference: {fileID: 0}
     - target: {fileID: 3773028318689638925, guid: a3d3c6088e01f1c458bdbf7ce0388727, type: 3}
       propertyPath: maxKnockbackDistance
       value: 3

@@ -17,7 +17,7 @@ MonoBehaviour:
   HitStopDuration: 0.15
   CanBeKnockback: 1
   MaxKnockbackDistance: 2
-  KnockbackDuration: 0.5
+  KnockbackDuration: 1
   KnockbackCurve:
     serializedVersion: 2
     m_Curve:

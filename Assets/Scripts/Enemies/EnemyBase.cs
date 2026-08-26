@@ -7,6 +7,16 @@ public abstract class EnemyBase : MonoBehaviour, IDamageable, IStunnable, ICaptu
     [Header("Enemy Stats")]
     [SerializeField] protected Enemy enemyStats;
 
+    [Header("Contact Damage")]
+    [Tooltip("Si está activo, tocar el cuerpo del enemigo hace daño al jugador (como en Hollow Knight), sin necesidad de que el enemigo ataque activamente.")]
+    [SerializeField] protected bool dealsContactDamage = true;
+    [SerializeField] protected int contactDamage = 10;
+    [SerializeField] protected LayerMask contactDamageLayer = 1 << 7; // Player
+    [Tooltip("Tiempo mínimo entre golpes de contacto, para no llamar TakeDamage en cada physics step mientras el jugador sigue tocando al enemigo.")]
+    [SerializeField] protected float contactDamageCooldown = 0.5f;
+
+    private float lastContactDamageTime = -999f;
+
     [Header("Events")]
     public UnityEvent OnDamageTaken;
     public UnityEvent OnDeath;
@@ -113,6 +123,31 @@ public abstract class EnemyBase : MonoBehaviour, IDamageable, IStunnable, ICaptu
             isKnockbackActive = false;
             rb.linearVelocity = Vector2.zero;
         }
+    }
+
+    //////////////////////////////////// CONTACT DAMAGE
+
+    // OnCollisionEnter2D cubre el golpe inicial y OnCollisionStay2D el caso de
+    // quedarse parado encima del enemigo: sin Stay2D, tocarlo solo dolería una vez.
+    protected virtual void OnCollisionEnter2D(Collision2D collision)
+    {
+        TryDealContactDamage(collision.gameObject);
+    }
+    protected virtual void OnCollisionStay2D(Collision2D collision)
+    {
+        TryDealContactDamage(collision.gameObject);
+    }
+    protected virtual void TryDealContactDamage(GameObject other)
+    {
+        if (!dealsContactDamage || isDead || isCaptured || isBeingCaptured) return;
+        if (((1 << other.layer) & contactDamageLayer) == 0) return;
+        if (Time.time - lastContactDamageTime < contactDamageCooldown) return;
+
+        IDamageable damageable = other.GetComponent<IDamageable>();
+        if (damageable == null) return;
+
+        damageable.TakeDamage(contactDamage, transform.position);
+        lastContactDamageTime = Time.time;
     }
 
     //////////////////////////////////// CAPTURE
