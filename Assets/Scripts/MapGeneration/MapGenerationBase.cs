@@ -144,18 +144,18 @@ public class MapGenerationBase : MonoBehaviour
         }
         CleanEndRoomList();
         SetSpecialRooms();
-        string s = "";
-        int c = 0;
-        for(int i=0; i<10; i++)
-        {
-            for(int j=0; j<10; j++)
-            {
-                s += mapGeneration[c].ToString() + " ";
-                c++;
-            }
-            s += "\n";
-        }
-        Debug.Log(s);
+        //string s = "";
+        //int c = 0;
+        //for(int i=0; i<10; i++)
+        //{
+        //    for(int j=0; j<10; j++)
+        //    {
+        //        s += mapGeneration[c].ToString() + " ";
+        //        c++;
+        //    }
+        //    s += "\n";
+        //}
+        //Debug.Log(s);
     }
 
     private void CleanEndRoomList()
