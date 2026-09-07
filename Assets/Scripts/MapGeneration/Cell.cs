@@ -12,6 +12,8 @@ public class Cell : MonoBehaviour
     public SpriteRenderer iconRenderer;
     public SpriteRenderer spriteRenderer;
 
+    public List<int> cellList = new List<int>();
+
     //TODO: Remove this when we add the different assets for each room layout
     public void SetSpecialRoomSprite(Sprite s)
     {
@@ -42,14 +44,17 @@ public class Cell : MonoBehaviour
 
         if (rotate90)
         {
+            this.roomShape = MapGenerationBase.RoomShape.L_Shape_90;
             ApplyRotation(90);
         }
         else if (rotateMinus90)
         {
+            this.roomShape = MapGenerationBase.RoomShape.L_Shape_minus90;
             ApplyRotation(-90);
         }
         else if (rotate180)
         {
+            this.roomShape = MapGenerationBase.RoomShape.L_Shape_180;    
             ApplyRotation(180);
         }
     }

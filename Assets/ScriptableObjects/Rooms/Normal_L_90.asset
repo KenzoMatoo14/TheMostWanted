@@ -1,0 +1,19 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: e6df54cedecc89f4da6329c329c9b371, type: 3}
+  m_Name: Normal_L_90
+  m_EditorClassIdentifier: Assembly-CSharp::ScriptableRooms
+  roomType: 0
+  roomShape: 5
+  occupiedTiles: 000000000a0000000b000000
+  roomVariations:
+  - {fileID: 7456307777177098805, guid: e7aca60ea28183c44bc4828d3386c5c7, type: 3}

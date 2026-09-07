@@ -10,10 +10,15 @@ using UnityEngine;
 public class MapGenerationBase : MonoBehaviour
 {
     public enum RoomTypes { Base, Final, Item }
-    public enum RoomShape { Single, Long, L_Shape, Big }
+    public enum RoomShape { Single, Long_2x1, Long_1x2, L_Shape_original, L_Shape_minus90, L_Shape_90, L_Shape_180, Big }
 
     ///Genotype of the algorithm
     protected int[] mapGeneration;
+
+    public int[] getMapGeneration => mapGeneration;
+
+    private int id = 0;
+
     protected int count;
     protected List<int> endRooms;
     protected List<int> bigRoomIndexes;
@@ -33,6 +38,8 @@ public class MapGenerationBase : MonoBehaviour
     protected float cellSize;
     protected Queue<int> cellQueue;
     protected List<Cell> spawnedCells;
+
+    public List<Cell> getSpawnedCells => spawnedCells;
 
     // Assets
     // TODO: Generate the pre-generated rooms. There will be 8 types of rooms
@@ -56,6 +63,8 @@ public class MapGenerationBase : MonoBehaviour
     [SerializeField] protected int maxRooms;
     [SerializeField][Range(0,1)] protected float chanceToSpawnRoom = 0.5f;
     [SerializeField][Range(0, 1)] protected float chanceToSpawnLargeRoom = 0.3f;
+
+    public static MapGenerationBase instance;
 
     // Possible configurations of the rooms
     public static readonly List<int[]> roomShapes = new List<int[]>
@@ -90,6 +99,8 @@ public class MapGenerationBase : MonoBehaviour
     };
     void Start()
     {
+        instance = this;
+
         spawnedCells = new List<Cell>();
         cellSize = 1;
         enemyCountRange = (minEnemy, maxEnemy);
@@ -105,6 +116,7 @@ public class MapGenerationBase : MonoBehaviour
     /// </summary>
     public void SetMap()
     {
+        id = 0;
         for(int i=0; i<spawnedCells.Count; i++) Destroy(spawnedCells[i].gameObject);
 
         spawnedCells.Clear();
@@ -181,6 +193,7 @@ public class MapGenerationBase : MonoBehaviour
             return;
         }
         SetSpecialRoomsVisuals();
+        RoomManager.instance.SetupRooms(spawnedCells);
     }
 
     public void SetSpecialRoomsVisuals()
@@ -260,10 +273,14 @@ public class MapGenerationBase : MonoBehaviour
         Vector2 position = new Vector2(x * cellSize, -y * cellSize);
         
         Cell newCell = Instantiate(cellPrefab, position, Quaternion.identity);
+        newCell.name = newCell.name + id;
         newCell.roomType = RoomTypes.Base;
         newCell.index = index;
         newCell.roomShape = RoomShape.Single;
+        newCell.cellList = new List<int>{ index };
+        newCell.cellList.Sort();
         spawnedCells.Add(newCell);
+        id++;
     }
     /// <summary>
     /// Check for offset positions so we can place a bigger room than a 1x1
@@ -349,6 +366,8 @@ public class MapGenerationBase : MonoBehaviour
             Quaternion.identity
         );
 
+        newCell.name = newCell.name + id;
+
         newCell.roomType = RoomTypes.Base;
 
         if (indexes.Count == 4)
@@ -361,7 +380,7 @@ public class MapGenerationBase : MonoBehaviour
         {
             // L-shaped room
             newCell.SetRoomSprite(lRoom);
-            newCell.roomShape = RoomShape.L_Shape;
+            newCell.roomShape = RoomShape.L_Shape_original;
 
             newCell.RotateRoom(origin, indexes);
         }
@@ -369,13 +388,14 @@ public class MapGenerationBase : MonoBehaviour
         {
             // Long room
             newCell.SetRoomSprite(largeRoom);
-            newCell.roomShape = RoomShape.Long;
+            newCell.roomShape = RoomShape.Long_2x1;
 
             bool vertical =
                 Mathf.Abs(indexes[0] - indexes[1]) == 10;
 
             if (vertical)
             {
+                newCell.roomShape = RoomShape.Long_1x2;
                 newCell.transform.rotation =
                     Quaternion.Euler(0, 0, 90);
             }
@@ -383,6 +403,9 @@ public class MapGenerationBase : MonoBehaviour
 
         // Give the Cell a meaningful index
         newCell.index = origin;
+        newCell.cellList = indexes;
+        newCell.cellList.Sort();
+        id++;
 
         spawnedCells.Add(newCell);
     }

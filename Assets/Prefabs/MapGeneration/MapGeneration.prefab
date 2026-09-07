@@ -1,0 +1,80 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!1 &8257108318141272085
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 9104302839863073186}
+  - component: {fileID: 8241851002285433584}
+  - component: {fileID: 5053591050160216915}
+  m_Layer: 0
+  m_Name: MapGeneration
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &9104302839863073186
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 8257108318141272085}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0.09991, y: -0.20769, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 0}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &8241851002285433584
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 8257108318141272085}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: e22d702865fe6734db0bb2465b55fab9, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::MapGenerationBase
+  cellPrefab: {fileID: 2622914209735302655, guid: 6818dc15620b3f145b60e7595c3d2ad4, type: 3}
+  itemCell: {fileID: 4169872177566383225, guid: 3c0cf900b18c0cb4c96e23ba37d1a34d, type: 3}
+  endCell: {fileID: -5962342231481850597, guid: 497babd3f3fa9ee4690c95fe9a5f495c, type: 3}
+  smallRoom: {fileID: -941769597684628784, guid: 106ec0db4dc680b46abbadaf999aa621, type: 3}
+  bigRoom: {fileID: 152240559, guid: 106ec0db4dc680b46abbadaf999aa621, type: 3}
+  largeRoom: {fileID: 1692729852, guid: 106ec0db4dc680b46abbadaf999aa621, type: 3}
+  lRoom: {fileID: 1172341986, guid: 106ec0db4dc680b46abbadaf999aa621, type: 3}
+  minEnemy: 10
+  maxEnemy: 12
+  minEndDistance: 0
+  maxEndDistance: 0
+  minItemDistance: 0
+  maxItemDistance: 0
+  minRooms: 8
+  maxRooms: 10
+  chanceToSpawnRoom: 0.5
+  chanceToSpawnLargeRoom: 0.3
+--- !u!114 &5053591050160216915
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 8257108318141272085}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 9b88bd8b4dd92d7439b8d1de364d5c0c, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::RoomManager
+  offsetX: 0
+  offsetY: 0
+  roomPrefab: {fileID: 0}
+  rooms: []
