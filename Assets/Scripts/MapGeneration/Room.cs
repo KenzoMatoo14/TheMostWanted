@@ -61,111 +61,131 @@ public class Room : MonoBehaviour
 
     public void Setup1x1(Cell cell, int[] mapGeneration, List<Cell> cellList)
     {
-        int currentCell = cell.cellList[0];
+        int q1 = cell.cellList[0];
 
-        roomDoor.TryPlaceDoor(currentCell, 1, EdgeDirection.Up, mapGeneration, cellList, cell);
-        roomDoor.TryPlaceDoor(currentCell, 1, EdgeDirection.Right, mapGeneration, cellList, cell);
-        roomDoor.TryPlaceDoor(currentCell, 1, EdgeDirection.Left, mapGeneration, cellList, cell);
-        roomDoor.TryPlaceDoor(currentCell, 1, EdgeDirection.Down, mapGeneration, cellList, cell);
+        roomDoor.TryPlaceDoor(q1, 1, EdgeDirection.Up, mapGeneration, cellList, cell);
+        roomDoor.TryPlaceDoor(q1, 1, EdgeDirection.Right, mapGeneration, cellList, cell);
+        roomDoor.TryPlaceDoor(q1, 1, EdgeDirection.Left, mapGeneration, cellList, cell);
+        roomDoor.TryPlaceDoor(q1, 1, EdgeDirection.Down, mapGeneration, cellList, cell);
     }
+
     public void Setup2x1(Cell cell, int[] mapGeneration, List<Cell> cellList)
     {
-        int currentCell = cell.cellList[0];
+        int q1 = cell.cellList[0];
+        int q2 = cell.cellList[1];
 
-        roomDoor.TryPlaceDoor(currentCell, 1, EdgeDirection.Up, mapGeneration, cellList, cell);
-        roomDoor.TryPlaceDoor(currentCell, 1, EdgeDirection.Down, mapGeneration, cellList, cell);
-        roomDoor.TryPlaceDoor(currentCell, 1, EdgeDirection.Left, mapGeneration, cellList, cell);
+        roomDoor.TryPlaceDoor(q1, 1, EdgeDirection.Up, mapGeneration, cellList, cell);
+        roomDoor.TryPlaceDoor(q1, 1, EdgeDirection.Down, mapGeneration, cellList, cell);
+        roomDoor.TryPlaceDoor(q1, 1, EdgeDirection.Left, mapGeneration, cellList, cell);
 
-        roomDoor.TryPlaceDoor(currentCell, 2, EdgeDirection.Up, mapGeneration, cellList, cell);
-        roomDoor.TryPlaceDoor(currentCell, 2, EdgeDirection.Down, mapGeneration, cellList, cell);
-        roomDoor.TryPlaceDoor(currentCell, 2, EdgeDirection.Right, mapGeneration, cellList, cell);
+        roomDoor.TryPlaceDoor(q2, 2, EdgeDirection.Up, mapGeneration, cellList, cell);
+        roomDoor.TryPlaceDoor(q2, 2, EdgeDirection.Down, mapGeneration, cellList, cell);
+        roomDoor.TryPlaceDoor(q2, 2, EdgeDirection.Right, mapGeneration, cellList, cell);
     }
+
     public void Setup1x2(Cell cell, int[] mapGeneration, List<Cell> cellList)
     {
-        int currentCell = cell.cellList[0];
+        int q1 = cell.cellList[0];
+        int q2 = cell.cellList[1];
 
-        roomDoor.TryPlaceDoor(currentCell, 1, EdgeDirection.Up, mapGeneration, cellList, cell);
-        roomDoor.TryPlaceDoor(currentCell, 1, EdgeDirection.Right, mapGeneration, cellList, cell);
-        roomDoor.TryPlaceDoor(currentCell, 1, EdgeDirection.Left, mapGeneration, cellList, cell);
+        roomDoor.TryPlaceDoor(q1, 1, EdgeDirection.Up, mapGeneration, cellList, cell);
+        roomDoor.TryPlaceDoor(q1, 1, EdgeDirection.Right, mapGeneration, cellList, cell);
+        roomDoor.TryPlaceDoor(q1, 1, EdgeDirection.Left, mapGeneration, cellList, cell);
 
-        roomDoor.TryPlaceDoor(currentCell, 2, EdgeDirection.Left, mapGeneration, cellList, cell);
-        roomDoor.TryPlaceDoor(currentCell, 2, EdgeDirection.Down, mapGeneration, cellList, cell);
-        roomDoor.TryPlaceDoor(currentCell, 2, EdgeDirection.Right, mapGeneration, cellList, cell);
+        roomDoor.TryPlaceDoor(q2, 2, EdgeDirection.Left, mapGeneration, cellList, cell);
+        roomDoor.TryPlaceDoor(q2, 2, EdgeDirection.Down, mapGeneration, cellList, cell);
+        roomDoor.TryPlaceDoor(q2, 2, EdgeDirection.Right, mapGeneration, cellList, cell);
     }
+
     public void Setup2x2(Cell cell, int[] mapGeneration, List<Cell> cellList)
     {
-        int currentCell = cell.cellList[0];
+        int q1 = cell.cellList[0];
+        int q2 = cell.cellList[1];
+        int q3 = cell.cellList[2];
+        int q4 = cell.cellList[3];
 
-        roomDoor.TryPlaceDoor(currentCell, 1, EdgeDirection.Up, mapGeneration, cellList, cell);
-        roomDoor.TryPlaceDoor(currentCell, 1, EdgeDirection.Left, mapGeneration, cellList, cell);
+        roomDoor.TryPlaceDoor(q1, 1, EdgeDirection.Up, mapGeneration, cellList, cell);
+        roomDoor.TryPlaceDoor(q1, 1, EdgeDirection.Left, mapGeneration, cellList, cell);
 
-        roomDoor.TryPlaceDoor(currentCell, 2, EdgeDirection.Up, mapGeneration, cellList, cell);
-        roomDoor.TryPlaceDoor(currentCell, 2, EdgeDirection.Right, mapGeneration, cellList, cell);
+        roomDoor.TryPlaceDoor(q2, 2, EdgeDirection.Up, mapGeneration, cellList, cell);
+        roomDoor.TryPlaceDoor(q2, 2, EdgeDirection.Right, mapGeneration, cellList, cell);
 
-        roomDoor.TryPlaceDoor(currentCell, 3, EdgeDirection.Left, mapGeneration, cellList, cell);
-        roomDoor.TryPlaceDoor(currentCell, 3, EdgeDirection.Down, mapGeneration, cellList, cell);
+        roomDoor.TryPlaceDoor(q3, 3, EdgeDirection.Left, mapGeneration, cellList, cell);
+        roomDoor.TryPlaceDoor(q3, 3, EdgeDirection.Down, mapGeneration, cellList, cell);
 
-        roomDoor.TryPlaceDoor(currentCell, 4, EdgeDirection.Down, mapGeneration, cellList, cell);
-        roomDoor.TryPlaceDoor(currentCell, 4, EdgeDirection.Right, mapGeneration, cellList, cell);
+        roomDoor.TryPlaceDoor(q4, 4, EdgeDirection.Down, mapGeneration, cellList, cell);
+        roomDoor.TryPlaceDoor(q4, 4, EdgeDirection.Right, mapGeneration, cellList, cell);
     }
+
     public void SetupL_original(Cell cell, int[] mapGeneration, List<Cell> cellList)
     {
-        int currentCell = cell.cellList[0];
+        int q1 = cell.cellList[0];
+        int q2 = cell.cellList[1];
+        int q3 = cell.cellList[2];
 
-        roomDoor.TryPlaceDoor(currentCell, 1, EdgeDirection.Up, mapGeneration, cellList, cell);
-        roomDoor.TryPlaceDoor(currentCell, 1, EdgeDirection.Left, mapGeneration, cellList, cell);
+        roomDoor.TryPlaceDoor(q1, 1, EdgeDirection.Up, mapGeneration, cellList, cell);
+        roomDoor.TryPlaceDoor(q1, 1, EdgeDirection.Left, mapGeneration, cellList, cell);
 
-        roomDoor.TryPlaceDoor(currentCell, 2, EdgeDirection.Up, mapGeneration, cellList, cell);
-        roomDoor.TryPlaceDoor(currentCell, 2, EdgeDirection.Down, mapGeneration, cellList, cell);
-        roomDoor.TryPlaceDoor(currentCell, 2, EdgeDirection.Right, mapGeneration, cellList, cell);
+        roomDoor.TryPlaceDoor(q2, 2, EdgeDirection.Up, mapGeneration, cellList, cell);
+        roomDoor.TryPlaceDoor(q2, 2, EdgeDirection.Down, mapGeneration, cellList, cell);
+        roomDoor.TryPlaceDoor(q2, 2, EdgeDirection.Right, mapGeneration, cellList, cell);
 
-        roomDoor.TryPlaceDoor(currentCell, 3, EdgeDirection.Left, mapGeneration, cellList, cell);
-        roomDoor.TryPlaceDoor(currentCell, 3, EdgeDirection.Down, mapGeneration, cellList, cell);
-        roomDoor.TryPlaceDoor(currentCell, 3, EdgeDirection.Right, mapGeneration, cellList, cell);
+        roomDoor.TryPlaceDoor(q3, 3, EdgeDirection.Left, mapGeneration, cellList, cell);
+        roomDoor.TryPlaceDoor(q3, 3, EdgeDirection.Down, mapGeneration, cellList, cell);
+        roomDoor.TryPlaceDoor(q3, 3, EdgeDirection.Right, mapGeneration, cellList, cell);
     }
+
     public void SetupL_minus90(Cell cell, int[] mapGeneration, List<Cell> cellList)
     {
-        int currentCell = cell.cellList[0];
+        int q1 = cell.cellList[0];
+        int q2 = cell.cellList[1];
+        int q3 = cell.cellList[2];
 
-        roomDoor.TryPlaceDoor(currentCell, 1, EdgeDirection.Up, mapGeneration, cellList, cell);
-        roomDoor.TryPlaceDoor(currentCell, 1, EdgeDirection.Left, mapGeneration, cellList, cell);
-        roomDoor.TryPlaceDoor(currentCell, 1, EdgeDirection.Down, mapGeneration, cellList, cell);
+        roomDoor.TryPlaceDoor(q1, 1, EdgeDirection.Up, mapGeneration, cellList, cell);
+        roomDoor.TryPlaceDoor(q1, 1, EdgeDirection.Left, mapGeneration, cellList, cell);
+        roomDoor.TryPlaceDoor(q1, 1, EdgeDirection.Down, mapGeneration, cellList, cell);
 
-        roomDoor.TryPlaceDoor(currentCell, 2, EdgeDirection.Up, mapGeneration, cellList, cell);
-        roomDoor.TryPlaceDoor(currentCell, 2, EdgeDirection.Right, mapGeneration, cellList, cell);
+        roomDoor.TryPlaceDoor(q2, 2, EdgeDirection.Up, mapGeneration, cellList, cell);
+        roomDoor.TryPlaceDoor(q2, 2, EdgeDirection.Right, mapGeneration, cellList, cell);
 
-        roomDoor.TryPlaceDoor(currentCell, 3, EdgeDirection.Left, mapGeneration, cellList, cell);
-        roomDoor.TryPlaceDoor(currentCell, 3, EdgeDirection.Down, mapGeneration, cellList, cell);
-        roomDoor.TryPlaceDoor(currentCell, 3, EdgeDirection.Right, mapGeneration, cellList, cell);
+        roomDoor.TryPlaceDoor(q3, 3, EdgeDirection.Left, mapGeneration, cellList, cell);
+        roomDoor.TryPlaceDoor(q3, 3, EdgeDirection.Down, mapGeneration, cellList, cell);
+        roomDoor.TryPlaceDoor(q3, 3, EdgeDirection.Right, mapGeneration, cellList, cell);
     }
+
     public void SetupL_90(Cell cell, int[] mapGeneration, List<Cell> cellList)
     {
-        int currentCell = cell.cellList[0];
+        int q1 = cell.cellList[0];
+        int q2 = cell.cellList[1];
+        int q3 = cell.cellList[2];
 
-        roomDoor.TryPlaceDoor(currentCell, 1, EdgeDirection.Up, mapGeneration, cellList, cell);
-        roomDoor.TryPlaceDoor(currentCell, 1, EdgeDirection.Left, mapGeneration, cellList, cell);
-        roomDoor.TryPlaceDoor(currentCell, 1, EdgeDirection.Right, mapGeneration, cellList, cell);
+        roomDoor.TryPlaceDoor(q1, 1, EdgeDirection.Up, mapGeneration, cellList, cell);
+        roomDoor.TryPlaceDoor(q1, 1, EdgeDirection.Left, mapGeneration, cellList, cell);
+        roomDoor.TryPlaceDoor(q1, 1, EdgeDirection.Right, mapGeneration, cellList, cell);
 
-        roomDoor.TryPlaceDoor(currentCell, 2, EdgeDirection.Left, mapGeneration, cellList, cell);
-        roomDoor.TryPlaceDoor(currentCell, 2, EdgeDirection.Down, mapGeneration, cellList, cell);
+        roomDoor.TryPlaceDoor(q2, 2, EdgeDirection.Left, mapGeneration, cellList, cell);
+        roomDoor.TryPlaceDoor(q2, 2, EdgeDirection.Down, mapGeneration, cellList, cell);
 
-        roomDoor.TryPlaceDoor(currentCell, 3, EdgeDirection.Up, mapGeneration, cellList, cell);
-        roomDoor.TryPlaceDoor(currentCell, 3, EdgeDirection.Down, mapGeneration, cellList, cell);
-        roomDoor.TryPlaceDoor(currentCell, 3, EdgeDirection.Right, mapGeneration, cellList, cell);
+        roomDoor.TryPlaceDoor(q3, 3, EdgeDirection.Up, mapGeneration, cellList, cell);
+        roomDoor.TryPlaceDoor(q3, 3, EdgeDirection.Down, mapGeneration, cellList, cell);
+        roomDoor.TryPlaceDoor(q3, 3, EdgeDirection.Right, mapGeneration, cellList, cell);
     }
+
     public void SetupL_180(Cell cell, int[] mapGeneration, List<Cell> cellList)
     {
-        int currentCell = cell.cellList[0];
+        int q1 = cell.cellList[0];
+        int q2 = cell.cellList[1];
+        int q3 = cell.cellList[2];
 
-        roomDoor.TryPlaceDoor(currentCell, 1, EdgeDirection.Up, mapGeneration, cellList, cell);
-        roomDoor.TryPlaceDoor(currentCell, 1, EdgeDirection.Left, mapGeneration, cellList, cell);
-        roomDoor.TryPlaceDoor(currentCell, 1, EdgeDirection.Right, mapGeneration, cellList, cell);
+        roomDoor.TryPlaceDoor(q1, 1, EdgeDirection.Up, mapGeneration, cellList, cell);
+        roomDoor.TryPlaceDoor(q1, 1, EdgeDirection.Left, mapGeneration, cellList, cell);
+        roomDoor.TryPlaceDoor(q1, 1, EdgeDirection.Right, mapGeneration, cellList, cell);
 
-        roomDoor.TryPlaceDoor(currentCell, 2, EdgeDirection.Up, mapGeneration, cellList, cell);
-        roomDoor.TryPlaceDoor(currentCell, 2, EdgeDirection.Down, mapGeneration, cellList, cell);
-        roomDoor.TryPlaceDoor(currentCell, 2, EdgeDirection.Left, mapGeneration, cellList, cell);
-        
-        roomDoor.TryPlaceDoor(currentCell, 3, EdgeDirection.Down, mapGeneration, cellList, cell);
-        roomDoor.TryPlaceDoor(currentCell, 3, EdgeDirection.Right, mapGeneration, cellList, cell);
+        roomDoor.TryPlaceDoor(q2, 2, EdgeDirection.Up, mapGeneration, cellList, cell);
+        roomDoor.TryPlaceDoor(q2, 2, EdgeDirection.Down, mapGeneration, cellList, cell);
+        roomDoor.TryPlaceDoor(q2, 2, EdgeDirection.Left, mapGeneration, cellList, cell);
+
+        roomDoor.TryPlaceDoor(q3, 3, EdgeDirection.Down, mapGeneration, cellList, cell);
+        roomDoor.TryPlaceDoor(q3, 3, EdgeDirection.Right, mapGeneration, cellList, cell);
     }
 }
