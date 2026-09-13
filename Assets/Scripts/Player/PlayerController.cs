@@ -10,6 +10,7 @@ using UnityEngine.Scripting.APIUpdating;
 public class PlayerController : MonoBehaviour
 {
     private Rigidbody2D rb;
+    private Animator animator;
     private PlayerControls controls;
 
     [Header("Stats")]
@@ -47,6 +48,7 @@ public class PlayerController : MonoBehaviour
     void Awake()
     {
         rb = GetComponent<Rigidbody2D>();
+        animator = GetComponent<Animator>();
         originalGravityScale = rb.gravityScale;
         controls = new PlayerControls();
 
@@ -160,6 +162,7 @@ public class PlayerController : MonoBehaviour
             if (dashTime <= 0f || dashSpeed <= 0.1f)
             {
                 isDashing = false;
+                animator.SetBool("isDashing", false);
                 rb.gravityScale = originalGravityScale; // restauramos gravedad
             }
             return; // salimos, no aplicamos movimiento normal
@@ -222,6 +225,7 @@ public class PlayerController : MonoBehaviour
         if (!isDashing && dashCooldownTimer <= 0f)
         {
             isDashing = true;
+            animator.SetBool("isDashing", true);
             dashTime = stats.DashDuration;
             dashCooldownTimer = stats.DashCooldown;
 

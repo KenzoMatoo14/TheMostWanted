@@ -17,7 +17,7 @@ MonoBehaviour:
   HitStopDuration: 0.15
   CanBeKnockback: 1
   MaxKnockbackDistance: 2
-  KnockbackDuration: 1
+  KnockbackDuration: 0.5
   KnockbackCurve:
     serializedVersion: 2
     m_Curve:
@@ -53,7 +53,7 @@ MonoBehaviour:
   AirDeceleration: 15
   ApexBonus: 1.5
   DashForce: 22
-  DashDuration: 0.5
+  DashDuration: 0.7
   DashCooldown: 0.75
   JumpForce: 17.5
   MaxJumps: 0
