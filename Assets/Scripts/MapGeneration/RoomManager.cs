@@ -30,7 +30,6 @@ public class RoomManager : MonoBehaviour
     {
         foreach (Room r in createdRooms)
         {
-            Debug.Log("Destroy");
             GameObject.Destroy(r.gameObject);
         }
 
@@ -45,6 +44,7 @@ public class RoomManager : MonoBehaviour
             Vector2 convertedPosition = new Vector2(currentPosition.x *  offsetX, currentPosition.y * offsetY);
 
             Room spawnedRoom = Instantiate(roomPrefab, convertedPosition, Quaternion.identity);
+            spawnedRoom.transform.SetParent(this.transform, false);
             spawnedRoom.name = spawnedRoom.name + i;
             i++;
             spawnedRoom.SetupRoom(cell, foundRoom);

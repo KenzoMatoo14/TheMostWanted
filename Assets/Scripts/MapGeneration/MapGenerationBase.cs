@@ -41,6 +41,14 @@ public class MapGenerationBase : MonoBehaviour
 
     public List<Cell> getSpawnedCells => spawnedCells;
 
+    // GameObjects Structure
+    [Header("Attachment GameObjects")]
+    public GameObject overlayParent;
+
+    [Header("UI Layout")]
+    [SerializeField] private float uiCellSize = 100f;               // pixels per grid cell
+    [SerializeField] private Vector2 uiMargin = new Vector2(50, 50); // distance from the screen corner
+
     // Assets
     // TODO: Generate the pre-generated rooms. There will be 8 types of rooms
     [Header("Sprites")]
@@ -100,6 +108,7 @@ public class MapGenerationBase : MonoBehaviour
     void Start()
     {
         instance = this;
+        overlayParent = GameObject.Find("Overlay");
 
         spawnedCells = new List<Cell>();
         cellSize = 1;
@@ -128,6 +137,7 @@ public class MapGenerationBase : MonoBehaviour
 
         VisitCell(45);
         GenerateMap();
+        
     }
 
     public void GenerateMap()
@@ -155,14 +165,23 @@ public class MapGenerationBase : MonoBehaviour
             return;
         }
         CleanEndRoomList();
-        SetSpecialRooms();
+        if (!SetSpecialRooms()) return;
+        RoomManager.instance.SetupRooms(spawnedCells);
+        SetParent();
         //string s = "";
         //int c = 0;
-        //for(int i=0; i<10; i++)
+        //for (int i = 0; i < 10; i++)
         //{
-        //    for(int j=0; j<10; j++)
+        //    for (int j = 0; j < 10; j++)
         //    {
-        //        s += mapGeneration[c].ToString() + " ";
+        //        if(i*10 + j == 45)
+        //        {
+        //            s += "2 ";
+        //        }
+        //        else
+        //        {
+        //            s += mapGeneration[c].ToString() + " ";
+        //        }
         //        c++;
         //    }
         //    s += "\n";
@@ -176,24 +195,20 @@ public class MapGenerationBase : MonoBehaviour
     }
 
     // Prioritize the end of paths the agent took
-    public void SetSpecialRooms()
+    public bool SetSpecialRooms()
     {
         finalRoomIndex = endRooms.Count > 0 ? endRooms[endRooms.Count - 1] : -1;
-
-        if(finalRoomIndex != -1)
-        {
-            endRooms.RemoveAt(endRooms.Count - 1);
-        }
+        if (finalRoomIndex != -1) endRooms.RemoveAt(endRooms.Count - 1);
 
         itemRoomIndex = RandomEndRoom();
 
         if (finalRoomIndex == -1 || itemRoomIndex == -1)
         {
             SetMap();
-            return;
+            return false;
         }
         SetSpecialRoomsVisuals();
-        RoomManager.instance.SetupRooms(spawnedCells);
+        return true;
     }
 
     public void SetSpecialRoomsVisuals()
@@ -211,6 +226,72 @@ public class MapGenerationBase : MonoBehaviour
                 cell.roomType = RoomTypes.Item;
             }
         }
+    }
+
+    private void SetParent()
+    {
+        float minX = float.MaxValue;
+        float maxY = float.MinValue;
+        foreach (Cell cell in spawnedCells)
+        {
+            Vector3 p = cell.transform.position;
+            minX = Mathf.Min(minX, p.x);
+            maxY = Mathf.Max(maxY, p.y);
+        }
+
+        foreach (Cell cell in spawnedCells)
+        {
+            Vector3 gridPos = cell.transform.position;
+            RectTransform rt = (RectTransform)cell.transform;
+
+            rt.SetParent(overlayParent.transform, false);
+
+            rt.anchorMin = rt.anchorMax = new Vector2(0, 1); // top-left anchor
+            rt.pivot = new Vector2(0.5f, 0.5f);              // center pivot (positions are room centers)
+            rt.localScale = Vector3.one;
+
+            // Size of the room in grid cells, in the un-rotated frame
+            Vector2 cells;
+            switch (cell.roomShape)
+            {
+                case RoomShape.Long_2x1:
+                case RoomShape.Long_1x2:   // rotated 90 on the root, so the same un-rotated size
+                    cells = new Vector2(2, 1); break;
+                case RoomShape.Big:
+                case RoomShape.L_Shape_original:
+                case RoomShape.L_Shape_90:
+                case RoomShape.L_Shape_minus90:
+                case RoomShape.L_Shape_180:
+                    cells = new Vector2(2, 2); break;
+                default:
+                    cells = Vector2.one; break;
+            }
+            rt.sizeDelta = cells * uiCellSize;
+
+            // Make the images fill the root
+            //StretchToParent(cell.spriteRenderer);
+            // Icon keeps one cell of size, centered
+            if (cell.iconRenderer != null)
+            {
+                RectTransform icon = cell.iconRenderer.rectTransform;
+                icon.anchorMin = icon.anchorMax = new Vector2(0.5f, 0.5f);
+                icon.anchoredPosition = Vector2.zero;
+                icon.sizeDelta = Vector2.one * uiCellSize * 0.6f;
+            }
+
+            rt.anchoredPosition = new Vector2(
+                (gridPos.x - minX) * uiCellSize + uiMargin.x,
+                (gridPos.y - maxY) * uiCellSize - uiMargin.y);
+        }
+    }
+
+    private static void StretchToParent(UnityEngine.UI.Image img)
+    {
+        if (img == null) return;
+        RectTransform r = img.rectTransform;
+        r.anchorMin = Vector2.zero;
+        r.anchorMax = Vector2.one;
+        r.offsetMin = r.offsetMax = Vector2.zero;
     }
 
     public int RandomEndRoom()
@@ -243,7 +324,7 @@ public class MapGenerationBase : MonoBehaviour
         if (count >= roomAmountRange.Item2) return false;
         if (Random.value < chanceToSpawnRoom) return false;
 
-        if (Random.value < chanceToSpawnLargeRoom)
+        if (Random.value < chanceToSpawnLargeRoom && index != 45)
         {
             // Utilize a random value to order so we go through the list in different order every time
             foreach(var shape in roomShapes.OrderBy(_ => Random.value))
@@ -367,7 +448,6 @@ public class MapGenerationBase : MonoBehaviour
         );
 
         newCell.name = newCell.name + id;
-
         newCell.roomType = RoomTypes.Base;
 
         if (indexes.Count == 4)
