@@ -21,6 +21,9 @@ public class PlayerController : MonoBehaviour
     [HideInInspector] public bool canMove = true;
 
     [HideInInspector] public bool facingRight = true;
+    // Mientras está en true, el input de movimiento no gira al personaje (lo usa WhipAttack
+    // para que el cuerpo siga mirando hacia el mouse durante el ataque).
+    [HideInInspector] public bool facingLocked = false;
     [HideInInspector] public Vector2 moveInput;
     private bool jumpPressed;
     private bool isGrounded;
@@ -44,6 +47,9 @@ public class PlayerController : MonoBehaviour
     private float originalGravityScale;
 
     private GrapplingHook grapplingHook;
+
+    // Mientras sube por un rebote (pogo), soltar el salto no corta la altura
+    private bool isPogoRising;
 
     void Awake()
     {
@@ -78,8 +84,11 @@ public class PlayerController : MonoBehaviour
         isGrounded = Physics2D.OverlapCircle(groundCheck.position, stats.GroundCheckRadius, stats.GroundLayer);
 
         // Flip character if moving left/right
-        if (moveInput.x > 0 && !facingRight) Flip();
-        else if (moveInput.x < 0 && facingRight) Flip();
+        if (!facingLocked)
+        {
+            if (moveInput.x > 0 && !facingRight) Flip();
+            else if (moveInput.x < 0 && facingRight) Flip();
+        }
 
         if (wasGrounded && !isGrounded)
         {
@@ -95,6 +104,11 @@ public class PlayerController : MonoBehaviour
 
         // Store for next frame
         wasGrounded = isGrounded;
+
+        if (isPogoRising && (isGrounded || rb.linearVelocity.y <= 0f))
+        {
+            isPogoRising = false;
+        }
 
         bool wantsToJump = lastJumpPressedTime > 0 && Time.time < lastJumpPressedTime + stats.JumpBuffer;
 
@@ -208,10 +222,17 @@ public class PlayerController : MonoBehaviour
     }
     private void CutJump()
     {
+        if (isPogoRising) return; // el rebote tiene altura fija, como en Hollow Knight
+
         if (rb.linearVelocity.y > 0f) // si está subiendo
         {
             rb.linearVelocity = new Vector2(rb.linearVelocity.x, rb.linearVelocity.y * stats.JumpCutMultiplier);
         }
+    }
+    /// <summary>Orienta al personaje hacia un lado usando el mismo Flip por escala.</summary>
+    public void FaceDirection(bool right)
+    {
+        if (right != facingRight) Flip();
     }
     private void Flip()
     {
@@ -255,5 +276,20 @@ public class PlayerController : MonoBehaviour
     public bool IsGrounded()
     {
         return isGrounded;
+    }
+    public bool IsDashing => isDashing;
+
+    /// <summary>
+    /// Rebote al golpear hacia abajo (pogo estilo Hollow Knight): fija la velocidad vertical
+    /// y opcionalmente recupera el dash y los saltos aéreos.
+    /// </summary>
+    public void Pogo(float force, bool refreshDash, bool refreshAirJumps)
+    {
+        rb.linearVelocity = new Vector2(rb.linearVelocity.x, force);
+        isPogoRising = true;
+        lastJumpPressedTime = -1f;
+
+        if (refreshDash) dashCooldownTimer = 0f;
+        if (refreshAirJumps) jumpCount = stats.MaxJumps;
     }
 }

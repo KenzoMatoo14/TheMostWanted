@@ -12,7 +12,7 @@ public class CharacterCombat : MonoBehaviour
     [Header("Combat References")]
     public Transform attackPoint;
     public Transform whipTip;
-    private bool canAttack = true;
+    private WhipAttack whipAttack;
 
     [Header("Whip Attack Area")]
     [SerializeField] private float whipBoxWidth = 1f; // Ancho de la caja de golpe
@@ -53,6 +53,7 @@ public class CharacterCombat : MonoBehaviour
         controls = new PlayerControls();
         mainCamera = Camera.main;
         animator = GetComponentInChildren<Animator>();
+        whipAttack = GetComponent<WhipAttack>();
 
         if (audioSource == null)
         {
@@ -124,7 +125,9 @@ public class CharacterCombat : MonoBehaviour
     }
 
     ///////////////////////// AUDIO
-    void PlayWhipSound()
+    public ScriptableStats Stats => stats;
+
+    public void PlayWhipSound()
     {
         if (audioSource != null && whipSound != null)
         {
@@ -627,40 +630,38 @@ public class CharacterCombat : MonoBehaviour
             // Si hay un enemigo capturado, liberarlo
             ReleaseEnemy();
         }
+        else if (whipAttack != null)
+        {
+            // Si no hay enemigo capturado, latigazo dirigido al mouse
+            whipAttack.TryAttack();
+        }
         else
         {
-            // Si no hay enemigo capturado, realizar ataque normal
-            TryMeleeAttack();
+            Debug.LogError("CharacterCombat: falta el componente WhipAttack en el jugador.");
         }
     }
-    void TryMeleeAttack()
+    /// <summary>
+    /// Aplica un golpe del látigo a un objetivo ya detectado por WhipAttack: partículas, daño,
+    /// stun y registro como último enemigo atacado (para la captura). El hitstop lo pide
+    /// WhipAttack una sola vez por ataque.
+    /// </summary>
+    public void ApplyWhipHit(Collider2D hit, IDamageable damageable, int damage, Vector2 sourcePosition, Vector2 direction, Vector2 hitboxCenter)
     {
-        if (!canAttack || hasEnemyCaptured) return;
+        Vector2 hitPoint = hit.ClosestPoint(hitboxCenter);
+        SpawnHitParticles(hitPoint, direction);
 
-        MeleeAttack();
+        damageable.TakeDamage(damage, sourcePosition);
 
-        // Activar cooldown
-        canAttack = false;
-        Invoke(nameof(ResetAttackCooldown), stats.AttackCooldown);
-    }
-    void ResetAttackCooldown()
-    {
-        canAttack = true;
-    }
-    void MeleeAttack()
-    {
-        PlayWhipSound();
-
-        // Activar animación de ataque (si existe un estado para "isHiting")
-        if (animator != null)
+        EnemyBase enemy = hit.GetComponent<EnemyBase>();
+        if (enemy != null)
         {
-            animator.SetTrigger("isHiting");
-        }
+            lastAttackedEnemy = enemy;
 
-        // El daño se ejecuta directamente en vez de depender de un Animation Event
-        // dentro del clip de ataque, para no requerir que cada animación de golpe
-        // tenga el evento configurado a mano.
-        ExecuteWhipDamage();
+            if (stats.ApplyStunOnHit)
+            {
+                ApplyStunToEnemy(enemy, damage);
+            }
+        }
     }
     public void ExecuteWhipDamage()
     {
