@@ -285,15 +285,6 @@ public class MapGenerationBase : MonoBehaviour
         }
     }
 
-    private static void StretchToParent(UnityEngine.UI.Image img)
-    {
-        if (img == null) return;
-        RectTransform r = img.rectTransform;
-        r.anchorMin = Vector2.zero;
-        r.anchorMax = Vector2.one;
-        r.offsetMin = r.offsetMax = Vector2.zero;
-    }
-
     public int RandomEndRoom()
     {
         if(endRooms.Count  == 0) return -1;
