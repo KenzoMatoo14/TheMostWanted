@@ -1,4 +1,3 @@
-using NUnit.Framework;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
@@ -41,7 +40,7 @@ public class Cell : MonoBehaviour
 
         bool rotateMinus90 =
             (connectedRooms.Contains(origin + 1) && connectedRooms.Contains(origin + 11)) ||
-            (connectedRooms.Contains(origin - 10) && connectedRooms.Contains(origin + 10)) ||
+            (connectedRooms.Contains(origin - 1) && connectedRooms.Contains(origin + 10)) ||
             (connectedRooms.Contains(origin - 10) && connectedRooms.Contains(origin - 11));
 
         bool rotate180 =

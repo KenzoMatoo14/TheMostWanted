@@ -120,28 +120,53 @@ public class MapGenerationBase : MonoBehaviour
         SetMap();
     }
 
+    // Safety limit so a bad configuration (e.g. minRooms too high) can't freeze the game
+    private const int MaxGenerationAttempts = 500;
+
+    // Rooms can only use rows/columns 1..8, so neighbor checks (index ±1, ±10) never leave the 10x10 grid
+    private const int MinGridCoord = 1;
+    private const int MaxGridCoord = 8;
+
     /// <summary>
-    /// Initialization of the map
+    /// Initialization of the map. Retries in a loop until a valid map is generated.
     /// </summary>
     public void SetMap()
     {
+        for (int attempt = 0; attempt < MaxGenerationAttempts; attempt++)
+        {
+            if (TryGenerateMap())
+            {
+                RoomManager.instance.SetupRooms(spawnedCells);
+                SetParent();
+                return;
+            }
+        }
+
+        Debug.LogError($"MapGenerationBase: could not generate a valid map after {MaxGenerationAttempts} attempts. " +
+                       "Check minRooms/maxRooms and chanceToSpawnRoom.");
+    }
+
+    private void ResetMap()
+    {
         id = 0;
-        for(int i=0; i<spawnedCells.Count; i++) Destroy(spawnedCells[i].gameObject);
+        for (int i = 0; i < spawnedCells.Count; i++) Destroy(spawnedCells[i].gameObject);
 
         spawnedCells.Clear();
         mapGeneration = new int[100];
         count = default;
-        cellQueue = new Queue<int> ();
-        endRooms = new List<int> ();
-        bigRoomIndexes = new List<int> ();
-
-        VisitCell(45);
-        GenerateMap();
-        
+        cellQueue = new Queue<int>();
+        endRooms = new List<int>();
+        bigRoomIndexes = new List<int>();
     }
 
-    public void GenerateMap()
+    /// <summary>
+    /// Generates one candidate map. Returns false if it doesn't meet the requirements.
+    /// </summary>
+    private bool TryGenerateMap()
     {
+        ResetMap();
+        VisitCell(45);
+
         while (cellQueue.Count > 0)
         {
             int pos = cellQueue.Dequeue();
@@ -159,15 +184,10 @@ public class MapGenerationBase : MonoBehaviour
         }
 
         //TODO: Like in the max range check, this should be checked by the mutation algo. This is provisional to check if the generation is correct.
-        if (count < roomAmountRange.Item1)
-        {
-            SetMap();
-            return;
-        }
+        if (count < roomAmountRange.Item1) return false;
+
         CleanEndRoomList();
-        if (!SetSpecialRooms()) return;
-        RoomManager.instance.SetupRooms(spawnedCells);
-        SetParent();
+        return SetSpecialRooms();
         //string s = "";
         //int c = 0;
         //for (int i = 0; i < 10; i++)
@@ -202,11 +222,7 @@ public class MapGenerationBase : MonoBehaviour
 
         itemRoomIndex = RandomEndRoom();
 
-        if (finalRoomIndex == -1 || itemRoomIndex == -1)
-        {
-            SetMap();
-            return false;
-        }
+        if (finalRoomIndex == -1 || itemRoomIndex == -1) return false;
         SetSpecialRoomsVisuals();
         return true;
     }
@@ -313,7 +329,8 @@ public class MapGenerationBase : MonoBehaviour
         if (GetNeighborCount(index) > 1) return false;
         // TODO: See if the algorithm will work without this limit, the mutation should set the room amount in the room range.
         if (count >= roomAmountRange.Item2) return false;
-        if (Random.value < chanceToSpawnRoom) return false;
+        // chanceToSpawnRoom = probability that this cell becomes a room (higher = more rooms)
+        if (Random.value > chanceToSpawnRoom) return false;
 
         if (Random.value < chanceToSpawnLargeRoom && index != 45)
         {
@@ -375,6 +392,14 @@ public class MapGenerationBase : MonoBehaviour
             if (indexToCheck < 0 || indexToCheck >= mapGeneration.Length)
                 return false;
 
+            // Stay inside the usable area and don't wrap around to another row
+            int checkX = indexToCheck % 10;
+            int checkY = indexToCheck / 10;
+            if (checkX < MinGridCoord || checkX > MaxGridCoord || checkY < MinGridCoord || checkY > MaxGridCoord)
+                return false;
+            if (Mathf.Abs(checkX - originX) > 1)
+                return false;
+
             if (mapGeneration[indexToCheck] == 1)
                 return false;
 
@@ -386,6 +411,10 @@ public class MapGenerationBase : MonoBehaviour
 
         // A room needs at least 2 cells
         if (currentIndexes.Count == 1)
+            return false;
+
+        // Respect the max room amount (count is per grid cell)
+        if (count + currentIndexes.Count > roomAmountRange.Item2)
             return false;
 
         // Reserve all cells

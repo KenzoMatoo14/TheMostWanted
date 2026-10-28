@@ -11,11 +11,29 @@ public class Room : MonoBehaviour
     private Door roomDoor;
     public void SetupRoom(Cell currentCell, ScriptableRooms room)
     {
-        GameObject gameObject = Instantiate(room.roomVariations[Random.Range(0, room.roomVariations.Length)]);
+        if (room.roomVariations == null || room.roomVariations.Length == 0)
+        {
+            Debug.LogError($"Room: '{room.name}' has no room variations assigned.");
+            return;
+        }
+
+        GameObject variation = room.roomVariations[Random.Range(0, room.roomVariations.Length)];
+        if (variation == null)
+        {
+            Debug.LogError($"Room: '{room.name}' has an empty/missing prefab in roomVariations.");
+            return;
+        }
+
+        GameObject gameObject = Instantiate(variation);
         gameObject.transform.SetParent(this.gameObject.transform);
         gameObject.transform.localPosition = Vector3.zero;
 
         roomDoor = gameObject.GetComponent<Door>();
+        if (roomDoor == null)
+        {
+            Debug.LogError($"Room: prefab '{variation.name}' has no Door component.");
+            return;
+        }
 
         int[] mapGeneration = MapGenerationBase.instance.getMapGeneration;
         List<Cell> cellList = MapGenerationBase.instance.getSpawnedCells;

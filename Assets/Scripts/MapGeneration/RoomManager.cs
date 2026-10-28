@@ -38,7 +38,14 @@ public class RoomManager : MonoBehaviour
         foreach(Cell cell in spawnedCells)
         {
             // Find the first acceptable room variation for the required criteria in the Cell object
-            ScriptableRooms foundRoom = rooms.FirstOrDefault(x => x.roomShape == cell.roomShape && x.roomType == cell.roomType && DoesTileMatchCell(x.occupiedTiles, cell));
+            ScriptableRooms foundRoom = rooms.FirstOrDefault(x => x != null && x.roomShape == cell.roomShape && x.roomType == cell.roomType && DoesTileMatchCell(x.occupiedTiles, cell));
+
+            if (foundRoom == null)
+            {
+                Debug.LogError($"RoomManager: no ScriptableRooms matches {cell.roomType} / {cell.roomShape} " +
+                               $"(cells: {string.Join(",", cell.cellList)}). Skipping room for {cell.name}.");
+                continue;
+            }
 
             Vector2 currentPosition = cell.transform.position;
             Vector2 convertedPosition = new Vector2(currentPosition.x *  offsetX, currentPosition.y * offsetY);

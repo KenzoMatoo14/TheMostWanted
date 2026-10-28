@@ -67,16 +67,16 @@ public class Door : MonoBehaviour
         switch (direction)
         {
             case EdgeDirection.Up:
-                Q1_nDoor.SetActive(false);
+                OpenDoor(Q1_nDoor, nameof(Q1_nDoor));
                 break;
             case EdgeDirection.Right:
-                Q1_eDoor.SetActive(false);
+                OpenDoor(Q1_eDoor, nameof(Q1_eDoor));
                 break;
             case EdgeDirection.Left:
-                Q1_wDoor.SetActive(false);
+                OpenDoor(Q1_wDoor, nameof(Q1_wDoor));
                 break;
             case EdgeDirection.Down:
-                Q1_sDoor.SetActive(false);
+                OpenDoor(Q1_sDoor, nameof(Q1_sDoor));
                 break;
             default:
                 break;
@@ -88,16 +88,16 @@ public class Door : MonoBehaviour
         switch (direction)
         {
             case EdgeDirection.Up:
-                Q2_nDoor.SetActive(false);
+                OpenDoor(Q2_nDoor, nameof(Q2_nDoor));
                 break;
             case EdgeDirection.Right:
-                Q2_eDoor.SetActive(false);
+                OpenDoor(Q2_eDoor, nameof(Q2_eDoor));
                 break;
             case EdgeDirection.Left:
-                Q2_wDoor.SetActive(false);
+                OpenDoor(Q2_wDoor, nameof(Q2_wDoor));
                 break;
             case EdgeDirection.Down:
-                Q2_sDoor.SetActive(false);
+                OpenDoor(Q2_sDoor, nameof(Q2_sDoor));
                 break;
             default:
                 break;
@@ -109,16 +109,16 @@ public class Door : MonoBehaviour
         switch (direction)
         {
             case EdgeDirection.Up:
-                Q3_nDoor.SetActive(false);
+                OpenDoor(Q3_nDoor, nameof(Q3_nDoor));
                 break;
             case EdgeDirection.Right:
-                Q3_eDoor.SetActive(false);
+                OpenDoor(Q3_eDoor, nameof(Q3_eDoor));
                 break;
             case EdgeDirection.Left:
-                Q3_wDoor.SetActive(false);
+                OpenDoor(Q3_wDoor, nameof(Q3_wDoor));
                 break;
             case EdgeDirection.Down:
-                Q3_sDoor.SetActive(false);
+                OpenDoor(Q3_sDoor, nameof(Q3_sDoor));
                 break;
             default:
                 break;
@@ -130,20 +130,31 @@ public class Door : MonoBehaviour
         switch (direction)
         {
             case EdgeDirection.Up:
-                Q4_nDoor.SetActive(false);
+                OpenDoor(Q4_nDoor, nameof(Q4_nDoor));
                 break;
             case EdgeDirection.Right:
-                Q4_eDoor.SetActive(false);
+                OpenDoor(Q4_eDoor, nameof(Q4_eDoor));
                 break;
             case EdgeDirection.Left:
-                Q4_wDoor.SetActive(false);
+                OpenDoor(Q4_wDoor, nameof(Q4_wDoor));
                 break;
             case EdgeDirection.Down:
-                Q4_sDoor.SetActive(false);
+                OpenDoor(Q4_sDoor, nameof(Q4_sDoor));
                 break;
             default:
                 break;
         }
+    }
+
+    // Doors are walls that get disabled to open the passage
+    private void OpenDoor(GameObject door, string fieldName)
+    {
+        if (door == null)
+        {
+            Debug.LogWarning($"Door: '{fieldName}' is not assigned on '{name}'. Assign it in the prefab.", this);
+            return;
+        }
+        door.SetActive(false);
     }
 
     private int GetOffset(EdgeDirection direction)
