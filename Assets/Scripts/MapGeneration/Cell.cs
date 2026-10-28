@@ -1,6 +1,7 @@
 using NUnit.Framework;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.UI;
 
 public class Cell : MonoBehaviour
 {
@@ -9,14 +10,20 @@ public class Cell : MonoBehaviour
     public MapGenerationBase.RoomShape roomShape;
     public int enemyCount;
 
-    public SpriteRenderer iconRenderer;
-    public SpriteRenderer spriteRenderer;
+    public Image iconRenderer;
+    public Image spriteRenderer;
 
     public List<int> cellList = new List<int>();
 
     //TODO: Remove this when we add the different assets for each room layout
     public void SetSpecialRoomSprite(Sprite s)
     {
+        if(s == null)
+        {
+            iconRenderer.gameObject.SetActive(false);
+            return;
+        }
+        iconRenderer.gameObject.SetActive(true);
         iconRenderer.sprite = s;
     }
 

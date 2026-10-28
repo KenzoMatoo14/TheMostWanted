@@ -1,7 +1,6 @@
 using UnityEngine;
 using System.Collections.Generic;
-using System.Linq;
-
+    
 public class Door : MonoBehaviour
 {
     [Header("First Quadrant")]
@@ -37,6 +36,11 @@ public class Door : MonoBehaviour
         SetupDoor(quadrant, direction);
     }
 
+    /// <summary>
+    /// Finds for the corresponding quadrant (starting from the north-west corner as Q1 and the south-east corner as Q4) the doors that should be opened up
+    /// </summary>
+    /// <param name="quadrant"></param>
+    /// <param name="direction"></param>
     private void SetupDoor(int quadrant, EdgeDirection direction)
     {
         switch (quadrant)
