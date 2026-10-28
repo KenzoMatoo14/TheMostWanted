@@ -146,6 +146,11 @@ public class Door : MonoBehaviour
         }
     }
 
+    private readonly List<GameObject> openedDoors = new List<GameObject>();
+
+    /// <summary>Door objects that were opened (disabled) for this room.</summary>
+    public IReadOnlyList<GameObject> OpenedDoors => openedDoors;
+
     // Doors are walls that get disabled to open the passage
     private void OpenDoor(GameObject door, string fieldName)
     {
@@ -155,6 +160,7 @@ public class Door : MonoBehaviour
             return;
         }
         door.SetActive(false);
+        if (!openedDoors.Contains(door)) openedDoors.Add(door);
     }
 
     private int GetOffset(EdgeDirection direction)

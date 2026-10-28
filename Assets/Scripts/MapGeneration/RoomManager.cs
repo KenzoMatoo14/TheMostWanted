@@ -18,6 +18,9 @@ public class RoomManager : MonoBehaviour
     [Header("SO References")]
     public ScriptableRooms[] rooms;
 
+    [Header("Cave Generation")]
+    public CaveSettings caveSettings = new CaveSettings();
+
     public static RoomManager instance;
     // Start is called once before the first execution of Update after the MonoBehaviour is created
     void Awake()
