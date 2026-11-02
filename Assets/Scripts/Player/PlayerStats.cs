@@ -254,6 +254,9 @@ public class PlayerStats : MonoBehaviour, IDamageable
 
         UpdateHealthBar();
 
+        PlayerEffects effects = GetComponent<PlayerEffects>();
+        if (effects != null) effects.PlayDamage(damageSourcePosition);
+
         // Invocar evento de cambio de vida
         OnHealthChanged?.Invoke(currentHealth);
 
@@ -264,6 +267,9 @@ public class PlayerStats : MonoBehaviour, IDamageable
         }
         else
         {
+            PlayerSounds sounds = GetComponent<PlayerSounds>();
+            if (sounds != null) sounds.PlayDamage();
+
             ShowDamageSprite();
             StartInvincibility();
         }
@@ -333,6 +339,9 @@ public class PlayerStats : MonoBehaviour, IDamageable
 
         isDead = true;
         Debug.Log("Player ha muerto!");
+
+        PlayerSounds sounds = GetComponent<PlayerSounds>();
+        if (sounds != null) sounds.PlayDeath();
 
         CancelKnockback();
 

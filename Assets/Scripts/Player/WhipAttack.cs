@@ -58,6 +58,8 @@ public class WhipAttack : MonoBehaviour
     private PlayerController playerController;
     private CharacterCombat combat;
     private GrapplingHook grapplingHook;
+    private PlayerSounds sounds;
+    private PlayerEffects effects;
     private Camera mainCamera;
 
     private int bodyStateHash;
@@ -69,6 +71,7 @@ public class WhipAttack : MonoBehaviour
     private bool pendingEnd;
     private bool hitStopDoneThisAttack;
     private bool pogoDoneThisAttack;
+    private bool hitSoundDoneThisAttack;
     private float cooldownEndTime;
     private float bufferedInputTime = -1f;
 
@@ -87,6 +90,8 @@ public class WhipAttack : MonoBehaviour
         playerController = GetComponent<PlayerController>();
         combat = GetComponent<CharacterCombat>();
         grapplingHook = GetComponent<GrapplingHook>();
+        sounds = GetComponent<PlayerSounds>();
+        effects = GetComponent<PlayerEffects>();
         mainCamera = Camera.main;
 
         if (whipPivot == null) whipPivot = transform.Find("WhipPivot");
@@ -227,6 +232,7 @@ public class WhipAttack : MonoBehaviour
         pendingEnd = false;
         hitStopDoneThisAttack = false;
         pogoDoneThisAttack = false;
+        hitSoundDoneThisAttack = false;
         bufferedInputTime = -1f;
         hitThisAttack.Clear();
 
@@ -323,6 +329,7 @@ public class WhipAttack : MonoBehaviour
 
             hitThisAttack.Add(damageable);
             combat.ApplyWhipHit(hit, damageable, damage, whipPivot.position, aimDirection, center);
+            if (effects != null) effects.PlayAttackHit(hit.ClosestPoint(center), aimDirection);
             hitSomething = true;
         }
 
@@ -334,7 +341,15 @@ public class WhipAttack : MonoBehaviour
 
         if (hitSomething)
         {
-            TryPogo();
+            bool pogoed = TryPogo();
+
+            // Un solo sonido de golpe por ataque: el del rebote si hubo pogo, si no el normal
+            if (!hitSoundDoneThisAttack && sounds != null)
+            {
+                hitSoundDoneThisAttack = true;
+                if (pogoed) sounds.PlayPogoHit();
+                else sounds.PlayAttackHit();
+            }
         }
     }
 
@@ -344,15 +359,18 @@ public class WhipAttack : MonoBehaviour
     /// así que el impulso arranca justo cuando termina la pausa (golpe → pausa → salto).
     /// Estando enganchado no se aplica, para no pelear con el balanceo del gancho.
     /// </summary>
-    private void TryPogo()
+    /// <returns>true si el rebote se aplicó en esta llamada.</returns>
+    private bool TryPogo()
     {
-        if (!enablePogo || pogoDoneThisAttack) return;
-        if (playerController.IsGrounded()) return;
-        if (grapplingHook != null && grapplingHook.IsHooked()) return;
-        if (Vector2.Angle(aimDirection, Vector2.down) > pogoAngle) return;
+        if (!enablePogo || pogoDoneThisAttack) return false;
+        if (playerController.IsGrounded()) return false;
+        if (grapplingHook != null && grapplingHook.IsHooked()) return false;
+        if (Vector2.Angle(aimDirection, Vector2.down) > pogoAngle) return false;
 
         pogoDoneThisAttack = true;
         playerController.Pogo(pogoForce, pogoRefreshesDash, pogoRefreshesAirJumps);
+        if (effects != null) effects.PlayPogo();
+        return true;
     }
 
     ///////////////////////// ANIMATION EVENTS (vía PlayerAnimationEventRelay en WhipPivot)

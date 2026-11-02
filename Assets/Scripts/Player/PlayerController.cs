@@ -47,6 +47,8 @@ public class PlayerController : MonoBehaviour
     private float originalGravityScale;
 
     private GrapplingHook grapplingHook;
+    private PlayerSounds sounds;
+    private PlayerEffects effects;
 
     // Mientras sube por un rebote (pogo), soltar el salto no corta la altura
     private bool isPogoRising;
@@ -59,6 +61,8 @@ public class PlayerController : MonoBehaviour
         controls = new PlayerControls();
 
         grapplingHook = GetComponent<GrapplingHook>();
+        sounds = GetComponent<PlayerSounds>();
+        effects = GetComponent<PlayerEffects>();
 
         // Movement input
         controls.Movement.Move.performed += ctx => moveInput = new Vector2(ctx.ReadValue<float>(), 0f);
@@ -98,12 +102,26 @@ public class PlayerController : MonoBehaviour
         // Reset jumps only when landing (was in air last frame, now on ground)
         if (isGrounded && !wasGrounded)
         {
+            // timeLeftGrounded < 0 = nunca dejó el suelo (recién apareció): no suena el aterrizaje
+            if (timeLeftGrounded >= 0f)
+            {
+                float airTime = Time.time - timeLeftGrounded;
+                if (sounds != null) sounds.PlayLand(airTime);
+                if (effects != null) effects.PlayLand(airTime);
+            }
+
             jumpCount = stats.MaxJumps;
             consumedGroundJump = false;
         }
 
         // Store for next frame
         wasGrounded = isGrounded;
+
+        // Pasos: solo caminando en el suelo
+        if (sounds != null && isGrounded && !isDashing && Mathf.Abs(moveInput.x) > 0.01f && !grapplingHook.IsHooked())
+        {
+            sounds.TickSteps();
+        }
 
         if (isPogoRising && (isGrounded || rb.linearVelocity.y <= 0f))
         {
@@ -131,7 +149,7 @@ public class PlayerController : MonoBehaviour
             // Salto desde suelo o coyote time (NO gasta jumpCount)
             else if (!consumedGroundJump && (isGrounded || (stats.CoyoteTime > 0f && Time.time < timeLeftGrounded + stats.CoyoteTime)))
             {
-                Jump();
+                Jump(true);
                 consumedGroundJump = true;
                 lastJumpPressedTime = -1f;
             }
@@ -207,7 +225,7 @@ public class PlayerController : MonoBehaviour
         }
     }
 
-    private void Jump()
+    private void Jump(bool fromGround = false)
     {
         // Saltar mientras estás en el grapple cancela el swing (sin esto, Jump() pisaba
         // linearVelocity.y pero seguías atado a la cuerda, y el próximo FixedUpdate te
@@ -219,6 +237,8 @@ public class PlayerController : MonoBehaviour
         }
 
         rb.linearVelocity = new Vector2(rb.linearVelocity.x, stats.JumpForce);
+        if (sounds != null) sounds.PlayJump();
+        if (effects != null) effects.PlayJump(fromGround);
     }
     private void CutJump()
     {
@@ -247,6 +267,7 @@ public class PlayerController : MonoBehaviour
         {
             isDashing = true;
             animator.SetBool("isDashing", true);
+            if (sounds != null) sounds.PlayDash();
             dashTime = stats.DashDuration;
             dashCooldownTimer = stats.DashCooldown;
 

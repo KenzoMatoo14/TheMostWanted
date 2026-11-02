@@ -178,6 +178,8 @@ GameObject:
   - component: {fileID: 3773028318689638925}
   - component: {fileID: 3293016826008746421}
   - component: {fileID: 190520117418648212}
+  - component: {fileID: 5810006769057875464}
+  - component: {fileID: 3690172529715048187}
   m_Layer: 7
   m_Name: KarinLeon
   m_TagString: Player
@@ -413,7 +415,7 @@ MonoBehaviour:
   whipBoxWidth: 2.67
   showAttackArea: 1
   audioSource: {fileID: 0}
-  whipSound: {fileID: 0}
+  whipSound: {fileID: 8300000, guid: 7eb380562d951494c9b595bfcaf6c74d, type: 3}
   whipSoundVolume: 1
   ropeRenderer: {fileID: 7979152171787755717}
   hookScript: {fileID: 622402198734177142}
@@ -487,6 +489,43 @@ MonoBehaviour:
   cooldown: 0.05
   inputBufferTime: 0.15
   showHitbox: 1
+--- !u!114 &5810006769057875464
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 5844657866263057001}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 80e5e68087834010bc3ad683c46e117a, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  steps: {fileID: 8300000, guid: 870b026015eccf04a972bf7a7dfadaea, type: 3}
+  jump: {fileID: 8300000, guid: 289146017a210d543ac9481a4ccf9f46, type: 3}
+  land: {fileID: 8300000, guid: 62442912acfe4a643a88b4ca51708ab5, type: 3}
+  dash: {fileID: 8300000, guid: d32c8f6279550dc4d8d5aa31590435c9, type: 3}
+  attackHit: {fileID: 8300000, guid: 41854e81db457cb4491f5e212944f42e, type: 3}
+  pogoHit: {fileID: 8300000, guid: e8004b5d19a47654990d32f6805e74fd, type: 3}
+  damage: {fileID: 8300000, guid: 23c737f8e038cd94c88b140af6bd40c1, type: 3}
+  death: {fileID: 8300000, guid: 38f64270b34e0a442a4aeab55111d7a4, type: 3}
+  volume: 1
+  stepsVolume: 0.6
+  pitchVariation: 0.08
+  stepInterval: 0.4
+  minAirTimeForLand: 0.15
+--- !u!114 &3690172529715048187
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 5844657866263057001}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 188c765ff08f4f29937e7adc6cf7281a, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
 --- !u!1 &6008110985469946520
 GameObject:
   m_ObjectHideFlags: 0
