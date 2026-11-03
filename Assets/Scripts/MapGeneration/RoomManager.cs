@@ -21,11 +21,14 @@ public class RoomManager : MonoBehaviour
     [Header("Cave Generation")]
     public CaveSettings caveSettings = new CaveSettings();
 
+    [Header("Spawning (enemies, boss, item, exit)")]
+    public SpawnSettings spawnSettings = new SpawnSettings();
+
     public static RoomManager instance;
     // Start is called once before the first execution of Update after the MonoBehaviour is created
     void Awake()
     {
-        instance = this;   
+        instance = this;
         createdRooms = new List<Room>();
     }
 
@@ -38,7 +41,7 @@ public class RoomManager : MonoBehaviour
 
         createdRooms.Clear();
         int i = 0;
-        foreach(Cell cell in spawnedCells)
+        foreach (Cell cell in spawnedCells)
         {
             // Find the first acceptable room variation for the required criteria in the Cell object
             ScriptableRooms foundRoom = rooms.FirstOrDefault(x => x != null && x.roomShape == cell.roomShape && x.roomType == cell.roomType && DoesTileMatchCell(x.occupiedTiles, cell));
@@ -51,7 +54,7 @@ public class RoomManager : MonoBehaviour
             }
 
             Vector2 currentPosition = cell.transform.position;
-            Vector2 convertedPosition = new Vector2(currentPosition.x *  offsetX, currentPosition.y * offsetY);
+            Vector2 convertedPosition = new Vector2(currentPosition.x * offsetX, currentPosition.y * offsetY);
 
             Room spawnedRoom = Instantiate(roomPrefab, convertedPosition, Quaternion.identity);
             spawnedRoom.transform.SetParent(this.transform, false);
@@ -70,11 +73,14 @@ public class RoomManager : MonoBehaviour
         int minIndex = cell.cellList.Min();
         List<int> normalizedCell = new List<int>();
 
-        // Transform the relative position of the grid of the neighbor tiles to global position (from 0 to 100)
+        // Transform the cells to positions relative to the first one. The real grid width is used to read the cells,
+        // but the result always uses a stride of 10, which is how ScriptableRooms.occupiedTiles are authored,
+        // so the existing assets keep working with any grid size.
+        int w = MapGenerationBase.GridWidth;
         foreach (int index in cell.cellList)
         {
-            int dx = (index % 10) - (minIndex % 10);
-            int dy = (index / 10) - (minIndex / 10);
+            int dx = (index % w) - (minIndex % w);
+            int dy = (index / w) - (minIndex / w);
 
             normalizedCell.Add(dy * 10 + dx);
         }

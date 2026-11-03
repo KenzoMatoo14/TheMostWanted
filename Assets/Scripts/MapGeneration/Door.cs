@@ -1,6 +1,6 @@
 using UnityEngine;
 using System.Collections.Generic;
-    
+
 public class Door : MonoBehaviour
 {
     [Header("First Quadrant")]
@@ -26,7 +26,7 @@ public class Door : MonoBehaviour
     [SerializeField] private GameObject Q4_sDoor;
     [SerializeField] private GameObject Q4_eDoor;
     [SerializeField] private GameObject Q4_wDoor;
-    public void TryPlaceDoor(int fromIndex, int quadrant,EdgeDirection direction, int[] mapGeneration, List<Cell> cellList, Cell currentCell)
+    public void TryPlaceDoor(int fromIndex, int quadrant, EdgeDirection direction, int[] mapGeneration, List<Cell> cellList, Cell currentCell)
     {
         int neighborIndex = fromIndex + GetOffset(direction);
 
@@ -165,16 +165,17 @@ public class Door : MonoBehaviour
 
     private int GetOffset(EdgeDirection direction)
     {
+        int w = MapGenerationBase.GridWidth;
         switch (direction)
         {
             case EdgeDirection.Up:
-                return -10;
+                return -w;
             case EdgeDirection.Right:
                 return 1;
             case EdgeDirection.Left:
                 return -1;
             case EdgeDirection.Down:
-                return 10;
+                return w;
             default:
                 return 0;
         }
