@@ -18,6 +18,9 @@ public class PlatformerMapGenerator : MapGenerationBase
     [SerializeField] private bool allowLShapes = false;
     [SerializeField] private bool allowBigRooms = false;
 
+    // End condition: None
+    protected override ObjectiveType ObjectiveKind => ObjectiveType.None;
+
     protected override void Reset()
     {
         gridWidth = 32; gridHeight = 9;

@@ -14,5 +14,20 @@ EditorBuildSettings:
   - enabled: 1
     path: Assets/Scenes/game.unity
     guid: d984157af3ff95344842fee30e46a2ed
+  - enabled: 1
+    path: Assets/Scenes/BossLevel.unity
+    guid: 806bc603bb02aec48a4d727054f45ddd
+  - enabled: 1
+    path: Assets/Scenes/EliteLevel.unity
+    guid: af1fef208c5b43e42ad91f6b56438ecb
+  - enabled: 1
+    path: Assets/Scenes/HUB.unity
+    guid: 7f8168cdc1e21e64181dc9965a7c0d27
+  - enabled: 1
+    path: Assets/Scenes/NormalLevel.unity
+    guid: b6076deceef2c2747a8b7d244eb37814
+  - enabled: 1
+    path: Assets/Scenes/PlatformerLevel.unity
+    guid: 8017d587f3ebc274bb507dcbe500b413
   m_configObjects:
     com.unity.input.settings.actions: {fileID: -944628639613478452, guid: 2bcd2660ca9b64942af0de543d8d7100, type: 3}

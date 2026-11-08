@@ -11,6 +11,9 @@ public class EliteMapGenerator : MapGenerationBase
     [Tooltip("Max elites in one room (ignored only if there are not enough rooms, the total is always exact)")]
     [SerializeField, Min(1)] private int maxElitesPerRoom = 1;
 
+    // End condition: KillAllEnemies
+    protected override ObjectiveType ObjectiveKind => ObjectiveType.KillAllEnemies;
+
     protected override void Reset()
     {
         gridWidth = 22; gridHeight = 12;

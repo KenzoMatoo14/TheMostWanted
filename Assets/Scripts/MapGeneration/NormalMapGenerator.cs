@@ -7,6 +7,9 @@ using UnityEngine;
 public class NormalMapGenerator : MapGenerationBase
 {
     // Defaults for a new component (use the Reset option of the component to get them back)
+    // End condition: KillAllEnemies
+    protected override ObjectiveType ObjectiveKind => ObjectiveType.KillAllEnemies;
+
     protected override void Reset()
     {
         gridWidth = 20; gridHeight = 12;

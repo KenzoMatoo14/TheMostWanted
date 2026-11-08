@@ -459,6 +459,50 @@ Transform:
   m_Children: []
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!1 &242668686
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 242668688}
+  - component: {fileID: 242668687}
+  m_Layer: 0
+  m_Name: SceneLoader
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!114 &242668687
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 242668686}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 281d7364837d5c041b5dac5d0e56557b, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::SceneLoader
+--- !u!4 &242668688
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 242668686}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 299.50296, y: -265.62943, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 0}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &426768615
 GameObject:
   m_ObjectHideFlags: 0
@@ -1213,6 +1257,22 @@ PrefabInstance:
       propertyPath: m_AnchorMax.y
       value: 0
       objectReference: {fileID: 0}
+    - target: {fileID: 4738886266838971035, guid: 606db31fd0087a240b72f60a1d4755ce, type: 3}
+      propertyPath: m_AnchorMax.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 4738886266838971035, guid: 606db31fd0087a240b72f60a1d4755ce, type: 3}
+      propertyPath: m_AnchorMin.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 4738886266838971035, guid: 606db31fd0087a240b72f60a1d4755ce, type: 3}
+      propertyPath: m_AnchoredPosition.x
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 4738886266838971035, guid: 606db31fd0087a240b72f60a1d4755ce, type: 3}
+      propertyPath: m_AnchoredPosition.y
+      value: 0
+      objectReference: {fileID: 0}
     - target: {fileID: 5225341151382103927, guid: 606db31fd0087a240b72f60a1d4755ce, type: 3}
       propertyPath: m_AnchorMax.y
       value: 0
@@ -1244,6 +1304,18 @@ PrefabInstance:
     - target: {fileID: 5610165086404670840, guid: 606db31fd0087a240b72f60a1d4755ce, type: 3}
       propertyPath: m_AnchoredPosition.y
       value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 6217007426336481833, guid: 606db31fd0087a240b72f60a1d4755ce, type: 3}
+      propertyPath: m_text
+      value: 
+      objectReference: {fileID: 0}
+    - target: {fileID: 6217007426336481833, guid: 606db31fd0087a240b72f60a1d4755ce, type: 3}
+      propertyPath: m_fontSize
+      value: 36
+      objectReference: {fileID: 0}
+    - target: {fileID: 6217007426336481833, guid: 606db31fd0087a240b72f60a1d4755ce, type: 3}
+      propertyPath: m_fontSizeBase
+      value: 36
       objectReference: {fileID: 0}
     - target: {fileID: 6710973666174903134, guid: 606db31fd0087a240b72f60a1d4755ce, type: 3}
       propertyPath: m_AnchorMax.x
@@ -1377,7 +1449,10 @@ PrefabInstance:
     m_RemovedGameObjects:
     - {fileID: 5348440668303768553, guid: 606db31fd0087a240b72f60a1d4755ce, type: 3}
     m_AddedGameObjects: []
-    m_AddedComponents: []
+    m_AddedComponents:
+    - targetCorrespondingSourceObject: {fileID: 2533968765781946269, guid: 606db31fd0087a240b72f60a1d4755ce, type: 3}
+      insertIndex: -1
+      addedObject: {fileID: 1892108547}
   m_SourcePrefab: {fileID: 100100000, guid: 606db31fd0087a240b72f60a1d4755ce, type: 3}
 --- !u!1 &1476735490 stripped
 GameObject:
@@ -1590,26 +1665,31 @@ MonoBehaviour:
     rockColor: {r: 0.38, g: 0.32, b: 0.29, a: 1}
   spawnSettings:
     enabled: 1
-    normalEnemies: []
-    eliteEnemies: []
+    normalEnemies:
+    - prefab: {fileID: 24182163444947434, guid: 49caa14e2902d82478b9b7f508393b7f, type: 3}
+      margin: 1
+      weight: 1
+    eliteEnemies:
+    - prefab: {fileID: 3081933642787246480, guid: 3262d8bdc3eecea4aa1d3dcc91ca66cb, type: 3}
+      margin: 1
+      weight: 1
     boss:
-      prefab: {fileID: 0}
-      margin: 3
+      prefab: {fileID: 3081933642787246480, guid: de48886014931eb418ca4e6c47335ea8, type: 3}
+      margin: 1
       weight: 1
     bossPlacement: 2
     item:
-      prefab: {fileID: 0}
+      prefab: {fileID: 5856781466179441207, guid: 6ff2ff3560cff7244971f3cc8ca11754, type: 3}
       margin: 1
       weight: 1
     itemPlacement: 0
     exit:
-      prefab: {fileID: 0}
-      margin: 2
+      prefab: {fileID: 7946895156485567007, guid: f5340cdbccff9264c96360fff181319d, type: 3}
+      margin: 1
       weight: 1
-    exitPlacement: 1
-    exitStartsInactive: 0
+    exitPlacement: 2
     doorSafeRadius: 4
-    spacingBetweenSpawns: 1
+    spacingBetweenSpawns: 0
 --- !u!4 &1550861226
 Transform:
   m_ObjectHideFlags: 0
@@ -1835,6 +1915,43 @@ Transform:
   m_Children: []
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!1 &1829114119 stripped
+GameObject:
+  m_CorrespondingSourceObject: {fileID: 6033265025629983807, guid: 606db31fd0087a240b72f60a1d4755ce, type: 3}
+  m_PrefabInstance: {fileID: 1476735489}
+  m_PrefabAsset: {fileID: 0}
+--- !u!1 &1892108546 stripped
+GameObject:
+  m_CorrespondingSourceObject: {fileID: 2533968765781946269, guid: 606db31fd0087a240b72f60a1d4755ce, type: 3}
+  m_PrefabInstance: {fileID: 1476735489}
+  m_PrefabAsset: {fileID: 0}
+--- !u!114 &1892108547
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1892108546}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 7b7120e402d861f4b91189649d6ed4f6, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::EnemyCounterUI
+  label: {fileID: 1892108549}
+  format: 'Enemies left: {0}'
+  completedText: All enemies defeated! The exit is open
+  container: {fileID: 1829114119}
+--- !u!114 &1892108549 stripped
+MonoBehaviour:
+  m_CorrespondingSourceObject: {fileID: 6217007426336481833, guid: 606db31fd0087a240b72f60a1d4755ce, type: 3}
+  m_PrefabInstance: {fileID: 1476735489}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1892108546}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: f4688fdb7df04437aeb418b961361dc5, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
 --- !u!1 &2143822851
 GameObject:
   m_ObjectHideFlags: 0
@@ -1956,3 +2073,4 @@ SceneRoots:
   - {fileID: 1476735489}
   - {fileID: 1550861226}
   - {fileID: 219374242}
+  - {fileID: 242668688}

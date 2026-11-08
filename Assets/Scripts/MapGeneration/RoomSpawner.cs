@@ -38,11 +38,10 @@ public class SpawnSettings
     public SpawnEntry item = new SpawnEntry { margin = 1 };
     public SpawnPlacement itemPlacement = SpawnPlacement.Random;
 
-    [Header("Exit / endpoint (final room)")]
+    [Header("Exit door (final room). Locked until the map's end condition is met")]
+    [Tooltip("Your door prefab. Add a LevelExit component to it to set its locked/unlocked visuals and the 'player entered' event")]
     public SpawnEntry exit = new SpawnEntry { margin = 2 };
     public SpawnPlacement exitPlacement = SpawnPlacement.FarFromDoors;
-    [Tooltip("Spawn the exit disabled, so your own script (e.g. boss death) can enable it")]
-    public bool exitStartsInactive = false;
 
     [Header("General")]
     [Tooltip("Nothing is spawned closer than this many tiles to a door (so doorways never get blocked)")]
@@ -63,46 +62,105 @@ public static class RoomSpawner
 {
     public static void Populate(GameObject roomInstance, CaveResult cave, Cell cell, SpawnSettings settings, System.Random rng)
     {
-        if (settings == null || !settings.enabled || cave == null || cell == null) return;
+        if (cell == null) return;
+
+        bool wantsSomething = cell.enemyCount > 0 || cell.eliteCount > 0 || cell.hasBoss ||
+                              cell.roomType == MapGenerationBase.RoomTypes.Final ||
+                              (cell.roomType == MapGenerationBase.RoomTypes.Item && cell.hasItem);
+        if (!wantsSomething) return;
+
+        if (settings == null || !settings.enabled)
+        {
+            Debug.LogWarning($"RoomSpawner: spawning is disabled in the RoomManager's spawn settings, nothing spawned in '{roomInstance.name}'.");
+            return;
+        }
+        if (cave == null)
+        {
+            Debug.LogWarning($"RoomSpawner: '{roomInstance.name}' has no cave/floor data (its prefab needs 'Walls' and 'Background' tilemaps), nothing spawned.");
+            return;
+        }
 
         var map = new SpawnMap(cave, settings, rng);
+        LevelObjective objective = MapGenerationBase.instance != null ? MapGenerationBase.instance.Objective : null;
 
         // Most important things first, so they get the best spots
         if (cell.roomType == MapGenerationBase.RoomTypes.Final)
-            Spawn(map, roomInstance, settings.exit, settings.exitPlacement, !settings.exitStartsInactive);
+        {
+            if (settings.exit == null || settings.exit.prefab == null)
+                Debug.LogWarning("RoomSpawner: this is the final room but no exit door prefab is assigned (RoomManager > Spawn Settings > Exit > Prefab).");
+            RegisterExit(Spawn(map, roomInstance, settings.exit, settings.exitPlacement), objective);
+        }
 
         if (cell.hasBoss)
-            Spawn(map, roomInstance, settings.boss, settings.bossPlacement, true);
+        {
+            if (settings.boss == null || settings.boss.prefab == null)
+                Debug.LogWarning("RoomSpawner: the final room needs a boss but no boss prefab is assigned (RoomManager > Spawn Settings > Boss > Prefab).");
+            RegisterEnemy(Spawn(map, roomInstance, settings.boss, settings.bossPlacement), true, objective);
+        }
 
         if (cell.roomType == MapGenerationBase.RoomTypes.Item && cell.hasItem)
-            Spawn(map, roomInstance, settings.item, settings.itemPlacement, true);
+        {
+            if (settings.item == null || settings.item.prefab == null)
+                Debug.LogWarning("RoomSpawner: the item room needs an item but no item prefab is assigned (RoomManager > Spawn Settings > Item > Prefab).");
+            Spawn(map, roomInstance, settings.item, settings.itemPlacement);
+        }
 
         if (cell.eliteCount > 0 && !HasAny(settings.eliteEnemies))
             Debug.LogWarning($"RoomSpawner: '{roomInstance.name}' needs {cell.eliteCount} elite(s) but 'eliteEnemies' has no prefab assigned.");
         for (int i = 0; i < cell.eliteCount; i++)
-            Spawn(map, roomInstance, PickEntry(settings.eliteEnemies, rng), SpawnPlacement.Random, true);
+            RegisterEnemy(Spawn(map, roomInstance, PickEntry(settings.eliteEnemies, rng), SpawnPlacement.Random), false, objective);
 
         if (cell.enemyCount > 0 && !HasAny(settings.normalEnemies))
             Debug.LogWarning($"RoomSpawner: '{roomInstance.name}' needs {cell.enemyCount} enemies but 'normalEnemies' has no prefab assigned.");
         for (int i = 0; i < cell.enemyCount; i++)
-            Spawn(map, roomInstance, PickEntry(settings.normalEnemies, rng), SpawnPlacement.Random, true);
+            RegisterEnemy(Spawn(map, roomInstance, PickEntry(settings.normalEnemies, rng), SpawnPlacement.Random), false, objective);
+
+        Debug.Log($"RoomSpawner: '{roomInstance.name}' ({cell.roomType}) asked for {cell.enemyCount} enemies, {cell.eliteCount} elites, " +
+                  $"boss {cell.hasBoss}, item {cell.hasItem}; free floor tiles: {map.FreeCount}; spawned {map.SpawnedCount} object(s).");
     }
 
-    private static void Spawn(SpawnMap map, GameObject parent, SpawnEntry entry, SpawnPlacement placement, bool active)
+    /// <summary>Spawns the entry on a valid spot. Returns the instance, or null if nothing was spawned.</summary>
+    private static GameObject Spawn(SpawnMap map, GameObject parent, SpawnEntry entry, SpawnPlacement placement)
     {
-        if (entry == null || entry.prefab == null) return;
+        if (entry == null || entry.prefab == null) return null;
 
         if (!map.TryFindSpot(entry.margin, placement, out Vector2Int spot))
         {
             Debug.LogWarning($"RoomSpawner: no free spot for '{entry.prefab.name}' in '{parent.name}' (room too full or too small).");
-            return;
+            return null;
         }
 
-        GameObject spawned = Object.Instantiate(entry.prefab, map.cave.CellToWorld(spot.x, spot.y), Quaternion.identity, parent.transform);
-        if (!active) spawned.SetActive(false);
+        map.SpawnedCount++;
+        return Object.Instantiate(entry.prefab, map.cave.CellToWorld(spot.x, spot.y), Quaternion.identity, parent.transform);
     }
 
-    private static bool HasAny(SpawnEntry[] entries)
+    // Enemies count towards the level objective
+    private static void RegisterEnemy(GameObject enemy, bool isBoss, LevelObjective objective)
+    {
+        if (enemy == null || objective == null) return;
+
+        LevelEnemy tracker = enemy.GetComponent<LevelEnemy>();
+        if (tracker == null) tracker = enemy.AddComponent<LevelEnemy>();
+        tracker.Bind(objective, isBoss);
+        objective.RegisterEnemy(tracker);
+    }
+
+    // The exit starts locked, the objective unlocks it
+    private static void RegisterExit(GameObject exit, LevelObjective objective)
+    {
+        if (exit == null || objective == null) return;
+
+        LevelExit levelExit = exit.GetComponent<LevelExit>();
+        if (levelExit == null)
+        {
+            Debug.LogWarning($"RoomSpawner: the exit prefab '{exit.name}' has no LevelExit component, one was added. " +
+                             "Add LevelExit (and a trigger Collider2D) to the prefab to set its visuals and the 'player entered' event.");
+            levelExit = exit.AddComponent<LevelExit>();
+        }
+        objective.RegisterExit(levelExit);
+    }
+
+    public static bool HasAny(SpawnEntry[] entries)
     {
         if (entries == null) return false;
         foreach (var e in entries) if (e != null && e.prefab != null) return true;
@@ -144,6 +202,8 @@ public static class RoomSpawner
         private readonly float[,] doorDistSq;   // squared distance (tiles) to the nearest door
         private readonly bool[,] taken;
         private readonly Vector2 centroid;
+        public int FreeCount { get; private set; }
+        public int SpawnedCount;
 
         public SpawnMap(CaveResult cave, SpawnSettings settings, System.Random rng)
         {
@@ -172,6 +232,7 @@ public static class RoomSpawner
 
                     if (cave.freeFloor[x, y]) { sum += new Vector2(x, y); freeCount++; }
                 }
+            FreeCount = freeCount;
             centroid = freeCount > 0 ? sum / freeCount : new Vector2(w / 2f, h / 2f);
         }
 

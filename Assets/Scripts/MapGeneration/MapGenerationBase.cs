@@ -112,6 +112,12 @@ public abstract class MapGenerationBase : MonoBehaviour
 
     public static MapGenerationBase instance;
 
+    /// <summary>The end condition of the current map: tracks the enemies / boss and unlocks the exit door.</summary>
+    public LevelObjective Objective { get; } = new LevelObjective();
+
+    /// <summary>What the player has to do to unlock the exit door of this kind of map.</summary>
+    protected abstract ObjectiveType ObjectiveKind { get; }
+
     /// <summary>Raised when a new map is fully built (cells, rooms and overlay). UI like the player marker listens to it.</summary>
     public event System.Action MapGenerated;
 
@@ -255,9 +261,16 @@ public abstract class MapGenerationBase : MonoBehaviour
             {
                 BuildCells();
                 PopulateRooms();
+                CheckSpawnSetup();
+                Objective.Begin(ObjectiveKind);              // enemies and the exit register while the rooms are spawned
                 RoomManager.instance.SetupRooms(spawnedCells);
+                Objective.Seal();                            // all spawned: the condition can be checked
                 SetParent();
                 MapGenerated?.Invoke();
+
+                int assigned = spawnedCells.Sum(c => c.enemyCount + c.eliteCount);
+                Debug.Log($"{GetType().Name}: {assigned} enemies were assigned to rooms, {Objective.TotalEnemies} were actually spawned" +
+                          (assigned > 0 && Objective.TotalEnemies == 0 ? " - check the enemy prefabs in RoomManager > Spawn Settings." : "."));
 
                 Debug.Log($"{GetType().Name}: map ready after {attempt + 1} attempt(s) - {count} cells, " +
                           $"item room at distance {distanceFromStart[itemRoomIndex]}, final room at distance {distanceFromStart[finalRoomIndex]}.");
@@ -267,6 +280,28 @@ public abstract class MapGenerationBase : MonoBehaviour
 
         Debug.LogError($"{GetType().Name}: could not generate a valid map after {MaxGenerationAttempts} attempts. " +
                        "Check the room amount, the distances, the grid size and chanceToSpawnRoom.");
+    }
+
+    /// <summary>Logs one clear error if the map needs something to spawn that has no prefab assigned.</summary>
+    private void CheckSpawnSetup()
+    {
+        SpawnSettings s = RoomManager.instance != null ? RoomManager.instance.spawnSettings : null;
+        if (s == null || !s.enabled)
+        {
+            Debug.LogError($"{GetType().Name}: spawning is disabled or missing in the RoomManager, so no enemies, items or exit door will spawn.");
+            return;
+        }
+
+        var missing = new List<string>();
+        if (spawnedCells.Any(c => c.enemyCount > 0) && !RoomSpawner.HasAny(s.normalEnemies)) missing.Add("Normal Enemies");
+        if (spawnedCells.Any(c => c.eliteCount > 0) && !RoomSpawner.HasAny(s.eliteEnemies)) missing.Add("Elite Enemies");
+        if (spawnedCells.Any(c => c.hasBoss) && (s.boss == null || s.boss.prefab == null)) missing.Add("Boss");
+        if (spawnedCells.Any(c => c.roomType == RoomTypes.Item && c.hasItem) && (s.item == null || s.item.prefab == null)) missing.Add("Item");
+        if (s.exit == null || s.exit.prefab == null) missing.Add("Exit");
+
+        if (missing.Count > 0)
+            Debug.LogError($"{GetType().Name}: these slots have no prefab assigned in RoomManager > Spawn Settings: {string.Join(", ", missing)}. " +
+                           "Make sure you assigned them on the RoomManager object that is in the scene (not only on a prefab).", RoomManager.instance);
     }
 
     private void ResetMap()

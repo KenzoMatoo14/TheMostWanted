@@ -7,6 +7,9 @@ using UnityEngine;
 /// </summary>
 public class BossMapGenerator : MapGenerationBase
 {
+    // End condition: DefeatBoss
+    protected override ObjectiveType ObjectiveKind => ObjectiveType.DefeatBoss;
+
     protected override void Reset()
     {
         gridWidth = 24; gridHeight = 12;
