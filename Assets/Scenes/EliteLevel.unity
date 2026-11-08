@@ -409,6 +409,56 @@ PrefabInstance:
     m_AddedGameObjects: []
     m_AddedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: 6a32d653135fb1d43861afe6c896905c, type: 3}
+--- !u!1 &219374240
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 219374242}
+  - component: {fileID: 219374241}
+  m_Layer: 0
+  m_Name: PlayerMarker
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!114 &219374241
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 219374240}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: c558d36de2cafc04894d4da9615aa915, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::PlayerMapMarker
+  player: {fileID: 1264668324}
+  markerPrefab: {fileID: 0}
+  markerColor: {r: 1, g: 0.85, b: 0.1, a: 1}
+  markerScale: 0.35
+  tintCurrentRoom: 1
+  currentRoomTint: {r: 1, g: 1, b: 0.6, a: 1}
+--- !u!4 &219374242
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 219374240}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 449.8075, y: -262.14203, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 0}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &426768615
 GameObject:
   m_ObjectHideFlags: 0
@@ -594,8 +644,8 @@ MonoBehaviour:
   m_OnClick:
     m_PersistentCalls:
       m_Calls:
-      - m_Target: {fileID: 0}
-        m_TargetAssemblyTypeName: MapGenerationBase, Assembly-CSharp
+      - m_Target: {fileID: 1550861227}
+        m_TargetAssemblyTypeName: EliteMapGenerator, Assembly-CSharp
         m_MethodName: SetMap
         m_Mode: 1
         m_Arguments:
@@ -877,7 +927,7 @@ Transform:
   m_GameObject: {fileID: 1177588836}
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 85, y: -64, z: -10}
+  m_LocalPosition: {x: 466, y: -286, z: -10}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children:
@@ -898,11 +948,11 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 8709685645871789635, guid: 0f4d4bc663ae8fb418e3d3bd771c043b, type: 3}
       propertyPath: m_LocalPosition.x
-      value: 110.84
+      value: 491.9
       objectReference: {fileID: 0}
     - target: {fileID: 8709685645871789635, guid: 0f4d4bc663ae8fb418e3d3bd771c043b, type: 3}
       propertyPath: m_LocalPosition.y
-      value: -55.4
+      value: -275.4
       objectReference: {fileID: 0}
     - target: {fileID: 8709685645871789635, guid: 0f4d4bc663ae8fb418e3d3bd771c043b, type: 3}
       propertyPath: m_LocalPosition.z
@@ -1024,7 +1074,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 5844657866263057001, guid: a3d3c6088e01f1c458bdbf7ce0388727, type: 3}
       propertyPath: m_IsActive
-      value: 0
+      value: 1
       objectReference: {fileID: 0}
     - target: {fileID: 6875193362035071050, guid: a3d3c6088e01f1c458bdbf7ce0388727, type: 3}
       propertyPath: m_IsTrigger
@@ -1056,11 +1106,11 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 8720605379785435561, guid: a3d3c6088e01f1c458bdbf7ce0388727, type: 3}
       propertyPath: m_LocalPosition.x
-      value: 85
+      value: 466
       objectReference: {fileID: 0}
     - target: {fileID: 8720605379785435561, guid: a3d3c6088e01f1c458bdbf7ce0388727, type: 3}
       propertyPath: m_LocalPosition.y
-      value: -66
+      value: -288
       objectReference: {fileID: 0}
     - target: {fileID: 8720605379785435561, guid: a3d3c6088e01f1c458bdbf7ce0388727, type: 3}
       propertyPath: m_LocalPosition.z
@@ -1532,8 +1582,9 @@ MonoBehaviour:
     pathRadius: 2
     pathWobble: 4
     pathTwist: 3
-    maxRockCoverage: 0.35
-    minRockIslandSize: 6
+    rockTile: {fileID: 0}
+    maxRockCoverage: 0.245
+    minRockIslandSize: 5
     fillTrappedGaps: 1
     fillRock: 1
     rockColor: {r: 0.38, g: 0.32, b: 0.29, a: 1}
@@ -1589,7 +1640,7 @@ MonoBehaviour:
   cellPrefab: {fileID: 2622914209735302655, guid: 6818dc15620b3f145b60e7595c3d2ad4, type: 3}
   overlayParent: {fileID: 426768615}
   uiCellSize: 40
-  uiMargin: {x: 50, y: 50}
+  uiMargin: {x: 50, y: 200}
   itemCell: {fileID: 4169872177566383225, guid: 3c0cf900b18c0cb4c96e23ba37d1a34d, type: 3}
   endCell: {fileID: -5962342231481850597, guid: 497babd3f3fa9ee4690c95fe9a5f495c, type: 3}
   smallRoom: {fileID: -941769597684628784, guid: 106ec0db4dc680b46abbadaf999aa621, type: 3}
@@ -1597,12 +1648,12 @@ MonoBehaviour:
   largeRoom: {fileID: 1692729852, guid: 106ec0db4dc680b46abbadaf999aa621, type: 3}
   lRoom: {fileID: 1172341986, guid: 106ec0db4dc680b46abbadaf999aa621, type: 3}
   gridWidth: 22
-  gridHeight: 12
-  horizontalBias: 0.4
+  gridHeight: 15
+  horizontalBias: 0.685
   maxRows: 0
-  minRooms: 16
-  maxRooms: 30
-  chanceToSpawnRoom: 0.55
+  minRooms: 9
+  maxRooms: 14
+  chanceToSpawnRoom: 0.559
   chanceToSpawnLargeRoom: 0.3
   minItemDistance: 2
   maxItemDistance: 8
@@ -1629,7 +1680,7 @@ GameObject:
   - component: {fileID: 1738505032}
   m_Layer: 0
   m_Name: Camera
-  m_TagString: Untagged
+  m_TagString: MainCamera
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
@@ -1778,7 +1829,7 @@ Transform:
   m_GameObject: {fileID: 1738505031}
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 85, y: -64, z: -10}
+  m_LocalPosition: {x: 466, y: -286, z: -10}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
@@ -1904,3 +1955,4 @@ SceneRoots:
   - {fileID: 170112868}
   - {fileID: 1476735489}
   - {fileID: 1550861226}
+  - {fileID: 219374242}

@@ -25,6 +25,10 @@ public class CaveSettings
     [Tooltip("How much the paths can twist (0 = shortest path)")]
     [Range(0f, 5f)] public float pathTwist = 3f;
 
+    [Header("Rock tile")]
+    [Tooltip("Tile painted as rock. Leave empty to detect it from the room's Walls tilemap (prefers a RuleTile, then the most used tile). Assign your wall RuleTile here if a room shows wrong sprites")]
+    public TileBase rockTile;
+
     [Header("Less rock / no trapped gaps")]
     [Tooltip("Max share of the floor that can end up as rock (0.35 = 35%). The extra rock is peeled away from the edges that face open space, thin spikes first. 1 = no limit")]
     [Range(0f, 1f)] public float maxRockCoverage = 0.35f;
@@ -92,7 +96,7 @@ public static class CaveGenerator
         if (w < 5 || h < 5) return null;
 
         bool carve = settings != null && settings.enabled;
-        TileBase rockTile = FindAnyTile(walls, walls.cellBounds);
+        TileBase rockTile = ChooseRockTile(walls, settings);
 
         // 0) Classify every cell of the room
         CellKind[,] map = new CellKind[w, h];
@@ -563,6 +567,40 @@ public static class CaveGenerator
             if (s != null) return s;
         }
         return null;
+    }
+
+    /// <summary>
+    /// The tile used for the rock. The first tile of the tilemap can't be used: it is usually a wall corner, and a plain
+    /// corner tile painted everywhere ignores the RuleTile rules. So: the override from the settings, else a RuleTile
+    /// found in the Walls tilemap, else the most used tile.
+    /// </summary>
+    private static TileBase ChooseRockTile(Tilemap walls, CaveSettings settings)
+    {
+        if (settings != null && settings.rockTile != null) return settings.rockTile;
+
+        var counts = new Dictionary<TileBase, int>();
+        foreach (Vector3Int p in walls.cellBounds.allPositionsWithin)
+        {
+            TileBase tile = walls.GetTile(p);
+            if (tile == null) continue;
+            counts.TryGetValue(tile, out int n);
+            counts[tile] = n + 1;
+        }
+
+        TileBase best = null;
+        bool bestIsRule = false;
+        int bestCount = 0;
+        foreach (var pair in counts)
+        {
+            bool isRule = pair.Key.GetType().Name.Contains("RuleTile");
+            if (best == null || (isRule && !bestIsRule) || (isRule == bestIsRule && pair.Value > bestCount))
+            {
+                best = pair.Key;
+                bestIsRule = isRule;
+                bestCount = pair.Value;
+            }
+        }
+        return best;
     }
 
     private static TileBase FindAnyTile(Tilemap map, BoundsInt bounds)

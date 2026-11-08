@@ -112,6 +112,9 @@ public abstract class MapGenerationBase : MonoBehaviour
 
     public static MapGenerationBase instance;
 
+    /// <summary>Raised when a new map is fully built (cells, rooms and overlay). UI like the player marker listens to it.</summary>
+    public event System.Action MapGenerated;
+
     // Shapes of the big rooms as (dx, dy) offsets from the origin cell. The comment is how much the L shapes are rotated.
     private static readonly Vector2Int[][] shapeDeltas =
     {
@@ -254,6 +257,7 @@ public abstract class MapGenerationBase : MonoBehaviour
                 PopulateRooms();
                 RoomManager.instance.SetupRooms(spawnedCells);
                 SetParent();
+                MapGenerated?.Invoke();
 
                 Debug.Log($"{GetType().Name}: map ready after {attempt + 1} attempt(s) - {count} cells, " +
                           $"item room at distance {distanceFromStart[itemRoomIndex]}, final room at distance {distanceFromStart[finalRoomIndex]}.");
