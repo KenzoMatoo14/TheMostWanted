@@ -488,6 +488,11 @@ MonoBehaviour:
   damage: 10
   cooldown: 0.05
   inputBufferTime: 0.15
+  enablePogo: 1
+  pogoForce: 18
+  pogoAngle: 75
+  pogoRefreshesDash: 1
+  pogoRefreshesAirJumps: 1
   showHitbox: 1
 --- !u!114 &5810006769057875464
 MonoBehaviour:
@@ -526,6 +531,36 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 188c765ff08f4f29937e7adc6cf7281a, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  dropletColors:
+  - {r: 0.8745098, g: 0.8745098, b: 0.8745098, a: 1}
+  - {r: 0.8392157, g: 0.8392157, b: 0.8392157, a: 1}
+  - {r: 0.7921569, g: 0.7921569, b: 0.7921569, a: 1}
+  - {r: 0.7294118, g: 0.7294118, b: 0.7294118, a: 1}
+  pixelsPerUnit: 48
+  dropletSizePx: {x: 2, y: 4}
+  lifetime: {x: 0.35, y: 0.7}
+  gravity: 2.5
+  collideWithGround: 1
+  jumpEnabled: 1
+  jumpCount: 8
+  airJumpCount: 4
+  jumpSpeed: {x: 1.5, y: 4}
+  landEnabled: 1
+  landCount: {x: 5, y: 16}
+  landMinAirTime: 0.15
+  landMaxAirTime: 0.9
+  landSpeed: {x: 2, y: 6}
+  attackEnabled: 1
+  attackCount: 8
+  attackSpeed: {x: 2.5, y: 6}
+  attackSpread: 40
+  damageEnabled: 1
+  damageCount: 12
+  damageSpeed: {x: 2, y: 5}
+  damageSpread: 60
+  pogoEnabled: 1
+  pogoCount: 10
+  pogoSpeed: {x: 2, y: 5}
 --- !u!1 &6008110985469946520
 GameObject:
   m_ObjectHideFlags: 0
